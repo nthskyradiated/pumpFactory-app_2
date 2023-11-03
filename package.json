@@ -1,0 +1,33 @@
+{
+  "name": "pumpfactory-app_2",
+  "version": "1.0.0",
+  "description": "reqriting pump factory app with apollo server",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "author": "andyP",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/server": "^4.9.5",
+    "ansi-colors-es6": "^5.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "graphql": "^16.8.1",
+    "helmet": "^7.0.0",
+    "mongoose": "^8.0.0",
+    "morgan": "^1.10.0",
+    "vhost": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
