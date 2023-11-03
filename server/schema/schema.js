@@ -29,7 +29,7 @@ export const typeDefs = `#graphql
         age: Int!
         waiver: Boolean!
         membershipStatus: MembershipStatus!
-        product: [Product]
+        product: Product
         productId: ID
     }
 
@@ -46,6 +46,12 @@ export const typeDefs = `#graphql
         products: [Product]
         clients: [Client]
         users: [User]
+
+        product(ID: ID!) : Product
+        client(ID: ID!) : Client
+        user(ID: ID!) : User
+
+        
     }
 
     enum MembershipStatus {
@@ -84,9 +90,13 @@ export const resolvers = {
         products: async () => Product.find(),
         clients: async () => Client.find(),
         users: async () => User.find(),
+
+        product: async (parent, {ID}) => {return await Product.findById(ID)},
+        client: async (parent, {ID}) => {return await Client.findById(ID)},
+        user: async (parent, {ID}) => {return await User.findById(ID)},
     },
     Client: {
-    product: (parent) => Product.findById(parent.productId),
+    product: async (parent) => await Product.findById(parent.productId),
     },
     Mutation: {
         addClient: async (parent, args) => {
@@ -107,35 +117,62 @@ export const resolvers = {
         waiver: args.waiver,
         productId: args.productId,
       });
-      return client.save();
-    },
+       // Save the client first to get its ID
+        const savedClient = await client.save();
+        if (args.productId) {
+            const product = await Product.findById(args.productId);
+            if (product) {
+              // Update the client with the associated product
+              savedClient.product = product;
+                savedClient.save();
+            }
+          }
+      
+          return savedClient;
+        },
 
     updateClient: async (parent, args) => {
-                
-        const existingClient = await findExistingClient(args.name, args.email, args.phone);
-
-        if (existingClient) {
-            throw new Error('Client with the same name, email, or phone already exists.');
+        // Check for duplicates based on name, email, and phone
+        if (args.name || args.email || args.phone) {
+            const existingClient = await findExistingClient(args.name, args.email, args.phone);
+            if (existingClient) {
+                throw new Error('Client with the same name, email, or phone already exists.');
+            }
         }
 
-        const age = validateAge(args.birthdate);
+        // Fetch the existing client to get its current age and productId
+        const existingClient = await Client.findById(args.id);
 
-        const membershipStatus = args.productId ? 'active' : 'inactive';
+        if (!existingClient) {
+            throw new Error('Client not found');
+        }
 
-        const client = new Client({
-            name: args.name,
-            email: args.email,
-            phone: args.phone,
-            birthdate: args.birthdate,
+        // Calculate the age based on the provided birthdate or use the existing age
+        const age = args.birthdate ? validateAge(args.birthdate) : existingClient.age;
+
+        // Determine the membership status based on the productId or use the existing status
+        let membershipStatus = 'inactive';
+
+        if (args.productId) {
+            // If productId is provided, the client should have 'active' membership status
+            membershipStatus = 'active';
+        }
+
+        // Create an updateFields object to specify the fields to update. We use the existing values if new values are not provided.
+        const updateFields = {
+            name: args.name || existingClient.name,
+            email: args.email || existingClient.email,
+            phone: args.phone || existingClient.phone,
+            birthdate: args.birthdate || existingClient.birthdate,
             age,
             membershipStatus,
-            waiver: args.waiver,
-            productId: args.productId,
+            waiver: args.waiver !== undefined ? args.waiver : existingClient.waiver,
+            productId: args.productId, // To remove the product, set it to null or undefined
+        };
 
-        })
-
-        return client.save()
+        return Client.findByIdAndUpdate(args.id, { $set: updateFields }, { new: true });
     },
+    
     deleteClient: async (parent, args) => {
         return Client.findByIdAndDelete(args.id)
     },
@@ -160,7 +197,7 @@ export const resolvers = {
             )
     },
     deleteProduct: async(parent, args) => {
-        return Product.findByIdAndRemove(args.id)
+        return Product.findByIdAndDelete(args.id)
     },
 
     registerUser: async (parent, args) => {
@@ -174,7 +211,7 @@ export const resolvers = {
         }
 
         // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(args.password, 10);
+        const hashedPassword = await bcrypt.hash(args.password, 12);
 
         // Create a new user
         const user = new User({
@@ -220,13 +257,13 @@ const DateType = new GraphQLScalarType({
     },
     serialize(value) {
         if (value instanceof Date) {
-            const year = value.getFullYear();
-            const month = String(value.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so add 1 and pad with leading zero
-            const day = String(value.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+          const year = value.getUTCFullYear(); // Use UTC date methods to handle time zone
+          const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+          const day = String(value.getUTCDate()).padStart(2, '0');
+          return `${month}-${day}-${year}`;
         }
         throw new Error('Invalid Date value');
-    },
+      },
     parseLiteral(ast) {
         if (ast.kind === Kind.STRING) {
             const dateParts = ast.value.split('-');
@@ -234,7 +271,7 @@ const DateType = new GraphQLScalarType({
                 const year = dateParts[2];
                 const month = dateParts[0];
                 const day = dateParts[1];
-                return `${year}-${month}-${day}`;
+                return `${month}-${day}-${year}`;
             }
         }
         throw new Error('Invalid Date literal');
