@@ -3,7 +3,7 @@ import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
 import { findExistingClient, validateAge } from '../utils/clientUtils.js';
 import { GraphQLScalarType, Kind } from 'graphql';
-import  jwt from 'express-jwt';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs'
 import dotenv from "dotenv";
 
@@ -30,7 +30,6 @@ export const typeDefs = `#graphql
         waiver: Boolean!
         membershipStatus: MembershipStatus!
         product: Product
-        productId: ID
     }
 
     type User {
@@ -59,6 +58,11 @@ export const typeDefs = `#graphql
     inactive
   }
 
+  type AuthPayload {
+    token: String
+    user: User
+    }
+
     type Mutation { 
         
         addClient(name: String! email: String! phone: String! birthdate: String! waiver: Boolean! productId: ID): Client
@@ -79,7 +83,7 @@ export const typeDefs = `#graphql
 
         deleteUser(id: ID!): User
 
-        loginUser(username: String! password: String!): User
+        loginUser(username: String! password: String!): AuthPayload
 
 
     }
@@ -241,7 +245,7 @@ export const resolvers = {
             expiresIn: '1h' // Token expiration time
         });
 
-        return token;
+        return {token};
     }
 }};
 
