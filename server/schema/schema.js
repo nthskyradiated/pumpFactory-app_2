@@ -246,7 +246,11 @@ export const resolvers = {
         });
 
         return {token};
-    }
+    },
+    deleteUser: async(parent, args) => {
+        return User.findByIdAndDelete(args.id)
+    },
+
 }};
 
 
