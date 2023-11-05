@@ -1,7 +1,8 @@
 import Client from '../models/clientModel.js'
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
-import { findExistingClient, validateAge } from '../utils/clientUtils.js';
+import Attendance from '../models/attendanceModel.js'
+import { findExistingClient, validateAge, calculateExpirationDate, updateMembershipStatus } from '../utils/clientUtils.js';
 import { GraphQLScalarType, Kind } from 'graphql';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs'
@@ -13,11 +14,21 @@ export const typeDefs = `#graphql
 
     scalar Date
 
+    type Attendance {
+        id: ID!
+        clientId: ID!
+        productId: ID!
+        checkIn: Date!
+    }
+
     type Product {
         id: ID!
         name: String!
         description: String!
         price: Int!
+        type: String!
+        validity: String!
+        expiresAt: Date!
     }
 
     type Client {
@@ -30,6 +41,7 @@ export const typeDefs = `#graphql
         waiver: Boolean!
         membershipStatus: MembershipStatus!
         product: Product
+        attendance: [Attendance]
     }
 
     type User {
@@ -45,7 +57,7 @@ export const typeDefs = `#graphql
         products: [Product]
         clients: [Client]
         users: [User]
-
+        attendance(ID: ID!) : [Attendance]
         product(ID: ID!) : Product
         client(ID: ID!) : Client
         user(ID: ID!) : User
@@ -54,16 +66,21 @@ export const typeDefs = `#graphql
     }
 
     enum MembershipStatus {
-    active
-    inactive
-  }
-
-  type AuthPayload {
-    token: String
-    user: User
+        active
+        inactive
     }
 
+    type AuthPayload {
+        token: String
+        user: User
+    }
+
+
     type Mutation { 
+        
+        addAttendance(clientId: ID!, productId: ID!): Attendance
+
+        deleteAttendance(id: ID!): Attendance
         
         addClient(name: String! email: String! phone: String! birthdate: String! waiver: Boolean! productId: ID): Client
 
@@ -98,11 +115,104 @@ export const resolvers = {
         product: async (parent, {ID}) => {return await Product.findById(ID)},
         client: async (parent, {ID}) => {return await Client.findById(ID)},
         user: async (parent, {ID}) => {return await User.findById(ID)},
+        attendance: async (parent, {ID}) => {return await Attendance.findById(ID)},
+
     },
+
     Client: {
     product: async (parent) => await Product.findById(parent.productId),
+    attendance: async (parent) => {
+        const clientAttendance = await Attendance.find({ clientId: parent.id });
+    
+        // You may need to populate clientId and productId for each Attendance
+        // object if they're not automatically populated by Mongoose
+        const populatedClientAttendance = clientAttendance.map((attendance) => {
+            return {
+                ...attendance.toObject(), // Convert to plain object
+                clientId: parent.id,     // Populate clientId
+            };
+        });
+    
+        return populatedClientAttendance;
+    }
+    
     },
+
+    Attendance: {
+        clientId: async (parent) => await parent.clientId,
+        productId: async (parent) => await parent.productId
+    },
+
     Mutation: {
+    addAttendance: async (parent, args) => {
+        const { clientId, productId } = args;
+
+    // Find the client and product
+    const client = await Client.findById(clientId);
+    const product = await Product.findById(productId);
+
+    if (!client || !product) {
+        throw new Error('Client or product not found');
+    }
+
+    if (!client.productId) {
+        throw new Error('Client does not have a product');
+    }
+
+    // Check if the client's membership status is 'active'
+    if (client.membershipStatus !== 'active') {
+        throw new Error('Client membership status is not active');
+    }
+
+    if (client.productId.toString() !== productId) {
+        throw new Error('Invalid productId for the client');
+    }
+    // // Calculate the expiration date for the product based on its validity
+    // const expirationDate = calculateExpirationDate(product.validity);
+    // updateMembershipStatus(client, product, expirationDate)
+
+
+    // Create a new attendance record
+    const attendance = new Attendance({
+        clientId,
+        checkIn: new Date(),
+        productId,
+    });
+
+    // Save the attendance record
+    await attendance.save();
+client.attendance.push(attendance._id);
+
+        // Save the client to update the attendance array
+        await client.save();
+    // Update the client's membership status based on attendance and expiration date
+    // updateMembershipStatus(client, product, expirationDate);
+
+    return attendance;
+
+    },
+
+    deleteAttendance: async (parent, { id }) => {
+        // Find the attendance record by its ID
+        const attendance = await Attendance.findById(id);
+    
+        if (!attendance) {
+          throw new Error('Attendance record not found');
+        }
+    
+        // Remove the attendance record's ID from the client's attendance array
+        const client = await Client.findById(attendance.clientId);
+        if (client) {
+          client.attendance = client.attendance.filter(a => a.toString() !== id);
+          await client.save();
+        }
+    
+        // Delete the attendance record
+        await Attendance.findByIdAndDelete(id);
+    
+        return attendance;
+      },
+
         addClient: async (parent, args) => {
         const existingClient = await findExistingClient(args.name, args.email, args.phone);
         if (existingClient) {
@@ -135,7 +245,7 @@ export const resolvers = {
           return savedClient;
         },
 
-    updateClient: async (parent, args) => {
+        updateClient: async (parent, args) => {
         // Check for duplicates based on name, email, and phone
         if (args.name || args.email || args.phone) {
             const existingClient = await findExistingClient(args.name, args.email, args.phone);
@@ -175,20 +285,33 @@ export const resolvers = {
         };
 
         return Client.findByIdAndUpdate(args.id, { $set: updateFields }, { new: true });
-    },
-    
-    deleteClient: async (parent, args) => {
-        return Client.findByIdAndDelete(args.id)
-    },
-    addProduct: async (parent, args)=>{
+        },
+
+        deleteClient: async (parent, args) => {
+            const client = await Client.findById(args.id);
+        
+            if (!client) {
+                throw new Error('Client not found');
+            }
+        
+            // Delete all attendance entries associated with the client
+            await Attendance.deleteMany({ clientId: args.id });
+        
+            // Delete the client
+            return Client.findByIdAndDelete(args.id)
+
+        },
+
+        addProduct: async (parent, args)=>{
         const product = new Product ({
             name: args.name,
             description: args.description,
             price: args.price
-    })
-    return product.save()
-    },
-    updateProduct: async (parent, args) => {
+            })
+            return product.save()
+            },
+
+        updateProduct: async (parent, args) => {
         return Product.findByIdAndUpdate(args.id,
             {
                 $set: {
@@ -199,12 +322,12 @@ export const resolvers = {
             }
             ,{new: true}
             )
-    },
-    deleteProduct: async(parent, args) => {
+        },
+        deleteProduct: async(parent, args) => {
         return Product.findByIdAndDelete(args.id)
-    },
+        },
 
-    registerUser: async (parent, args) => {
+        registerUser: async (parent, args) => {
         // Check if the username or email is already in use
         const existingUser = await User.findOne({
             $or: [{ username: args.username }, { email: args.email }]
@@ -227,8 +350,8 @@ export const resolvers = {
         });
 
         return user.save();
-    },
-    loginUser: async (parent, args) => {
+        },
+        loginUser: async (parent, args) => {
         const user = await User.findOne({ username: args.username });
 
         if (!user) {
@@ -245,13 +368,14 @@ export const resolvers = {
             expiresIn: '1h' // Token expiration time
         });
 
-        return {token};
-    },
-    deleteUser: async(parent, args) => {
+        return {token, user};
+        },
+        deleteUser: async(parent, args) => {
         return User.findByIdAndDelete(args.id)
-    },
+        },
 
-}};
+    }
+};
 
 
 const DateType = new GraphQLScalarType({
