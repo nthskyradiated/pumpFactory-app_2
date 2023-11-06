@@ -329,7 +329,7 @@ client.attendance.push(attendance._id);
                 // Check for duplicates based on name, email, and phone
                 if (input.name || input.email || input.phone) {
                   const existingClient = await findExistingClient(input.name, input.email, input.phone);
-                  if (existingClient && existingClient.id !== id) {
+                  if (existingClient) {
                     throw new Error('Client with the same name, email, or phone already exists.');
                   }
                 }
