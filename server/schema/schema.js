@@ -53,6 +53,28 @@ export const typeDefs = `#graphql
         isAdmin: Boolean!
     }
 
+    input ClientInput {
+        name: String
+        email: String
+        phone: String
+        birthdate: Date
+        waiver: Boolean
+    }
+    
+    input ProductInput {
+        name: String
+        description: String
+        price: Int
+    }
+
+    input UserInput {
+        name: String
+        email: String
+        username: String
+        password: String
+        isAdmin: Boolean
+    }
+
     type Query {
         products: [Product]
         clients: [Client]
@@ -82,21 +104,21 @@ export const typeDefs = `#graphql
 
         deleteAttendance(id: ID!): Attendance
         
-        addClient(name: String! email: String! phone: String! birthdate: String! waiver: Boolean! productId: ID): Client
+        addClient(input: ClientInput! productId: ID): Client
 
-        updateClient(id: ID! name: String email: String phone: String birthdate: String waiver: Boolean productId: ID): Client
+        updateClient(id: ID! input: ClientInput productId: ID): Client
         
         deleteClient(id: ID!): Client
 
-        addProduct(name: String!, description: String!, price: Int!): Product
+        addProduct(input: ProductInput! ): Product
         
-        updateProduct(id: ID!, name: String, description: String, price: Int): Product
+        updateProduct(id: ID!, input: ProductInput): Product
         
         deleteProduct(id: ID!): Product
 
-        registerUser(name: String! username: String! email: String! password: String! isAdmin: Boolean): User
+        registerUser(input: UserInput!): User
         
-        updateUser(id: ID! name: String username: String email: String password: String isAdmin: Boolean): User
+        updateUser(id: ID! input: UserInput): User
 
         deleteUser(id: ID!): User
 
