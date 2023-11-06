@@ -10,6 +10,39 @@ import dotenv from "dotenv";
 
 dotenv.config()
 
+const DateType = new GraphQLScalarType({
+    name: 'Date',
+    description: 'Custom date scalar type',
+    parseValue(value) {
+        if (typeof value === 'number') {
+            return new Date(value);
+        }
+        throw new Error('GraphQL Date Scalar parser expected a `number`');
+    },
+    serialize(value) {
+        if (value instanceof Date) {
+          const year = value.getUTCFullYear(); // Use UTC date methods to handle time zone
+          const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+          const day = String(value.getUTCDate()).padStart(2, '0');
+          return `${month}-${day}-${year}`;
+        }
+        throw new Error('Invalid Date value');
+      },
+    parseLiteral(ast) {
+        if (ast.kind === Kind.STRING) {
+            const dateParts = ast.value.split('-');
+            if (dateParts.length === 3) {
+                const year = dateParts[2];
+                const month = dateParts[0];
+                const day = dateParts[1];
+                return `${month}-${day}-${year}`;
+            }
+        }
+        throw new Error('Invalid Date literal');
+    },
+});
+
+
 export const typeDefs = `#graphql
 
     scalar Date
@@ -107,6 +140,7 @@ export const typeDefs = `#graphql
 
 `
 export const resolvers = {
+    Date: DateType,
     Query: {
         products: async () => Product.find(),
         clients: async () => Client.find(),
@@ -376,36 +410,3 @@ client.attendance.push(attendance._id);
 
     }
 };
-
-
-const DateType = new GraphQLScalarType({
-    name: 'Date',
-    description: 'Custom date scalar type',
-    parseValue(value) {
-        if (typeof value === 'number') {
-            return new Date(value);
-        }
-        throw new Error('GraphQL Date Scalar parser expected a `number`');
-    },
-    serialize(value) {
-        if (value instanceof Date) {
-          const year = value.getUTCFullYear(); // Use UTC date methods to handle time zone
-          const month = String(value.getUTCMonth() + 1).padStart(2, '0');
-          const day = String(value.getUTCDate()).padStart(2, '0');
-          return `${month}-${day}-${year}`;
-        }
-        throw new Error('Invalid Date value');
-      },
-    parseLiteral(ast) {
-        if (ast.kind === Kind.STRING) {
-            const dateParts = ast.value.split('-');
-            if (dateParts.length === 3) {
-                const year = dateParts[2];
-                const month = dateParts[0];
-                const day = dateParts[1];
-                return `${month}-${day}-${year}`;
-            }
-        }
-        throw new Error('Invalid Date literal');
-    },
-});
