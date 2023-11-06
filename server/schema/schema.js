@@ -59,9 +59,9 @@ export const typeDefs = `#graphql
         name: String!
         description: String!
         price: Int!
-        type: String!
-        validity: String!
-        expiresAt: Date!
+        # type: String!
+        # validity: String!
+        # expiresAt: Date!
     }
 
     type Client {
@@ -84,6 +84,49 @@ export const typeDefs = `#graphql
         username: String!
         password: String!
         isAdmin: Boolean!
+    }
+
+    input AddProductInput {
+        name: String!
+        description: String!
+        price: Int!
+    }
+
+    input UpdateProductInput {
+        id: ID!
+        name: String
+        description: String
+        price: Int
+    }
+
+    input AddClientInput {
+        name: String!
+        email: String!
+        phone: String!
+        birthdate: String!
+        waiver: Boolean!
+    }
+    input UpdateClientInput {
+        name: String
+        email: String
+        phone: String
+        birthdate: String
+        waiver: Boolean
+    }
+
+    input AddUserInput {
+        name: String!
+        email: String!
+        username: String!
+        password: String!
+        isAdmin: Boolean!
+    }
+    input UpdateUserInput {
+        name: String
+        email: String
+        username: String
+        password: String
+        isAdmin: Boolean
     }
 
     type Query {
@@ -115,25 +158,25 @@ export const typeDefs = `#graphql
 
         deleteAttendance(id: ID!): Attendance
         
-        addClient(name: String! email: String! phone: String! birthdate: String! waiver: Boolean! productId: ID): Client
+        addClient(input: AddClientInput! productId: ID): Client
 
-        updateClient(id: ID! name: String email: String phone: String birthdate: String waiver: Boolean productId: ID): Client
+        updateClient(id: ID! input: UpdateClientInput! productId: ID): Client
         
         deleteClient(id: ID!): Client
 
-        addProduct(name: String!, description: String!, price: Int!): Product
+        addProduct(input: AddProductInput!): Product
         
-        updateProduct(id: ID!, name: String, description: String, price: Int): Product
+        updateProduct(input: UpdateProductInput!): Product
         
         deleteProduct(id: ID!): Product
 
-        registerUser(name: String! username: String! email: String! password: String! isAdmin: Boolean): User
+        registerUser(input: AddUserInput!): User
         
-        updateUser(id: ID! name: String username: String email: String password: String isAdmin: Boolean): User
+        updateUser(id: ID! input: UpdateUserInput): User
 
         deleteUser(id: ID!): User
 
-        loginUser(username: String! password: String!): AuthPayload
+        loginUser(username: String!, password: String!): AuthPayload
 
 
     }
@@ -247,22 +290,22 @@ client.attendance.push(attendance._id);
         return attendance;
       },
 
-        addClient: async (parent, args) => {
-        const existingClient = await findExistingClient(args.name, args.email, args.phone);
+        addClient: async (parent, {input}, args) => {
+        const existingClient = await findExistingClient(input.name, input.email, input.phone);
         if (existingClient) {
         throw new Error('Client with the same name, email, or phone already exists.');
         }
-      const age = validateAge(args.birthdate);
+      const age = validateAge(input.birthdate);
       const membershipStatus = args.productId ? 'active' : 'inactive';
 
       const client = new Client({
-        name: args.name,
-        email: args.email,
-        phone: args.phone,
-        birthdate: args.birthdate,
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        birthdate: input.birthdate,
         age,
         membershipStatus,
-        waiver: args.waiver,
+        waiver: input.waiver,
         productId: args.productId,
       });
        // Save the client first to get its ID
@@ -280,45 +323,54 @@ client.attendance.push(attendance._id);
         },
 
         updateClient: async (parent, args) => {
-        // Check for duplicates based on name, email, and phone
-        if (args.name || args.email || args.phone) {
-            const existingClient = await findExistingClient(args.name, args.email, args.phone);
-            if (existingClient) {
-                throw new Error('Client with the same name, email, or phone already exists.');
-            }
-        }
-
-        // Fetch the existing client to get its current age and productId
-        const existingClient = await Client.findById(args.id);
-
-        if (!existingClient) {
-            throw new Error('Client not found');
-        }
-
-        // Calculate the age based on the provided birthdate or use the existing age
-        const age = args.birthdate ? validateAge(args.birthdate) : existingClient.age;
-
-        // Determine the membership status based on the productId or use the existing status
-        let membershipStatus = 'inactive';
-
-        if (args.productId) {
-            // If productId is provided, the client should have 'active' membership status
-            membershipStatus = 'active';
-        }
-
-        // Create an updateFields object to specify the fields to update. We use the existing values if new values are not provided.
-        const updateFields = {
-            name: args.name || existingClient.name,
-            email: args.email || existingClient.email,
-            phone: args.phone || existingClient.phone,
-            birthdate: args.birthdate || existingClient.birthdate,
-            age,
-            membershipStatus,
-            waiver: args.waiver !== undefined ? args.waiver : existingClient.waiver,
-            productId: args.productId, // To remove the product, set it to null or undefined
-        };
-
-        return Client.findByIdAndUpdate(args.id, { $set: updateFields }, { new: true });
+            try {
+                const { id, input, productId } = args;
+                
+                // Check for duplicates based on name, email, and phone
+                if (input.name || input.email || input.phone) {
+                  const existingClient = await findExistingClient(input.name, input.email, input.phone);
+                  if (existingClient && existingClient.id !== id) {
+                    throw new Error('Client with the same name, email, or phone already exists.');
+                  }
+                }
+                
+                // Fetch the existing client to get its current age and productId
+                const existingClient = await Client.findById(id);
+                
+                if (!existingClient) {
+                  throw new Error('Client not found');
+                }
+                
+                // Calculate the age based on the provided birthdate or use the existing age
+                const age = input.birthdate ? validateAge(input.birthdate) : existingClient.age;
+                
+                // Determine the membership status based on the productId or use the existing status
+                let membershipStatus = 'inactive';
+                
+                if (productId) {
+                  // If productId is provided, the client should have 'active' membership status
+                  membershipStatus = 'active';
+                }
+                
+                // Create an updateFields object to specify the fields to update. Use the existing values if new values are not provided.
+                const updateFields = {
+                  name: input.name || existingClient.name,
+                  email: input.email || existingClient.email,
+                  phone: input.phone || existingClient.phone,
+                  birthdate: input.birthdate || existingClient.birthdate,
+                  age,
+                  membershipStatus,
+                  waiver: input.waiver !== undefined ? input.waiver : existingClient.waiver,
+                  productId: productId || null, // To remove the product, set it to null
+                };
+                
+                // Update and return the updated client
+                const updatedClient = await Client.findByIdAndUpdate(id, updateFields, { new: true });
+                
+                return updatedClient;
+              } catch (error) {
+                throw new Error(error.message);
+              }
         },
 
         deleteClient: async (parent, args) => {
@@ -336,35 +388,41 @@ client.attendance.push(attendance._id);
 
         },
 
-        addProduct: async (parent, args)=>{
+        addProduct: async (parent, {input})=>{
         const product = new Product ({
-            name: args.name,
-            description: args.description,
-            price: args.price
+            name: input.name,
+            description: input.description,
+            price: input.price
             })
             return product.save()
             },
 
-        updateProduct: async (parent, args) => {
-        return Product.findByIdAndUpdate(args.id,
+        updateProduct: async (parent, {input}) => {
+            const { id, name, description, price } = input;
+            const product = await Product.findById(id)
+            if (!product) {
+                throw new Error('Product not found');
+              }
+
+        return Product.findByIdAndUpdate(id,
             {
                 $set: {
-                    name: args.name,
-                    description: args.description,
-                    price: args.price
+                    name,
+                    description,
+                    price
                 }
             }
             ,{new: true}
             )
         },
-        deleteProduct: async(parent, args) => {
+        deleteProduct: async(parent, {args}) => {
         return Product.findByIdAndDelete(args.id)
         },
 
-        registerUser: async (parent, args) => {
+        registerUser: async (parent, {input}) => {
         // Check if the username or email is already in use
         const existingUser = await User.findOne({
-            $or: [{ username: args.username }, { email: args.email }]
+            $or: [{ username: input.username }, { email: input.email }]
         });
 
         if (existingUser) {
@@ -372,19 +430,57 @@ client.attendance.push(attendance._id);
         }
 
         // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(args.password, 12);
+        const hashedPassword = await bcrypt.hash(input.password, 12);
 
         // Create a new user
         const user = new User({
-            name: args.name,
-            username: args.username,
-            email: args.email,
+            name: input.name,
+            username: input.username,
+            email: input.email,
             password: hashedPassword,
-            isAdmin: args.isAdmin || false
+            isAdmin: input.isAdmin || false
         });
 
         return user.save();
         },
+
+        updateUser: async (parent, { id, input }) => {
+            // Find the user by ID
+            const user = await User.findById(id);
+      
+            if (!user) {
+              throw new Error('User not found');
+            }
+      
+            // Update the user fields based on the input
+            if (input.name) {
+              user.name = input.name;
+            }
+      
+            if (input.username) {
+              user.username = input.username;
+            }
+      
+            if (input.email) {
+              user.email = input.email;
+            }
+      
+            if (input.password) {
+              // Hash the new password before storing it
+              const hashedPassword = await bcrypt.hash(input.password, 12);
+              user.password = hashedPassword;
+            }
+      
+            if (input.isAdmin !== undefined) {
+              user.isAdmin = input.isAdmin;
+            }
+      
+            // Save the updated user
+            const updatedUser = await user.save();
+      
+            return updatedUser;
+          },
+
         loginUser: async (parent, args) => {
         const user = await User.findOne({ username: args.username });
 
