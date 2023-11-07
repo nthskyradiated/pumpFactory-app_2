@@ -161,7 +161,7 @@ export const typeDefs = `#graphql
         
         addClient(input: AddClientInput! productId: ID): Client
 
-        updateClient(input: UpdateClientInput productId: ID): Client
+        updateClient(input: UpdateClientInput! productId: ID): Client
         
         deleteClient(id: ID!): Client
 
@@ -326,6 +326,14 @@ client.attendance.push(attendance._id);
         updateClient: async (parent, args) => {
             try {
                 const { id, input, productId } = args;
+
+                        // Check if productId is provided and validate if the product exists
+        if (productId) {
+            const product = await Product.findById(productId);
+            if (!product) {
+                throw new Error('Product does not exist');
+            }
+        }
                 
                 // Check for duplicates based on name, email, and phone
                 if (input.name || input.email || input.phone) {
