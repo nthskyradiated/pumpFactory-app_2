@@ -200,11 +200,13 @@ export const resolvers = {
         user: async (parent, {ID}) => {return await User.findById(ID)},
         attendance: async (parent, {ID}) => {return await Attendance.findById(ID)},
 
+
     },
 
     Client: {
     product: async (parent) => await Product.findById(parent.productId),
     attendance: async (parent) => {
+        console.log(parent.attendance);
         const clientAttendance = await Attendance.find({ clientId: parent.id });
     
         // You may need to populate clientId and productId for each Attendance
@@ -455,8 +457,25 @@ client.attendance.push(attendance.id);
             )
         },
 
-        deleteProduct: async(parent, args) => {
-        return Product.findByIdAndDelete(args.id)
+        deleteProduct: async (parent, { id }) => {
+            try {
+              // Find the product to be deleted
+              const product = await Product.findById(id);
+          
+              if (!product) {
+                throw new Error('Product not found');
+              }
+          
+              // Find clients with this product ID and update their membershipStatus
+              await Client.updateMany({ productId: id }, { $set: { membershipStatus: 'inactive', productId: null } });
+          
+              // Delete the product
+              return Product.findByIdAndDelete(id);
+          
+            } catch (error) {
+              throw new Error(error.message);
+            }
+        
         },
 
         registerUser: async (parent, {input}) => {

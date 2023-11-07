@@ -27,10 +27,7 @@ const ClientSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     },
-    attendanceId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Attendance'
-    },
+    
     attendance: [{
         attendance: {
             type: mongoose.Schema.Types.ObjectId,
