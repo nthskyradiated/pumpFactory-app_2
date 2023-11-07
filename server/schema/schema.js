@@ -264,7 +264,7 @@ export const resolvers = {
 
     // Save the attendance record
     await attendance.save();
-client.attendance.push(attendance._id);
+client.attendance.push(attendance.id);
 
         // Save the client to update the attendance array
         await client.save();
