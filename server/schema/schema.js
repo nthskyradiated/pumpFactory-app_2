@@ -107,6 +107,7 @@ export const typeDefs = `#graphql
         waiver: Boolean!
     }
     input UpdateClientInput {
+        id: ID!
         name: String
         email: String
         phone: String
@@ -160,7 +161,7 @@ export const typeDefs = `#graphql
         
         addClient(input: AddClientInput! productId: ID): Client
 
-        updateClient(id: ID! input: UpdateClientInput! productId: ID): Client
+        updateClient(input: UpdateClientInput productId: ID): Client
         
         deleteClient(id: ID!): Client
 
@@ -335,7 +336,7 @@ client.attendance.push(attendance._id);
                 }
                 
                 // Fetch the existing client to get its current age and productId
-                const existingClient = await Client.findById(id);
+                const existingClient = await Client.findById(input.id);
                 
                 if (!existingClient) {
                   throw new Error('Client not found');
@@ -360,12 +361,12 @@ client.attendance.push(attendance._id);
                   birthdate: input.birthdate || existingClient.birthdate,
                   age,
                   membershipStatus,
-                  waiver: input.waiver !== undefined ? input.waiver : existingClient.waiver,
+                  waiver: input.waiver || existingClient.waiver,
                   productId: productId || null, // To remove the product, set it to null
                 };
                 
                 // Update and return the updated client
-                const updatedClient = await Client.findByIdAndUpdate(id, updateFields, { new: true });
+                const updatedClient = await Client.findByIdAndUpdate(input.id, updateFields, { new: true });
                 
                 return updatedClient;
               } catch (error) {
@@ -415,7 +416,7 @@ client.attendance.push(attendance._id);
             ,{new: true}
             )
         },
-        deleteProduct: async(parent, {args}) => {
+        deleteProduct: async(parent, args) => {
         return Product.findByIdAndDelete(args.id)
         },
 
@@ -450,6 +451,22 @@ client.attendance.push(attendance._id);
       
             if (!user) {
               throw new Error('User not found');
+            }
+
+            // Check for duplicates in the database
+            if (input.name || input.username || input.email) {
+              const duplicateUser = await User.findOne({
+                $or: [
+                  { name: input.name },
+                  { username: input.username },
+                  { email: input.email },
+                ],
+                _id: { $ne: id }, // Exclude the current user
+              });
+        
+              if (duplicateUser) {
+                throw new Error('A user with the same name, username, or email already exists.');
+              }
             }
       
             // Update the user fields based on the input
