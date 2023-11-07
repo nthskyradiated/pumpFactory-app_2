@@ -86,6 +86,11 @@ export const typeDefs = `#graphql
         isAdmin: Boolean!
     }
 
+    input AddAttendanceInput {
+        clientId: ID!
+        productId: ID!
+    }
+
     input AddProductInput {
         name: String!
         description: String!
@@ -134,7 +139,7 @@ export const typeDefs = `#graphql
         products: [Product]
         clients: [Client]
         users: [User]
-        attendance(ID: ID!) : [Attendance]
+        attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
         user(ID: ID!) : User
@@ -155,7 +160,7 @@ export const typeDefs = `#graphql
 
     type Mutation { 
         
-        addAttendance(clientId: ID!, productId: ID!): Attendance
+        addAttendance(input: AddAttendanceInput!): Attendance
 
         deleteAttendance(id: ID!): Attendance
         
@@ -222,8 +227,8 @@ export const resolvers = {
     },
 
     Mutation: {
-        addAttendance: async (parent, args) => {
-        const { clientId, productId } = args;
+        addAttendance: async (parent, {input}) => {
+        const { clientId, productId } = input;
 
     // Find the client and product
     const client = await Client.findById(clientId);
@@ -426,7 +431,6 @@ client.attendance.push(attendance._id);
             return product.save();
         },
         
-
         updateProduct: async (parent, {input}) => {
             const { id, name, description, price } = input;
             const product = await Product.findById(id)
@@ -450,6 +454,7 @@ client.attendance.push(attendance._id);
             ,{new: true}
             )
         },
+
         deleteProduct: async(parent, args) => {
         return Product.findByIdAndDelete(args.id)
         },
@@ -551,6 +556,7 @@ client.attendance.push(attendance._id);
 
         return {token, user};
         },
+
         deleteUser: async(parent, args) => {
         return User.findByIdAndDelete(args.id)
         },

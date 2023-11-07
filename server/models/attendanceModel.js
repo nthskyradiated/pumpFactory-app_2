@@ -7,6 +7,10 @@ const AttendanceSchema = new mongoose.Schema({
     clientId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Client'
+    },
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
     }
 }, { timestamps: true });
 
