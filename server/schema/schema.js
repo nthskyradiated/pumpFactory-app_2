@@ -222,7 +222,7 @@ export const resolvers = {
     },
 
     Mutation: {
-    addAttendance: async (parent, args) => {
+        addAttendance: async (parent, args) => {
         const { clientId, productId } = args;
 
     // Find the client and product
@@ -268,9 +268,9 @@ client.attendance.push(attendance._id);
 
     return attendance;
 
-    },
+        },
 
-    deleteAttendance: async (parent, { id }) => {
+        deleteAttendance: async (parent, { id }) => {
         // Find the attendance record by its ID
         const attendance = await Attendance.findById(id);
     
@@ -289,13 +289,22 @@ client.attendance.push(attendance._id);
         await Attendance.findByIdAndDelete(id);
     
         return attendance;
-      },
+        },
 
-        addClient: async (parent, {input}, args) => {
+        addClient: async (parent, args) => {
+        const {input} = args;
         const existingClient = await findExistingClient(input.name, input.email, input.phone);
         if (existingClient) {
         throw new Error('Client with the same name, email, or phone already exists.');
         }
+
+        if (args.productId) {
+            const product = await Product.findById(args.productId);
+            if (!product) {
+                throw new Error('Product does not exist');
+            }
+        }
+
       const age = validateAge(input.birthdate);
       const membershipStatus = args.productId ? 'active' : 'inactive';
 
@@ -325,7 +334,7 @@ client.attendance.push(attendance._id);
 
         updateClient: async (parent, args) => {
             try {
-                const { id, input, productId } = args;
+                const { input, productId } = args;
 
                         // Check if productId is provided and validate if the product exists
         if (productId) {
@@ -397,20 +406,37 @@ client.attendance.push(attendance._id);
 
         },
 
-        addProduct: async (parent, {input})=>{
-        const product = new Product ({
-            name: input.name,
-            description: input.description,
-            price: input.price
-            })
-            return product.save()
-            },
+        addProduct: async (parent, { input }) => {
+            const { name, description, price } = input;
+        
+            // Check if a product with the same name and description already exists
+            const existingProduct = await Product.findOne({ $or: [{ name }, { description }] });
+        
+            if (existingProduct) {
+                throw new Error('A product with the same name or description already exists.');
+            }
+        
+            // If no existing product found, create and save the new product
+            const product = new Product({
+                name,
+                description,
+                price,
+            });
+        
+            return product.save();
+        },
+        
 
         updateProduct: async (parent, {input}) => {
             const { id, name, description, price } = input;
             const product = await Product.findById(id)
             if (!product) {
                 throw new Error('Product not found');
+            }
+
+            const existingProduct = await Product.findOne({ $or: [{ name }, { description }] });
+            if (existingProduct) {
+                  throw new Error('A product with the same name or description already exists.');
               }
 
         return Product.findByIdAndUpdate(id,
@@ -504,7 +530,7 @@ client.attendance.push(attendance._id);
             const updatedUser = await user.save();
       
             return updatedUser;
-          },
+        },
 
         loginUser: async (parent, args) => {
         const user = await User.findOne({ username: args.username });
