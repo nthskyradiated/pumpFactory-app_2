@@ -30,7 +30,7 @@ const ClientSchema = new mongoose.Schema({
     
     attendance: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Attendance'  // Make sure this matches the model name
+            ref: 'Attendance'
     }]
 
 },{timestamps: true}

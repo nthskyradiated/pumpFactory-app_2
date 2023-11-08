@@ -199,30 +199,26 @@ export const resolvers = {
         product: async (parent, {ID}) => {return await Product.findById(ID)},
         client: async (parent, {ID}) => {return await Client.findById(ID)},
         user: async (parent, {ID}) => {return await User.findById(ID)},
-        attendance: async (parent, {ID}) => {
-            // console.log(Attendance.prototype)
-            return await Attendance.findById(ID)},
+        attendance: async (parent, {ID}) => {return await Attendance.findById(ID)},
 
 
     },
 
     Client: {
-    product: async (parent) => await Product.findById(parent.productId),
-    attendance: async (parent) => {
-        console.log(parent.attendance);
-        const clientAttendance = await Attendance.find({ clientId: parent.id });
-    
-        // You may need to populate clientId and productId for each Attendance
-        // object if they're not automatically populated by Mongoose
-        const populatedClientAttendance = clientAttendance.map((attendance) => {
-            return {
-                ...attendance.toObject(), // Convert to plain object
-                clientId: parent.id,     // Populate clientId
-            };
-        });
-    
-        return populatedClientAttendance;
-    }
+        product: async (parent) => await Product.findById(parent.productId),
+        attendance: async (parent) => {
+            console.log(parent.attendance);
+            const clientAttendance = await Attendance.find({ clientId: parent.id });
+        
+            const populatedClientAttendance = clientAttendance.map((attendance) => {
+                return {
+                    ...attendance.toObject(), // Convert to plain object
+                    clientId: parent.id,     // Populate clientId
+                };
+            });
+        
+            return populatedClientAttendance;
+        }
     
     },
 
@@ -235,48 +231,48 @@ export const resolvers = {
         addAttendance: async (parent, {input}) => {
         const { clientId, productId } = input;
 
-    // Find the client and product
-    const client = await Client.findById(clientId);
-    const product = await Product.findById(productId);
+        // Find the client and product
+        const client = await Client.findById(clientId);
+        const product = await Product.findById(productId);
 
-    if (!client || !product) {
-        throw new Error('Client or product not found');
-    }
+        if (!client || !product) {
+            throw new Error('Client or product not found');
+        }
 
-    if (!client.productId) {
-        throw new Error('Client does not have a product');
-    }
+        if (!client.productId) {
+            throw new Error('Client does not have a product');
+        }
 
-    // Check if the client's membership status is 'active'
-    if (client.membershipStatus !== 'active') {
-        throw new Error('Client membership status is not active');
-    }
+        // Check if the client's membership status is 'active'
+        if (client.membershipStatus !== 'active') {
+            throw new Error('Client membership status is not active');
+        }
 
-    if (client.productId.toString() !== productId) {
-        throw new Error('Invalid productId for the client');
-    }
-    // // Calculate the expiration date for the product based on its validity
-    // const expirationDate = calculateExpirationDate(product.validity);
-    // updateMembershipStatus(client, product, expirationDate)
+        if (client.productId.toString() !== productId) {
+            throw new Error('Invalid productId for the client');
+        }
+        // // Calculate the expiration date for the product based on its validity
+        // const expirationDate = calculateExpirationDate(product.validity);
+        // updateMembershipStatus(client, product, expirationDate)
 
 
-    // Create a new attendance record
-    const attendance = new Attendance({
-        clientId,
-        checkIn: new Date(),
-        productId,
-    });
+        // Create a new attendance record
+        const attendance = new Attendance({
+            clientId,
+            checkIn: new Date(),
+            productId,
+        });
 
-    // Save the attendance record
-    await attendance.save();
-client.attendance.push(attendance.id);
+        // Save the attendance record
+        await attendance.save();
+            client.attendance.push(attendance.id);
 
-        // Save the client to update the attendance array
-        await client.save();
-    // Update the client's membership status based on attendance and expiration date
-    // updateMembershipStatus(client, product, expirationDate);
+            // Save the client to update the attendance array
+            await client.save();
+            // Update the client's membership status based on attendance and expiration date
+            // updateMembershipStatus(client, product, expirationDate);
 
-    return attendance;
+        return attendance;
 
         },
 
