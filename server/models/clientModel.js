@@ -29,10 +29,8 @@ const ClientSchema = new mongoose.Schema({
     },
     
     attendance: [{
-        attendance: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Attendance'  // Make sure this matches the model name
-        }
     }]
 
 },{timestamps: true}

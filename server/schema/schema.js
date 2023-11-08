@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs'
 import dotenv from "dotenv";
 
+
 dotenv.config()
 
 const DateType = new GraphQLScalarType({
@@ -198,7 +199,9 @@ export const resolvers = {
         product: async (parent, {ID}) => {return await Product.findById(ID)},
         client: async (parent, {ID}) => {return await Client.findById(ID)},
         user: async (parent, {ID}) => {return await User.findById(ID)},
-        attendance: async (parent, {ID}) => {return await Attendance.findById(ID)},
+        attendance: async (parent, {ID}) => {
+            // console.log(Attendance.prototype)
+            return await Attendance.findById(ID)},
 
 
     },
@@ -286,11 +289,8 @@ client.attendance.push(attendance.id);
         }
     
         // Remove the attendance record's ID from the client's attendance array
-        const client = await Client.findById(attendance.clientId);
-        if (client) {
-          client.attendance = client.attendance.filter(a => a.toString() !== id);
-          await client.save();
-        }
+        await Client.updateOne({ _id: attendance.clientId }, { $pull: { attendance: attendance._id } });
+        
     
         // Delete the attendance record
         await Attendance.findByIdAndDelete(id);
