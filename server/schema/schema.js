@@ -2,9 +2,9 @@ import Client from '../models/clientModel.js'
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
 import Attendance from '../models/attendanceModel.js'
+import {createAccessToken, createRefreshToken} from '../utils/userAuth.js'
 import { findExistingClient, validateAge, calculateExpirationDate, updateMembershipStatus } from '../utils/clientUtils.js';
 import { GraphQLScalarType, Kind } from 'graphql';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs'
 import dotenv from "dotenv";
 
@@ -552,7 +552,7 @@ export const resolvers = {
             return updatedUser;
         },
 
-        loginUser: async (parent, args) => {
+        loginUser: async (parent, args, context) => {
         const user = await User.findOne({ username: args.username });
 
         if (!user) {
@@ -565,11 +565,13 @@ export const resolvers = {
             throw new Error('Invalid password');
         }
 
-        const token = jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
-            expiresIn: '1h' // Token expiration time
-        });
+        const refreshToken = await createRefreshToken(user)
+        context.res.cookie('refreshToken', refreshToken, {httpOnly: true,} )
 
-        return {token, user};
+        const token = await createAccessToken(user)
+
+        return {user, token};
+        
         },
 
         deleteUser: async(parent, args) => {

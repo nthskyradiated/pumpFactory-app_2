@@ -9,7 +9,9 @@ import morgan from "morgan";
 import helmet from "helmet";
 import vhost from "vhost";
 import { expressjwt } from "express-jwt";
+import { getUser } from "./utils/userAuth.js";
 import cors from "cors";
+import { GraphQLError } from 'graphql'
 
 dotenv.config()
 
@@ -27,16 +29,35 @@ const server = new ApolloServer({
 
 await server.start();  
 
-app.use(morgan('common'));
+// app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors())
 app.use(express.json())
 
-if (process.env.NODE_ENV === 'development' ) {
 
-    app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server))
+    app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
+      context: async ({ req, res }) => {
+        const token = req.headers.authorization || '';
 
-)}
+        // Verify the token and get user information
+        const user = await getUser(token);
+
+        if (!user || !user.isAdmin) {
+          throw new GraphQLError ('User is not authenticated', {
+
+            extensions: {
+              code: 'UNAUTHENTICATED',
+              http: { status: 401 },
+    
+            },
+        })}
+
+        return { user, token, res };
+      },
+    
+    }))
+
+)
 
 
 const authMiddleware = expressjwt({
