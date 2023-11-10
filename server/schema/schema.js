@@ -2,9 +2,9 @@ import Client from '../models/clientModel.js'
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
 import Attendance from '../models/attendanceModel.js'
-import {createAccessToken, createRefreshToken} from '../utils/userAuth.js'
+import {createAccessToken, createRefreshToken, userVerification} from '../utils/userAuth.js'
 import { findExistingClient, validateAge, calculateExpirationDate, updateMembershipStatus } from '../utils/clientUtils.js';
-import { GraphQLScalarType, Kind } from 'graphql';
+import { GraphQLScalarType, Kind, GraphQLError } from 'graphql';
 import bcrypt from 'bcryptjs'
 import dotenv from "dotenv";
 
@@ -228,55 +228,66 @@ export const resolvers = {
     },
 
     Mutation: {
-        addAttendance: async (parent, {input}) => {
-        const { clientId, productId } = input;
+        addAttendance: async (parent, {input}, context) => {
+            const user = await userVerification(context)
+            if (!user || !user.isAdmin) {
+                      throw new GraphQLError ('User is not authenticated', {
+            
+                        extensions: {
+                          code: 'UNAUTHENTICATED',
+                          http: { status: 401 },
+                
+                        },
+                    })}
+            
+                    const { clientId, productId } = input;
 
-        // Find the client and product
-        const client = await Client.findById(clientId);
-        const product = await Product.findById(productId);
+                    // Find the client and product
+                    const client = await Client.findById(clientId);
+                    const product = await Product.findById(productId);
+            
+                    if (!client || !product) {
+                        throw new Error('Client or product not found');
+                    }
+            
+                    if (!client.productId) {
+                        throw new Error('Client does not have a product');
+                    }
+            
+                    // Check if the client's membership status is 'active'
+                    if (client.membershipStatus !== 'active') {
+                        throw new Error('Client membership status is not active');
+                    }
+            
+                    if (client.productId.toString() !== productId) {
+                        throw new Error('Invalid productId for the client');
+                    }
+                    // // Calculate the expiration date for the product based on its validity
+                    // const expirationDate = calculateExpirationDate(product.validity);
+                    // updateMembershipStatus(client, product, expirationDate)
+            
+            
+                    // Create a new attendance record
+                    const attendance = new Attendance({
+                        clientId,
+                        checkIn: new Date(),
+                        productId,
+                    });
+            
+                    // Save the attendance record
+                    await attendance.save();
+                        client.attendance.push(attendance.id);
+            
+                        // Save the client to update the attendance array
+                        await client.save();
+                        // Update the client's membership status based on attendance and expiration date
+                        // updateMembershipStatus(client, product, expirationDate);
+            
+                    return attendance;
+                  },
+        
 
-        if (!client || !product) {
-            throw new Error('Client or product not found');
-        }
-
-        if (!client.productId) {
-            throw new Error('Client does not have a product');
-        }
-
-        // Check if the client's membership status is 'active'
-        if (client.membershipStatus !== 'active') {
-            throw new Error('Client membership status is not active');
-        }
-
-        if (client.productId.toString() !== productId) {
-            throw new Error('Invalid productId for the client');
-        }
-        // // Calculate the expiration date for the product based on its validity
-        // const expirationDate = calculateExpirationDate(product.validity);
-        // updateMembershipStatus(client, product, expirationDate)
-
-
-        // Create a new attendance record
-        const attendance = new Attendance({
-            clientId,
-            checkIn: new Date(),
-            productId,
-        });
-
-        // Save the attendance record
-        await attendance.save();
-            client.attendance.push(attendance.id);
-
-            // Save the client to update the attendance array
-            await client.save();
-            // Update the client's membership status based on attendance and expiration date
-            // updateMembershipStatus(client, product, expirationDate);
-
-        return attendance;
-
-        },
-
-        deleteAttendance: async (parent, { id }) => {
+        deleteAttendance: async (parent, { id }, context) => {
         // Find the attendance record by its ID
         const attendance = await Attendance.findById(id);
     
@@ -294,7 +305,7 @@ export const resolvers = {
         return attendance;
         },
 
-        addClient: async (parent, args) => {
+        addClient: async (parent, args, context) => {
         const {input} = args;
         const existingClient = await findExistingClient(input.name, input.email, input.phone);
         if (existingClient) {
@@ -335,7 +346,7 @@ export const resolvers = {
           return savedClient;
         },
 
-        updateClient: async (parent, args) => {
+        updateClient: async (parent, args, context) => {
             try {
                 const { input, productId } = args;
 
@@ -394,7 +405,7 @@ export const resolvers = {
               }
         },
 
-        deleteClient: async (parent, args) => {
+        deleteClient: async (parent, args, context) => {
             const client = await Client.findById(args.id);
         
             if (!client) {
@@ -409,7 +420,7 @@ export const resolvers = {
 
         },
 
-        addProduct: async (parent, { input }) => {
+        addProduct: async (parent, { input }, context) => {
             const { name, description, price } = input;
         
             // Check if a product with the same name and description already exists
@@ -429,7 +440,7 @@ export const resolvers = {
             return product.save();
         },
         
-        updateProduct: async (parent, {input}) => {
+        updateProduct: async (parent, {input}, context) => {
             const { id, name, description, price } = input;
             const product = await Product.findById(id)
             if (!product) {
@@ -453,7 +464,7 @@ export const resolvers = {
             )
         },
 
-        deleteProduct: async (parent, { id }) => {
+        deleteProduct: async (parent, { id }, context) => {
             try {
               // Find the product to be deleted
               const product = await Product.findById(id);
@@ -474,7 +485,7 @@ export const resolvers = {
         
         },
 
-        registerUser: async (parent, {input}) => {
+        registerUser: async (parent, {input}, context) => {
         // Check if the username or email is already in use
         const existingUser = await User.findOne({
             $or: [{ username: input.username }, { email: input.email }]
@@ -499,7 +510,7 @@ export const resolvers = {
         return user.save();
         },
 
-        updateUser: async (parent, { id, input }) => {
+        updateUser: async (parent, { id, input }, context) => {
             // Find the user by ID
             const user = await User.findById(id);
       
@@ -574,7 +585,7 @@ export const resolvers = {
         
         },
 
-        deleteUser: async(parent, args) => {
+        deleteUser: async(parent, args, context) => {
         return User.findByIdAndDelete(args.id)
         },
 

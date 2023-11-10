@@ -28,6 +28,19 @@ const createRefreshToken = async (user) =>
     })
   };
 
+const userVerification = async (context) => {
+  const token = context.req.headers.authorization || '';
+  try {
+    if (token) {
+      const authToken = token.split(" ")[1]
+      const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+      return payload
+    }
+    return null
+  } catch (error) {
+    console.error('Error verifying JWT:', error.message);
+    return null;
+  }
+}
 
-
-export { getUser, createAccessToken, createRefreshToken };
+export { getUser, createAccessToken, createRefreshToken, userVerification };

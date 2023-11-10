@@ -36,26 +36,26 @@ app.use(express.json())
 
 
     app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
-      context: async ({ req, res }) => {
-        const token = req.headers.authorization || '';
+      context: async ({ req, res }) => {return {req, res}}}))
+    //     const token = req.headers.authorization || '';
 
         // Verify the token and get user information
-        const user = await getUser(token);
+    //     const user = await getUser(token);
 
-        if (!user || !user.isAdmin) {
-          throw new GraphQLError ('User is not authenticated', {
+    //     if (!user || !user.isAdmin) {
+    //       throw new GraphQLError ('User is not authenticated', {
 
-            extensions: {
-              code: 'UNAUTHENTICATED',
-              http: { status: 401 },
+    //         extensions: {
+    //           code: 'UNAUTHENTICATED',
+    //           http: { status: 401 },
     
-            },
-        })}
+    //         },
+    //     })}
 
-        return { user, token, res };
-      },
+    //     return { user, token, res };
+    //   },
     
-    }))
+    // }))
 
 )
 
