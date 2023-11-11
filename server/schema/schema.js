@@ -2,9 +2,9 @@ import Client from '../models/clientModel.js'
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
 import Attendance from '../models/attendanceModel.js'
-import {createAccessToken, createRefreshToken, userVerification} from '../utils/userAuth.js'
+import {authenticateUser, createAccessToken, createRefreshToken, authenticateAdmin} from '../utils/userAuth.js'
 import { findExistingClient, validateAge, calculateExpirationDate, updateMembershipStatus } from '../utils/clientUtils.js';
-import { GraphQLScalarType, Kind, GraphQLError } from 'graphql';
+import { GraphQLScalarType, Kind } from 'graphql';
 import bcrypt from 'bcryptjs'
 import dotenv from "dotenv";
 
@@ -192,15 +192,35 @@ export const typeDefs = `#graphql
 export const resolvers = {
     Date: DateType,
     Query: {
-        products: async () => Product.find(),
-        clients: async () => Client.find(),
-        users: async () => User.find(),
+        products: async (parent, args, context) => {
+            await authenticateUser(context)
+            return Product.find()
+        },
+        clients: async (parent, args, context) => {
+            await authenticateUser(context)
+            return Client.find()
+        },
+        users: async (parent, args, context) => {
+            await authenticateAdmin(context)
+            return User.find()
+        },
 
-        product: async (parent, {ID}) => {return await Product.findById(ID)},
-        client: async (parent, {ID}) => {return await Client.findById(ID)},
-        user: async (parent, {ID}) => {return await User.findById(ID)},
-        attendance: async (parent, {ID}) => {return await Attendance.findById(ID)},
-
+        product: async (parent, {ID}, context) => {
+            await authenticateUser(context)
+            return await Product.findById(ID)
+        },
+        client: async (parent, {ID}, context) => {
+            await authenticateUser(context)
+            return await Client.findById(ID)
+        },
+        user: async (parent, {ID}, context) => {
+            await authenticateAdmin(context)
+            return await User.findById(ID)
+        },
+        attendance: async (parent, {ID}, context) => {
+            await authenticateUser(context)
+            return await Attendance.findById(ID)
+        },
 
     },
 
@@ -229,17 +249,8 @@ export const resolvers = {
 
     Mutation: {
         addAttendance: async (parent, {input}, context) => {
-            const user = await userVerification(context)
-            if (!user || !user.isAdmin) {
-                      throw new GraphQLError ('User is not authenticated', {
-            
-                        extensions: {
-                          code: 'UNAUTHENTICATED',
-                          http: { status: 401 },
-                
-                        },
-                    })}
-            
+        await authenticateUser(context)
+
                     const { clientId, productId } = input;
 
                     // Find the client and product
@@ -284,10 +295,11 @@ export const resolvers = {
                         // updateMembershipStatus(client, product, expirationDate);
             
                     return attendance;
-                  },
+        },
         
 
         deleteAttendance: async (parent, { id }, context) => {
+        await authenticateAdmin(context)
         // Find the attendance record by its ID
         const attendance = await Attendance.findById(id);
     
@@ -306,6 +318,7 @@ export const resolvers = {
         },
 
         addClient: async (parent, args, context) => {
+        const currUser = await authenticateUser(context)
         const {input} = args;
         const existingClient = await findExistingClient(input.name, input.email, input.phone);
         if (existingClient) {
@@ -347,6 +360,7 @@ export const resolvers = {
         },
 
         updateClient: async (parent, args, context) => {
+            await authenticateUser(context)
             try {
                 const { input, productId } = args;
 
@@ -406,6 +420,7 @@ export const resolvers = {
         },
 
         deleteClient: async (parent, args, context) => {
+            await authenticateAdmin(context)
             const client = await Client.findById(args.id);
         
             if (!client) {
@@ -421,6 +436,7 @@ export const resolvers = {
         },
 
         addProduct: async (parent, { input }, context) => {
+            await authenticateAdmin(context)
             const { name, description, price } = input;
         
             // Check if a product with the same name and description already exists
@@ -441,6 +457,7 @@ export const resolvers = {
         },
         
         updateProduct: async (parent, {input}, context) => {
+            await authenticateAdmin(context)
             const { id, name, description, price } = input;
             const product = await Product.findById(id)
             if (!product) {
@@ -465,6 +482,7 @@ export const resolvers = {
         },
 
         deleteProduct: async (parent, { id }, context) => {
+            await authenticateAdmin(context)
             try {
               // Find the product to be deleted
               const product = await Product.findById(id);
@@ -486,6 +504,7 @@ export const resolvers = {
         },
 
         registerUser: async (parent, {input}, context) => {
+         await authenticateAdmin(context)
         // Check if the username or email is already in use
         const existingUser = await User.findOne({
             $or: [{ username: input.username }, { email: input.email }]
@@ -511,6 +530,7 @@ export const resolvers = {
         },
 
         updateUser: async (parent, { id, input }, context) => {
+        await authenticateAdmin(context)
             // Find the user by ID
             const user = await User.findById(id);
       
@@ -586,6 +606,7 @@ export const resolvers = {
         },
 
         deleteUser: async(parent, args, context) => {
+        await authenticateAdmin(context)
         return User.findByIdAndDelete(args.id)
         },
 

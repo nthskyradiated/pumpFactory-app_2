@@ -1,7 +1,17 @@
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
+import { GraphQLError } from 'graphql';
 
 dotenv.config()
+
+const AuthError = new GraphQLError ('User is not authenticated', {
+            
+  extensions: {
+    code: 'UNAUTHENTICATED',
+    http: { status: 401 },
+
+  },
+})
 
 const getUser = async (token) => {
   try {
@@ -19,7 +29,7 @@ const getUser = async (token) => {
 
 const createAccessToken = async (user) => 
    {return jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
-        expiresIn: '15m' // Token expiration time
+        expiresIn: '1d' // Token expiration time
     })
   };
 const createRefreshToken = async (user) => 
@@ -28,19 +38,41 @@ const createRefreshToken = async (user) =>
     })
   };
 
-const userVerification = async (context) => {
-  const token = context.req.headers.authorization || '';
-  try {
-    if (token) {
-      const authToken = token.split(" ")[1]
-      const payload = jwt.verify(authToken, process.env.JWT_SECRET);
-      return payload
+  const authenticateAdmin = async ({ req }) => {
+    const token = req.headers.authorization || '';
+    
+    try {
+      if (token) {
+        const authToken = token.split(" ")[1];
+        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+  
+        if (payload && payload.isAdmin) {
+          return payload;
+        }
+      }
+      throw AuthError;
+    } catch (error) {
+      console.error('Error verifying JWT:', error.message);
+      throw AuthError;
     }
-    return null
-  } catch (error) {
-    console.error('Error verifying JWT:', error.message);
-    return null;
-  }
-}
+  };
+  const authenticateUser = async ({ req }) => {
+    const token = req.headers.authorization || '';
+    
+    try {
+      if (token) {
+        const authToken = token.split(" ")[1];
+        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+  
+        if (payload) {
+          return payload;
+        }
+      }
+      throw AuthError;
+    } catch (error) {
+      console.error('Error verifying JWT:', error.message);
+      throw AuthError;
+    }
+  };
 
-export { getUser, createAccessToken, createRefreshToken, userVerification };
+export { getUser, createAccessToken, createRefreshToken, authenticateAdmin, authenticateUser};
