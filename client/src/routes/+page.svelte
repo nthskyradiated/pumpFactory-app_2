@@ -1,12 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { setContextClient, gql, mutationStore, Client, cacheExchange, fetchExchange } from '@urql/svelte';
-  
-	export const urqlClient = new Client({
-	  exchanges: [cacheExchange, fetchExchange],
-	  url: 'http://api.localhost:5000', // Update with your GraphQL server URL
-
-	});
+	import { setContextClient, gql, mutationStore } from '@urql/svelte';
+	import {urqlClient} from '$lib/urql.js'
 	setContextClient(urqlClient);
   
 	let username = '';
@@ -37,12 +32,12 @@
 	  await urqlClient(result).toPromise();
 	  	console.log(result.data)
 		const response = result.data;
-		const { loginUser } = response;
+		const { loginUser } = response.data;
   
 		if (loginUser) {
 		  // Save the token to localStorage or a secure storage mechanism
 		  console.log("success")
-		  localStorage.setItem('token', loginUser.token);
+		  JSON.parse(localStorage.setItem('token', loginUser.token));
 		  // Redirect to the dashboard page
 		  goto('/dashboard');
   

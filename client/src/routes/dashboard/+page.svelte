@@ -1,16 +1,14 @@
 <!-- src/routes/Dashboard.svelte -->
 <script>
     import { onMount } from 'svelte';
-    import { gql, setContextClient, queryStore } from '@urql/svelte';
-    import urqlClient from '../+page.svelte';
+    import { gql, queryStore, getContextClient } from '@urql/svelte';
+    import {urqlClient} from '$lib/urql.js'
   
-    let result;
-
-    setContextClient(urqlClient);
+    let users
   
     onMount(async () => {
         result = queryStore({
-            client: urqlClient,
+            client: getContextClient(urqlClient),
             query: gql`
         query Clients {
           clients {
@@ -22,30 +20,19 @@
             age
             waiver
             membershipStatus
-            product {
-              id
-              description
-              name
-            }
-            attendance {
-              checkIn
-              clientId
-            }
           }
         }
       `
         })
-      // Fetch data when the component mounts
-        
-  
+
       const response = await urqlClient(result).toPromise();
-      result = response.data.clients; // Update to the correct field in your response
+      users = response.data.clients; // Update to the correct field in your response
     });
   </script>
   
   <main>
-    {#if result}
-      {#each result as user (user.id)}
+    {#if users}
+      {#each users as user}
         <h1>Welcome, {user.name}!</h1>
         <p>Email: {user.email}</p>
         <p>Phone: {user.phone}</p>
