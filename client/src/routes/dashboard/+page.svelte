@@ -1,32 +1,56 @@
 <!-- src/routes/Dashboard.svelte -->
 <script>
     import { onMount } from 'svelte';
-    import { gql } from '@urql/svelte';
-    import {urqlClient} from '../+page.svelte'
-    import { goto } from '$app/navigation';
+    import { gql, setContextClient, queryStore } from '@urql/svelte';
+    import urqlClient from '../+page.svelte';
   
-    let userData = null;
+    let result;
+
+    setContextClient(urqlClient);
   
     onMount(async () => {
-      // Fetch user data when the component mounts
-      const query = gql`
-        query {
-          getUserInfo {
-            username
-            // Include other user fields as needed
+        result = queryStore({
+            client: urqlClient,
+            query: gql`
+        query Clients {
+          clients {
+            id
+            name
+            email
+            phone
+            birthdate
+            age
+            waiver
+            membershipStatus
+            product {
+              id
+              description
+              name
+            }
+            attendance {
+              checkIn
+              clientId
+            }
           }
         }
-      `;
+      `
+        })
+      // Fetch data when the component mounts
+        
   
-      const response = await urqlClient.query(query).toPromise();
-      userData = response.data.getUserInfo;
+      const response = await urqlClient(result).toPromise();
+      result = response.data.clients; // Update to the correct field in your response
     });
   </script>
   
   <main>
-    {#if userData}
-      <h1>Welcome, {userData.username}!</h1>
-      <!-- Display other user information as needed -->
+    {#if result}
+      {#each result as user (user.id)}
+        <h1>Welcome, {user.name}!</h1>
+        <p>Email: {user.email}</p>
+        <p>Phone: {user.phone}</p>
+        <!-- Display other user information as needed -->
+      {/each}
     {:else}
       <p>Loading...</p>
     {/if}
