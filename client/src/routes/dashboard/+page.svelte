@@ -1,38 +1,32 @@
 <!-- src/routes/Dashboard.svelte -->
+
 <script>
-    import { gql, queryStore, getContextClient, setContextClient } from '@urql/svelte';
-    import {urqlClient} from '$lib/urql.js'
-
-  
-setContextClient(urqlClient)
-        const clients = queryStore({
-            client: getContextClient(),
-            query: gql`
-        query {
-          clients {
-            id
-            name
-            email
-            phone
-
-          }
+  import { queryStore, gql, getContextClient, setContextClient } from '@urql/svelte';
+  import {urqlClient} from '$lib/urql.js'
+  setContextClient(urqlClient)
+  const todos = queryStore({
+    client: getContextClient(),
+    query: gql`
+      query {
+        clients {
+          id
+          name
         }
-      `
-        })
+      }
+    `,
+  });
+</script>
 
-console.log(clients);
-  </script>
-  
-  <main>
-    {#if $clients.data}
-      {#each $clients.data.clients as client}
-        <h1>Welcome, {client.name}!</h1>
-        <p>Email: {client.email}</p>
-        <p>Phone: {client.phone}</p>
-        <!-- Display other user information as needed -->
-      {/each}
-    {:else}
-      <p>Loading...</p>
-    {/if}
-  </main>
-  
+{#if $todos.fetching}
+<p>Loading...</p>
+{:else if $todos.error}
+<p>Oh no... {$todos.error.message}</p>
+{:else}
+<ul>
+  {#each $todos.data.clients as client}
+  <li>{client.name}</li>
+  {/each}
+</ul>
+{/if}
+
+
