@@ -32,7 +32,7 @@ await server.start();
 
 // app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
-app.use(cors())
+app.use(cors({origin: true}));
 app.use(express.json())
 
 
@@ -61,14 +61,14 @@ app.use(express.json())
 )
 
 
-// const authMiddleware = expressjwt({
-//     secret: process.env.JWT_SECRET, // Replace with your secret key
+const authMiddleware = expressjwt({
+    secret: process.env.JWT_SECRET, // Replace with your secret key
 
-//     algorithms: ['HS256'], // Use HS256 or the appropriate algorithm for your setup
-//   });
+    algorithms: ['HS256'], // Use HS256 or the appropriate algorithm for your setup
+  });
   
-//   // Use the authentication middleware for protected routes
-//   app.use(authMiddleware);
+  // Use the authentication middleware for protected routes
+  app.use(authMiddleware);
   
 
 app.listen(port, () => console.log(ansi.green.bold.underline(`server running on port ${port}`)));
