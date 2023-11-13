@@ -1,0 +1,136 @@
+type Attendance {
+        id: ID!
+        clientId: ID!
+        productId: ID!
+        checkIn: Date!
+    }
+
+    type Product {
+        id: ID!
+        name: String!
+        description: String!
+        price: Int!
+    }
+
+    type Client {
+        id: ID!
+        name: String!
+        email: String!
+        phone: String!
+        birthdate: Date!
+        age: Int!
+        waiver: Boolean!
+        membershipStatus: MembershipStatus!
+        product: Product
+        attendance: [Attendance]
+    }
+
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        username: String!
+        password: String!
+        isAdmin: Boolean!
+    }
+
+    input AddAttendanceInput {
+        clientId: ID!
+        productId: ID!
+    }
+
+    input AddProductInput {
+        name: String!
+        description: String!
+        price: Int!
+    }
+
+    input UpdateProductInput {
+        id: ID!
+        name: String
+        description: String
+        price: Int
+    }
+
+    input AddClientInput {
+        name: String!
+        email: String!
+        phone: String!
+        birthdate: String!
+        waiver: Boolean!
+    }
+    input UpdateClientInput {
+        id: ID!
+        name: String
+        email: String
+        phone: String
+        birthdate: String
+        waiver: Boolean
+    }
+
+    input AddUserInput {
+        name: String!
+        email: String!
+        username: String!
+        password: String!
+        isAdmin: Boolean!
+    }
+    input UpdateUserInput {
+        name: String
+        email: String
+        username: String
+        password: String
+        isAdmin: Boolean
+    }
+
+    type Query {
+        products: [Product]
+        clients: [Client]
+        users: [User]
+        attendance(ID: ID!) : Attendance
+        product(ID: ID!) : Product
+        client(ID: ID!) : Client
+        user(ID: ID!) : User
+
+        
+    }
+
+    enum MembershipStatus {
+        active
+        inactive
+    }
+
+    type AuthPayload {
+        token: String
+        user: User
+    }
+
+
+    type Mutation { 
+        
+        addAttendance(input: AddAttendanceInput!): Attendance
+
+        deleteAttendance(id: ID!): Attendance
+        
+        addClient(input: AddClientInput! productId: ID): Client
+
+        updateClient(input: UpdateClientInput! productId: ID): Client
+        
+        deleteClient(id: ID!): Client
+
+        addProduct(input: AddProductInput!): Product
+        
+        updateProduct(input: UpdateProductInput!): Product
+        
+        deleteProduct(id: ID!): Product
+
+        registerUser(input: AddUserInput!): User
+        
+        updateUser(id: ID! input: UpdateUserInput): User
+
+        deleteUser(id: ID!): User
+
+        loginUser(username: String!, password: String!): AuthPayload
+
+
+    }

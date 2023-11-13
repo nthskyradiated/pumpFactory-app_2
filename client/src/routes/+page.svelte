@@ -1,6 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { setContextClient, gql, mutationStore } from '@urql/svelte';
+	
 	import {urqlClient} from '$lib/urql.js'
 	setContextClient(urqlClient);
   
