@@ -1,6 +1,7 @@
 <!-- src/routes/Dashboard.svelte -->
 
 <script>
+  import Navbar from '../../components/Navbar.svelte'
   import { queryStore, gql, getContextClient, setContextClient } from '@urql/svelte';
   import {urqlClient} from '$lib/urql.js'
   setContextClient(urqlClient)
@@ -22,7 +23,7 @@
     `,
   });
 </script>
-
+<Navbar />
 {#if $getClients.fetching}
 <p>Loading...</p>
 {:else if $getClients.error}

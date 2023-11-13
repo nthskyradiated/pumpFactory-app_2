@@ -50,6 +50,27 @@ const createRefreshToken = async (user) =>
           return payload;
         }
       }
+      // If the access token is invalid, check for a valid refresh token
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+
+      if (refreshPayload) {
+        // Generate a new access token
+        const newAccessToken = await createAccessToken({
+          id: refreshPayload.userId,
+          isAdmin: refreshPayload.isAdmin,
+        });
+
+        // Send the new access token to the client
+        return {
+          userId: refreshPayload.userId,
+          isAdmin: refreshPayload.isAdmin,
+          accessToken: newAccessToken,
+        };
+      }
+    }
       throw AuthError;
     } catch (error) {
       console.error('Error verifying JWT:', error.message);
@@ -58,7 +79,7 @@ const createRefreshToken = async (user) =>
   };
   const authenticateUser = async ({ req }) => {
     const token = req.headers.authorization || '';
-    
+  
     try {
       if (token) {
         const authToken = token.split(" ")[1];
@@ -66,6 +87,28 @@ const createRefreshToken = async (user) =>
   
         if (payload) {
           return payload;
+        }
+      }
+  
+      // If the access token is invalid, check for a valid refresh token
+      const refreshToken = req.cookies.refreshToken;
+  
+      if (refreshToken) {
+        const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+  
+        if (refreshPayload) {
+          // Generate a new access token
+          const newAccessToken = await createAccessToken({
+            id: refreshPayload.userId,
+            isAdmin: refreshPayload.isAdmin,
+          });
+  
+          // Send the new access token to the client
+          return {
+            userId: refreshPayload.userId,
+            isAdmin: refreshPayload.isAdmin,
+            accessToken: newAccessToken,
+          };
         }
       }
       throw AuthError;

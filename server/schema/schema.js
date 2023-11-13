@@ -156,6 +156,7 @@ export const typeDefs = `#graphql
     type AuthPayload {
         token: String
         user: User
+        refreshToken: String
     }
 
 
@@ -601,7 +602,7 @@ export const resolvers = {
 
         const token = await createAccessToken(user)
 
-        return {user, token};
+        return {user, token, refreshToken};
         
         },
 

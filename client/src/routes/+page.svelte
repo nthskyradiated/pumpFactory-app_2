@@ -1,4 +1,5 @@
 <script>
+	import Navbar from '../components/Navbar.svelte'
 	import { goto } from '$app/navigation';
 	import { setContextClient, gql, mutationStore, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
@@ -19,6 +20,7 @@
                 name
                 username
               }
+			  refreshToken
             }
           }
         `,
@@ -47,6 +49,7 @@
 
 	
   </script>
+  <Navbar />
   
   <main>
 	<h1>Pump Login Page</h1>

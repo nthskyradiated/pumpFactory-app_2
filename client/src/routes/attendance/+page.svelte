@@ -19,14 +19,14 @@
   });
 </script>
 
-{#if $getProducts.fetching}
+{#if $getAttendance.fetching}
 <p>Loading...</p>
-{:else if $getProducts.error}
-<p>Oh no... {$getProducts.error.message}</p>
+{:else if $getAttendance.error}
+<p>Oh no... {$getAttendance.error.message}</p>
 {:else}
 <ul>
-  {#each $getProducts.data.products as product}
-  <li>{product.name} - {product.description} - {product.price}</li>
+  {#each $getAttendance.data.attendance as attendance}
+  <li>{attendance.clientId} - {attendance.productId} - {attendance.checkIn}</li>
   {/each}
 </ul>
 {/if}
