@@ -31,7 +31,7 @@
 			console.log(result.data.loginUser);
 			 const {token} = result.data.loginUser
 			 if (token) {
-				 JSON.stringify(localStorage.setItem('token', token))
+				 localStorage.setItem('token', token)
 				 goto('/dashboard');
 
 			   // Clear the error state
@@ -49,7 +49,7 @@
   </script>
   
   <main>
-	<h1>Login</h1>
+	<h1>Pump Login Page</h1>
 	{#if error}
 	  <p style="color: red;">{error}</p>
 	{/if}

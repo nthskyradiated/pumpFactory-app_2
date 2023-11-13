@@ -197,7 +197,7 @@ export const resolvers = {
             return Product.find()
         },
         clients: async (parent, args, context) => {
-            // await authenticateUser(context)
+            await authenticateUser(context)
             return Client.find()
         },
         users: async (parent, args, context) => {
