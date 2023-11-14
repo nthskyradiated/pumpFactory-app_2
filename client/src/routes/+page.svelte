@@ -1,9 +1,11 @@
 <script>
-	import Navbar from '../components/Navbar.svelte'
 	import { goto } from '$app/navigation';
-	import { setContextClient, gql, mutationStore, getContextClient } from '@urql/svelte';
+	import { setContextClient, gql, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
 	import {error} from '@sveltejs/kit'
+	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
+
+
 	setContextClient(urqlClient);
 	let client = getContextClient();
 	let username = '';
@@ -44,26 +46,31 @@
 
 	}
 
-
-	
   </script>
-  <Navbar />
+
   
   <main>
-	<h1>Pump Login Page</h1>
+	<AppBar>
+		<div class="flex flex-row-reverse gap-8 text-center justify-center">
+			<h1>Pump Login Page</h1>
+			<div>
+				<LightSwitch />
+			</div>
+		</div>
+	</AppBar>
 	{#if autherror}
 	  <p style="color: red;">{autherror}</p>
 	{/if}
-	<form method="POST" on:submit|preventDefault={loginUser}>
+	<form method="POST" on:submit|preventDefault={loginUser} class="my-auto flex flex-col items-center justify-center gap-6 h-screen">
 		<label>
 			Username:
-			<input type="text " name='username' bind:value={username} placeholder="enter username" />
+			<input type="text" class='input' name='username' bind:value={username} placeholder="enter username" />
 		  </label>
 		  <label>
 			Password:
-			<input type="password" name='password' bind:value={password} placeholder="enter password" />
+			<input type="password" class="input" name='password' bind:value={password} placeholder="enter password" />
 		  </label>
-		  <button type="submit">Login</button>
+		  <button type="submit button" class="btn variant-filled-primary">Login</button>
 	</form>
   </main>
   
