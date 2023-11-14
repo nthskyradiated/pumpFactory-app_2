@@ -25,7 +25,8 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'api.localhost/graphql'
+    path: 'api.localhost/graphql',
+    status400ForVariableCoercionErrors: true
 });
 
 await server.start();  

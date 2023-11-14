@@ -3,12 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { setContextClient, gql, mutationStore, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
+	import {error} from '@sveltejs/kit'
 	setContextClient(urqlClient);
 	let client = getContextClient();
 	let username = '';
 	let password = '';
-	let error = null;
-  
+	let autherror;
         const query = gql`
           mutation ($username: String!, $password: String!) {
             loginUser(username: $username, password: $password) {
@@ -35,13 +35,11 @@
 			 if (token) {
 				 localStorage.setItem('token', token)
 				 goto('/dashboard');
-
-			   // Clear the error state
-			   error = null;
 			 }})
 			 .catch((err) => {
 				console.error(err.message)
-				error = 'Incorrect username or password';
+				autherror = 'Invalid Username or Password';
+				return new error (401, autherror)
 			 })
 
 	}
@@ -53,8 +51,8 @@
   
   <main>
 	<h1>Pump Login Page</h1>
-	{#if error}
-	  <p style="color: red;">{error}</p>
+	{#if autherror}
+	  <p style="color: red;">{autherror}</p>
 	{/if}
 	<form method="POST" on:submit|preventDefault={loginUser}>
 		<label>
