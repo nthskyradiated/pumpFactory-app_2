@@ -4,8 +4,11 @@
   import { queryStore, gql, getContextClient, setContextClient } from '@urql/svelte';
   import {urqlClient} from '$lib/urql.js'
   setContextClient(urqlClient)
+  const client = getContextClient()
+  let sourceData =[]
+  let clients
   const getClients = queryStore({
-    client: getContextClient(),
+    client,
     query: gql`
       query {
         clients {
@@ -21,6 +24,25 @@
       }
     `,
   });
+
+  async function query() {
+    sourceData = $getClients.data.clients.map((client) => ({
+      id: client.id,
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      birthdate: client.birthdate,
+      age: client.age,
+      membershipStatus: client.membershipStatus,
+      waiver: client.waiver,
+    }));
+    console.log([...$getClients.data.clients]);
+    return sourceData;
+  }
+
+  $: clients = query();
+
+  // console.log(sourceData)
 </script>
 
 {#if $getClients.fetching}
