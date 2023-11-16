@@ -31,9 +31,13 @@ const server = new ApolloServer({
 
 await server.start();  
 
-// app.use(morgan('common'));
+app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
-app.use(cors({origin: true}));
+app.use(cors({
+  origin: 'http://localhost:5173', // Replace with your SvelteKit app's domain
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
 app.use(express.json())
 
 
