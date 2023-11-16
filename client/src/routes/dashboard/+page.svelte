@@ -57,6 +57,6 @@
 
   {#if clients.length > 0}
 
-<Table source={tableSimple} />
+<Table source={tableSimple} interactive={true}/>
   {/if}
 {/if}

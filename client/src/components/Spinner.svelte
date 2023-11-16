@@ -7,4 +7,4 @@
     ];
 </script>
 
-<ConicGradient stops={conicStops} spin>Loading</ConicGradient>
+<ConicGradient stops={conicStops} spin>Loading...</ConicGradient>
