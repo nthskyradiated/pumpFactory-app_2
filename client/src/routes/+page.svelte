@@ -50,14 +50,6 @@
 
   
   <main>
-	<AppBar>
-		<div class="flex flex-row-reverse gap-8 text-center justify-center">
-			<h1 class="h1">Pump Login Page</h1>
-			<div>
-				<LightSwitch />
-			</div>
-		</div>
-	</AppBar>
 	<form method="POST" on:submit|preventDefault={loginUser} class="my-auto flex flex-col items-center justify-center gap-6 h-screen">
 		{#if autherror}
 		  <p style="color: red;">{autherror}</p>

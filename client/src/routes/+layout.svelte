@@ -1,8 +1,15 @@
 <script>
   import "../app.postcss";
-  import { AppShell, AppBar,LightSwitch } from '@skeletonlabs/skeleton';
+  import { AppShell, AppBar,LightSwitch, initializeStores, Modal } from '@skeletonlabs/skeleton';
+  import AddClientModal from "../components/AddClientModal.svelte";
+  initializeStores()
+
+  const modalRegistry = {
+    addClientModal: {ref: AddClientModal}
+  }
 </script>
 
+<Modal components={modalRegistry} />
 <AppShell>
   <AppBar>
     <LightSwitch />
