@@ -1,4 +1,4 @@
-import { Client, cacheExchange, fetchExchange } from '@urql/svelte';
+import { Client, cacheExchange, fetchExchange, mapExchange } from '@urql/svelte';
 
 const getToken = () => {
   if (typeof window !== 'undefined') {
@@ -6,7 +6,6 @@ const getToken = () => {
   }
   return '';
 };
-
   
 const getCookie = (name) => {
   if (typeof document !== 'undefined') {
@@ -16,9 +15,23 @@ const getCookie = (name) => {
   }
   return '';
 };
+const mapExchangeHandler = ({ client, forward }) => (ops$) => {
+  return ops$.map((operation) => {
+    return forward(operation).map((result) => {
+      // Check if there are errors in the result
+      if (result.error) {
+        // Handle the error, e.g., display an error message
+        console.error('GraphQL error:', result.error);
+        // Optionally, update your UI to show an error message to the user
+      }
+
+      return result;
+    });
+  });
+};
 
 export const urqlClient = new Client({
-  exchanges: [cacheExchange, fetchExchange],
+  exchanges: [cacheExchange, fetchExchange, mapExchange(mapExchangeHandler)],
   url: 'http://api.localhost:5000', // Update with your GraphQL server URL
   fetchOptions: () => {
     const token = getToken()
@@ -30,4 +43,3 @@ export const urqlClient = new Client({
   }
 
 });
-

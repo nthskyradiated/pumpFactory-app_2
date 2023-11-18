@@ -15,6 +15,7 @@
     "@graphql-codegen/typescript": "4.0.1",
     "@graphql-codegen/urql-introspection": "^3.0.0",
     "@graphql-codegen/urql-svelte-operations-store": "^2.0.0",
+    "@iconify/svelte": "^3.1.4",
     "@skeletonlabs/skeleton": "^2.5.0",
     "@skeletonlabs/tw-plugin": "^0.2.4",
     "@sveltejs/adapter-auto": "^2.0.0",
@@ -25,6 +26,7 @@
     "postcss": "^8.4.24",
     "postcss-load-config": "^4.0.1",
     "svelte": "^4.0.5",
+    "svelte-routing": "^2.6.0",
     "tailwindcss": "^3.3.2",
     "vite": "^4.4.2"
   },
