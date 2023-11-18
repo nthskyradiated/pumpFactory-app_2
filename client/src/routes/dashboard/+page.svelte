@@ -30,7 +30,7 @@
   
   let paginationSettings = {
 	page: 0,
-	limit: 5,
+	limit: 10,
 	size: clients.length,
 	amounts: [3,5,10],
 } 
