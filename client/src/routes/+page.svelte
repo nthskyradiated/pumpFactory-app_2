@@ -3,9 +3,7 @@
 	import { setContextClient, gql, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
 	import {error} from '@sveltejs/kit'
-	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
-
-
+	
 	setContextClient(urqlClient);
 	let client = getContextClient();
 	let username = '';

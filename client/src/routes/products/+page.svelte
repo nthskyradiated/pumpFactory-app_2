@@ -1,10 +1,8 @@
 <script>
-  import { queryStore, gql, getContextClient, setContextClient } from '@urql/svelte';
-  import { urqlClient } from '$lib/urql.js';
+  import { queryStore, gql, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
 
-  setContextClient(urqlClient);
   const client = getContextClient();
 
   const getProducts = queryStore({

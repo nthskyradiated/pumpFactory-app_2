@@ -1,16 +1,30 @@
 <script lang="ts">
-	import type { SvelteComponent } from 'svelte';
-
-	// Stores
+	import { SvelteComponent } from 'svelte';
+	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-
-	// Props
-	/** Exposes parent props to this component. */
 	export let parent: SvelteComponent;
 
+	const client = getContextClient();
+
+	const getProducts = queryStore({
+    client,
+    query: gql`
+      query {
+        products {
+          id
+          name
+          description
+          price
+        }
+      }
+    `,
+
+  });
+
+  let products = $getProducts.data?.products || [];
+  $: products = $getProducts.data?.products || [];
 	const modalStore = getModalStore();
 
-	// Form Data
 	const formData = {
 		name: '',
 		tel: '',
@@ -36,9 +50,9 @@
 {#if $modalStore[0]}
 	<div class="modal-example-form {cBase}">
 		<header class={cHeader}>{$modalStore[0].title ?? 'Register a New Customer'}</header>
-		<article>{$modalStore[0].body ?? 'Fill in the below details'}</article>
+		<article>{$modalStore[0].body ?? 'Fill in below details'}</article>
 		<!-- Enable for debugging: -->
-		<form class="modal-form {cForm}">
+		<form class="modal-form {cForm}" on:submit|preventDefault={addClient}>
 			<label class="label">
 				<span>Name</span>
 				<input class="input" type="text" bind:value={formData.name} placeholder="Enter name..." />
@@ -55,10 +69,25 @@
 				<span>Birthdate</span>
 				<input class="input" type="date" bind:value={formData.birthDate} />
 			</label>
+			<!-- svelte-ignore a11y-label-has-associated-control -->
 			<label class="label">
-				<span>Product</span>
-				<input class="input" type="enum" bind:value={formData.product} placeholder="Choose Services" />
+					<span>Product</span>	
+					<select class="select">
+						{#each products as product (product.id)}
+						<option value={product.id}>{product.name}</option>
+						{/each}
+						<option value="NA">N/A</option>
+					</select>
 			</label>
+			<label class="flex items-center space-x-2">
+				<input class="radio" type="radio" checked name="radio-direct" value="1" />
+				<p>Waiver (signed)</p>
+			</label>
+			<label class="flex items-center space-x-2">
+				<input class="radio" type="radio" name="radio-direct" value="2" />
+				<p>No Waiver</p>
+			</label>
+			
 		</form>
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
@@ -67,3 +96,39 @@
     </footer>
 	</div>
 {/if}
+
+
+
+
+
+
+
+
+
+let result;
+
+const addClient = ({ id, title }) => {
+  result = mutationStore({
+	client,
+	query: gql`
+mutation AddClient($input: AddClientInput!, $productId: ID) {
+  addClient(input: $input, productId: $productId) {
+    id
+    name
+    email
+    phone
+    birthdate
+    age
+    waiver
+    membershipStatus
+    product {
+      name
+      description
+      price
+    }
+  }
+}
+	`,
+	variables: { input, productId },
+  });
+};

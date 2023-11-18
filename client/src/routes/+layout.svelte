@@ -1,9 +1,11 @@
 <script>
   import "../app.postcss";
+  import { urqlClient } from '$lib/urql.js';
+  import { setContextClient } from '@urql/svelte';
   import { AppShell, AppBar,LightSwitch, initializeStores, Modal } from '@skeletonlabs/skeleton';
   import AddClientModal from "../components/AddClientModal.svelte";
   initializeStores()
-
+  setContextClient(urqlClient);
   const modalRegistry = {
     addClientModal: {ref: AddClientModal}
   }

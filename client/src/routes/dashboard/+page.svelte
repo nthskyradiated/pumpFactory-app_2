@@ -1,11 +1,10 @@
 <script>
-  import { queryStore, gql, getContextClient, setContextClient } from '@urql/svelte';
-  import { urqlClient } from '$lib/urql.js';
+  import { queryStore, gql, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
-  import { Table, tableMapperValues, getModalStore, Modal } from '@skeletonlabs/skeleton';
+  import { Table, tableMapperValues, getModalStore } from '@skeletonlabs/skeleton';
   import { Paginator } from '@skeletonlabs/skeleton';
 
-  setContextClient(urqlClient);
+
   const client = getContextClient();
 
   const getClients = queryStore({
@@ -26,10 +25,23 @@
     `,
   });
 
-  const modalStore = getModalStore();
-
   let isFetching = $getClients.fetching;
   let clients = $getClients.data?.clients || [];
+  
+  let paginationSettings = {
+	page: 0,
+	limit: 5,
+	size: clients.length,
+	amounts: [3,5,10],
+} 
+
+$: paginationSettings = {
+ ...paginationSettings,
+   size: clients.length,
+
+}
+  const modalStore = getModalStore();
+
 
   $: {
     isFetching = $getClients.fetching;
@@ -51,12 +63,7 @@
   };
 
 
-let paginationSettings = {
-	page: 0,
-	limit: 5,
-	size: clients.length,
-	amounts: [3,5,10],
-} 
+
 $: paginatedSource = clients.slice(
 	paginationSettings.page * paginationSettings.limit,
 	paginationSettings.page * paginationSettings.limit + paginationSettings.limit
