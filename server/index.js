@@ -9,9 +9,8 @@ import morgan from "morgan";
 import helmet from "helmet";
 import vhost from "vhost";
 import { expressjwt } from "express-jwt";
-import { getUser } from "./utils/userAuth.js";
 import cors from "cors";
-import { GraphQLError } from 'graphql'
+import cookieParser from "cookie-parser";
 
 dotenv.config()
 
@@ -30,7 +29,7 @@ const server = new ApolloServer({
 });
 
 await server.start();  
-
+app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
