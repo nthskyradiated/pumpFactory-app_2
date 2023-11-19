@@ -5,12 +5,20 @@
   import {auth} from '$lib/auth'
   import { onMount } from 'svelte';
 
-  let isAdmin = $auth.isAdmin
-  onMount(async () => {
-    // This code will run after the initial render
-    isAdmin = $auth.isAdmin;
+  let isAdmin = $auth.isAdmin;
+  export const load = async () => {
+$: isAdmin = $auth.isAdmin;
     console.log('isAdmin:', isAdmin);
-  });
+  };
+ 
+  //@TODO: find a way to persist values. this is a clunky workaround 
+  export const snapshot ={
+    capture: () => isAdmin,
+    restore: (value) => {isAdmin = value
+    auth.set({isAdmin: $auth.isAdmin,})
+    // console.log(isAdmin, isLoggedIn);
+    } 
+  }
  
   const modalStore = getModalStore();
   const client = getContextClient();
