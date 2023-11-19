@@ -3,7 +3,8 @@
 	import { setContextClient, gql, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
 	import {error} from '@sveltejs/kit'
-	
+	import {auth} from '$lib/auth.js'
+ 
 	setContextClient(urqlClient);
 	let client = getContextClient();
 	let username = '';
@@ -34,6 +35,8 @@
 			 const {token} = result.data.loginUser
 			 if (token) {
 				 localStorage.setItem('token', token)
+				 console.log(result.data.loginUser.user.isAdmin);
+				 auth.set({isAdmin: result.data.loginUser.user.isAdmin, isLoggedIn: true})
 				 goto('/dashboard');
 			 }})
 			 .catch((err) => {

@@ -2,7 +2,16 @@
   import { queryStore, gql, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, Paginator, getModalStore } from '@skeletonlabs/skeleton';
+  import {auth} from '$lib/auth'
+  import { onMount } from 'svelte';
 
+  let isAdmin = $auth.isAdmin
+  onMount(async () => {
+    // This code will run after the initial render
+    isAdmin = $auth.isAdmin;
+    console.log('isAdmin:', isAdmin);
+  });
+ 
   const modalStore = getModalStore();
   const client = getContextClient();
 
@@ -59,6 +68,8 @@ const modal = {
 	type: 'component',
   component: 'addProductModal'
 };
+console.log($auth.isAdmin);
+console.log(isAdmin);
 </script>
 
 
@@ -78,7 +89,11 @@ const modal = {
 	showFirstLastButtons="{true}"
 	showPreviousNextButtons="{true}"
 />
-
+{#if isAdmin}
 <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add a Product</button>
-  {/if}
+{:else}
+  <p>You do not have permission to add products.</p>
 {/if}
+  {/if}
+  {/if}
+

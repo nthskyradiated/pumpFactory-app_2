@@ -8,7 +8,7 @@
 	const toastStore = getToastStore();
 	const client = getContextClient();
 	let visible = false;
-	const message = "Please fill in all required fields"
+	const message = "Please fill in all required fields. Minimum price value is 100."
 	let result;
   
 	const addProduct = ({ input }) => {
@@ -33,14 +33,15 @@
 	let formData = {
 	  name: '',
 	  description: '',
-	  price: '',
+	  price: 100,
 	};
 
 function areFieldsFilled() {
+const isPositiveNumber = typeof formData.price === 'number' && formData.price > 100;
   return (
     formData.name.trim() !== '' &&
     formData.description.trim() !== '' &&
-    formData.price.trim() !== ''
+    isPositiveNumber
   );
 }
 
