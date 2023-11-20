@@ -1,15 +1,22 @@
 // auth.js (Sample auth module)
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 
-// Read the isAdmin value from localStorage on initialization
-// const initialIsAdmin = localStorage.getItem('isAdmin') === 'true';
+
+let initialIsAdmin;
+if (browser) {
+initialIsAdmin = localStorage.getItem('isAdmin') === 'true';
+}
 
 export const auth = writable({
   isLoggedIn: false,
-  isAdmin: false,
+  isAdmin: initialIsAdmin,
 });
 
-// // Subscribe to changes in the isAdmin store and update localStorage accordingly
-// auth.subscribe(($auth) => {
-//   localStorage.setItem('isAdmin', $auth.isAdmin);
-// });
+if (browser) {
+  auth.subscribe(($auth) => {
+    localStorage.setItem('isAdmin', $auth.isAdmin);
+    return auth
+  }
+  );
+}// // Subscribe to changes in the isAdmin store and update localStorage accordingly

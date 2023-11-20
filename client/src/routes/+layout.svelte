@@ -6,7 +6,6 @@
   import AddClientModal from "../components/AddClientModal.svelte";
   import AddProductModal from "../components/AddProductModal.svelte";
   import { goto } from '$app/navigation';
-  import { writable } from 'svelte/store';
   import Footer from "../components/Footer.svelte";
 
   initializeStores()
@@ -19,7 +18,7 @@
 
   function handleLogout() {
     // Perform logout logic here
-    // For example, clear tokens, navigate to login page, etc.
+    localStorage.removeItem('token');
     goto('/');
   }
 

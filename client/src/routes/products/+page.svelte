@@ -3,22 +3,21 @@
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, Paginator, getModalStore } from '@skeletonlabs/skeleton';
   import {auth} from '$lib/auth'
-  import { onMount } from 'svelte';
 
-  let isAdmin = $auth.isAdmin;
+
   export const load = async () => {
 $: isAdmin = $auth.isAdmin;
     console.log('isAdmin:', isAdmin);
   };
  
   //@TODO: find a way to persist values. this is a clunky workaround 
-  export const snapshot ={
-    capture: () => isAdmin,
-    restore: (value) => {isAdmin = value
-    auth.set({isAdmin: $auth.isAdmin,})
-    // console.log(isAdmin, isLoggedIn);
-    } 
-  }
+  // export const snapshot ={
+  //   capture: () => isAdmin,
+  //   restore: (value) => {isAdmin = value
+  //   auth.set({isAdmin: $auth.isAdmin,})
+  //   // console.log(isAdmin, isLoggedIn);
+  //   } 
+  // }
  
   const modalStore = getModalStore();
   const client = getContextClient();
@@ -77,7 +76,7 @@ const modal = {
   component: 'addProductModal'
 };
 console.log($auth.isAdmin);
-console.log(isAdmin);
+// console.log(isAdmin);
 </script>
 
 
@@ -97,7 +96,7 @@ console.log(isAdmin);
 	showFirstLastButtons="{true}"
 	showPreviousNextButtons="{true}"
 />
-{#if isAdmin}
+{#if $auth.isAdmin}
 <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add a Product</button>
 {:else}
   <p>You do not have permission to add products.</p>
