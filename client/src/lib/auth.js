@@ -5,7 +5,7 @@ import { browser } from '$app/environment';
 
 let initialIsAdmin;
 if (browser) {
-initialIsAdmin = localStorage.getItem('isAdmin') === 'true';
+initialIsAdmin = localStorage.getItem('isAdmin') === 'true' || false;
 }
 
 export const auth = writable({
@@ -16,7 +16,6 @@ export const auth = writable({
 if (browser) {
   auth.subscribe(($auth) => {
     localStorage.setItem('isAdmin', $auth.isAdmin);
-    return auth
   }
   );
 }// // Subscribe to changes in the isAdmin store and update localStorage accordingly

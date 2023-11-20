@@ -10,15 +10,6 @@ $: isAdmin = $auth.isAdmin;
     console.log('isAdmin:', isAdmin);
   };
  
-  //@TODO: find a way to persist values. this is a clunky workaround 
-  // export const snapshot ={
-  //   capture: () => isAdmin,
-  //   restore: (value) => {isAdmin = value
-  //   auth.set({isAdmin: $auth.isAdmin,})
-  //   // console.log(isAdmin, isLoggedIn);
-  //   } 
-  // }
- 
   const modalStore = getModalStore();
   const client = getContextClient();
 
