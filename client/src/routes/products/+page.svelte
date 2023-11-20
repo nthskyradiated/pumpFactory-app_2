@@ -66,8 +66,9 @@ const modal = {
 	type: 'component',
   component: 'addProductModal'
 };
+
 console.log($auth.isAdmin);
-// console.log(isAdmin);
+console.log(isAdmin);
 </script>
 
 

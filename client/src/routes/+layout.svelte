@@ -5,6 +5,7 @@
   import { AppShell, AppBar,LightSwitch, initializeStores, Modal } from '@skeletonlabs/skeleton';
   import AddClientModal from "../components/AddClientModal.svelte";
   import AddProductModal from "../components/AddProductModal.svelte";
+  import UpdateClientModal from "../components/UpdateClientModal.svelte";
   import { goto } from '$app/navigation';
   import Footer from "../components/Footer.svelte";
 
@@ -13,6 +14,7 @@
 
   const modalRegistry = {
     addClientModal: {ref: AddClientModal},
+    updateClientModal: {ref: UpdateClientModal},
     addProductModal: {ref: AddProductModal}
   }
 

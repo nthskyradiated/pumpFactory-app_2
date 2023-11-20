@@ -25,8 +25,39 @@
     `,
   });
 
+  let ID
+  const getClient = queryStore({
+      client,
+      query: gql`
+        query ($id: ID!){
+          client (ID: $id){
+            id
+            name
+            email
+            phone
+            birthdate
+            age
+            waiver
+            membershipStatus
+            product {
+                name
+              }
+            attendance {
+                checkIn
+                productId
+              }
+          }
+        }
+      `,
+      variables: {ID}
+    });
+
   let isFetching = $getClients.fetching;
   let clients = $getClients.data?.clients || [];
+  let isFetchingClient = $getClient.fetching;
+  let singleClient = $getClient.data?.client || [];
+
+
   
   let paginationSettings = {
 	page: 0,
@@ -75,10 +106,21 @@ const modal = {
 	type: 'component',
   component: 'addClientModal'
 };
+const updateModal = {
+	type: 'component',
+  component: 'updateClientModal'
+};
+const mySelectionHandler = (event) => {
+    // Extract the ID from the 'detail' array in the event
+    const ID = event.detail[0];
+    console.log(ID);
+    modalStore.trigger(updateModal)
+    
+  };
 
+      
 
-
-					
+			
 </script>
 
 {#if isFetching}
@@ -90,7 +132,7 @@ const modal = {
 
   {#if clients.length > 0}
 
-<Table source={tableSimple} interactive={true}/>
+<Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} />
 
 <Paginator
 	bind:settings={paginationSettings}
