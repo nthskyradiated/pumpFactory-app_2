@@ -1,16 +1,15 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
 	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
-	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 
 	export let parent: SvelteComponent;
   
+	const toastStore = getToastStore();
 	const client = getContextClient();
 	let visible = false;
 	const message = "Please fill in all required fields"
 	let result;
-
-	export const load
   
 	const addClient = ({ input, productId }) => {
 	  result = mutationStore({
@@ -59,17 +58,39 @@
   
 	let formData = {
 	  name: '',
-	  email: '',
 	  phone: '',
+	  email: '',
 	  birthdate: '',
-	  age: '',
 	  waiver: '',
-	  membershipStatus: '',
-	  products: '',
-	  attendance: ''
+	};
+	let formProduct = {
+	  product: 'NA', // Default to 'NA'
+
 	};
 
+// Function to check if all required fields are filled
+function areFieldsFilled() {
+  return (
+    formData.name.trim() !== '' &&
+    formData.phone.trim() !== '' &&
+    formData.email.trim() !== '' &&
+    formData.birthdate.trim() !== '' &&
+    formData.waiver !== null
+  );
+}
 
+async function onFormSubmit() {
+  try {
+
+	if (!areFieldsFilled()) {
+	  return visible = true
+    }
+    // If product is 'NA', set productId to null
+    const productId = formProduct.product === 'NA' ? null : formProduct.product;
+    addClient({ input: formData, productId });
+
+    // Wait for the mutation result
+    await result;
 
     // Check if there are errors in the result
     if (result.error) {
@@ -78,6 +99,22 @@
 	  const t = {
 	message: result.error
 	};
+toastStore.trigger(t);
+      // Optionally, update your UI to show an error message to the user
+    } else {
+      // If successful, close the modal
+      if (result.data) {
+        $modalStore[0].response(result);
+        console.log(result.data.addClient);
+      }
+      modalStore.close();
+    }
+  } catch (error) {
+    // Handle unexpected errors
+    console.error('Unexpected error:', error);
+    // Optionally, update your UI to show an error message to the user
+  }
+}
 
   
 	// Base Classes

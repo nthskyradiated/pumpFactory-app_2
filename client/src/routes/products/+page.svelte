@@ -68,7 +68,6 @@ const modal = {
 };
 
 console.log($auth.isAdmin);
-console.log(isAdmin);
 </script>
 
 
