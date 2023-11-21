@@ -25,7 +25,8 @@ const server = new ApolloServer({
     typeDefs,
     resolvers,
     path: 'api.localhost/graphql',
-    status400ForVariableCoercionErrors: true
+    status400ForVariableCoercionErrors: true,
+    credentials: 'include'
 });
 
 await server.start();  

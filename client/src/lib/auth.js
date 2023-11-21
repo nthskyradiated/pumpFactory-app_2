@@ -19,3 +19,7 @@ if (browser) {
   }
   );
 }// // Subscribe to changes in the isAdmin store and update localStorage accordingly
+
+export const refreshToken = writable({
+  refreshToken: null
+})

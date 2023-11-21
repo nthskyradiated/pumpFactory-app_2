@@ -3,7 +3,7 @@
 	import { setContextClient, gql, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
 	import {error} from '@sveltejs/kit'
-	import {auth} from '$lib/auth.js'
+	import {auth, refreshToken} from '$lib/auth.js'
  
 	setContextClient(urqlClient);
 	let client = getContextClient();
@@ -37,6 +37,7 @@
 				 localStorage.setItem('token', token)
 				 console.log(result.data.loginUser.user.isAdmin);
 				 auth.set({isAdmin: result.data.loginUser.user.isAdmin, isLoggedIn: true})
+				 refreshToken.set({isAdmin: result.data.loginUser.refreshToken})
 				 goto('/dashboard');
 			 }})
 			 .catch((err) => {
