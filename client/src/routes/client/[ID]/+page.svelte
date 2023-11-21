@@ -1,33 +1,15 @@
 <script>
   import { queryStore, gql, getContextClient } from '@urql/svelte';
-  import Spinner from '../../components/Spinner.svelte';
+  import Spinner from '../../../components/Spinner.svelte';
   import { Table, tableMapperValues, getModalStore } from '@skeletonlabs/skeleton';
   import { Paginator } from '@skeletonlabs/skeleton';
   import {clientID} from '$lib/clientStore'
-  import { goto } from '$app/navigation';
 
 
+export let data
+let {ID} = data
   const client = getContextClient();
 
-  const getClients = queryStore({
-    client,
-    query: gql`
-      query {
-        clients {
-          id
-          name
-          email
-          phone
-          birthdate
-          age
-          waiver
-          membershipStatus
-        }
-      }
-    `,
-  });
-
-  let ID
   let getClient = queryStore({
       client,
       query: gql`
@@ -51,60 +33,34 @@
           }
         }
       `,
-      variables: {ID : $clientID}
-    });
-  $ : getClient = queryStore({
-      client,
-      query: gql`
-        query ($id: ID!){
-          client (ID: $id){
-            id
-            name
-            email
-            phone
-            birthdate
-            age
-            waiver
-            membershipStatus
-            product {
-                name
-              }
-            attendance {
-                checkIn
-                productId
-              }
-          }
-        }
-      `,
-      variables: {ID: clientID}
+      variables: {ID}
     });
 
-  let isFetching = $getClients.fetching;
-  let clients = $getClients.data?.clients || [];
-  let isFetchingClient = $getClient.fetching;
+
+  let isFetching = $getClient.fetching;
   let singleClient = $getClient.data?.client
-  console.log($getClient?.data);
+  // console.log($getClient?.data);
 
 
   
   let paginationSettings = {
 	page: 0,
 	limit: 10,
-	size: clients.length,
+	size: getClient.length,
 	amounts: [3,5,10],
 } 
 
 $: paginationSettings = {
  ...paginationSettings,
-   size: clients.length,
+   size: getClient.length,
 
 }
   const modalStore = getModalStore();
 
 
   $: {
-    isFetching = $getClients.fetching;
-    clients = $getClients.data?.clients || [];
+    isFetching = $getClient.fetching;
+    singleClient = $getClient.data?.clients || [];
   }
 
   $: tableSimple = {
@@ -123,7 +79,7 @@ $: paginationSettings = {
 
 
 
-$: paginatedSource = clients.slice(
+$: paginatedSource = singleClient.slice(
 	paginationSettings.page * paginationSettings.limit,
 	paginationSettings.page * paginationSettings.limit + paginationSettings.limit
 );
@@ -140,12 +96,11 @@ const updateModal = {
 };
 const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
-    const ID = event.detail[0];
-    console.log(ID);
-    clientID.set(ID)
-    console.log($clientID);
+    // const ID = event.detail[0];
+    // console.log(ID);
+    // clientID.set(ID)
+    // console.log($clientID);
     // modalStore.trigger(updateModal)
-    goto(`/client/${ID}`)
     
   };
 
@@ -157,11 +112,11 @@ const mySelectionHandler = (event) => {
 {#if isFetching}
 
   <Spinner />
-{:else if $getClients.error}
-  <p>Oh no... {$getClients.error.message}</p>
+{:else if $getClient.error}
+  <p>Oh no... {$getClient.error.message}</p>
 {:else}
 
-  {#if clients.length > 0}
+  {#if singleClient.length > 0}
 
 <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} />
 

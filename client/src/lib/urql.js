@@ -39,7 +39,9 @@ export const urqlClient = new Client({
     return {
       headers: {authorization: token ? `Bearer ${token}` : '',
       refreshToken: refreshToken || '',
+      
     }}
-  }
+  },
+  credentials: 'include'
 
 });
