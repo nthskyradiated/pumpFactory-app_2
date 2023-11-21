@@ -3,6 +3,7 @@
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, getModalStore } from '@skeletonlabs/skeleton';
   import { Paginator } from '@skeletonlabs/skeleton';
+  import {clientID} from '$lib/clientStore'
 
 
   const client = getContextClient();
@@ -26,7 +27,7 @@
   });
 
   let ID
-  const getClient = queryStore({
+  let getClient = queryStore({
       client,
       query: gql`
         query ($id: ID!){
@@ -49,13 +50,39 @@
           }
         }
       `,
-      variables: {ID}
+      variables: {ID : $clientID}
+    });
+  $ : getClient = queryStore({
+      client,
+      query: gql`
+        query ($id: ID!){
+          client (ID: $id){
+            id
+            name
+            email
+            phone
+            birthdate
+            age
+            waiver
+            membershipStatus
+            product {
+                name
+              }
+            attendance {
+                checkIn
+                productId
+              }
+          }
+        }
+      `,
+      variables: {ID: clientID}
     });
 
   let isFetching = $getClients.fetching;
   let clients = $getClients.data?.clients || [];
   let isFetchingClient = $getClient.fetching;
-  let singleClient = $getClient.data?.client || [];
+  let singleClient = $getClient.data?.client
+  console.log($getClient?.data);
 
 
   
@@ -114,7 +141,10 @@ const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
     const ID = event.detail[0];
     console.log(ID);
+    clientID.set(ID)
+    console.log($clientID);
     modalStore.trigger(updateModal)
+    
     
   };
 
