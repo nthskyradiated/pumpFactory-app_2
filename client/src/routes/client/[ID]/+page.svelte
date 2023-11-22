@@ -3,7 +3,7 @@
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore } from '@skeletonlabs/skeleton';
   import {tabSet} from '$lib/utilsStore'
-
+  import Icon from '@iconify/svelte';
 export let data
 let {ID} = data
 
@@ -69,7 +69,7 @@ console.log(singleClient);
 <div class="card p-4 mt-8">
   <TabGroup>
     <Tab bind:group={$tabSet} name="tab1" value={0}>
-      <svelte:fragment slot="lead">(icon)</svelte:fragment>
+      <svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>
       <span>Client Details</span>
     </Tab>
     <Tab bind:group={$tabSet} name="tab2" value={1}>Product Enrolment</Tab>
@@ -93,14 +93,20 @@ console.log(singleClient);
       <h1 class='h5 mb-1'>Client not enrolled in any product</h1>
       {/if}
       {:else if $tabSet === 2}
-      {#if !$getClient.data.client.attendance || 'undefined'}
-      <h1 class='h5 mb-1'>No attendance history for this client</h1>
-      
+      {#if !$getClient.data.client.attendance || $getClient.data.client.attendance.length === 0}
+        <h1 class='h5 mb-1'>No attendance history for this client</h1>
       {:else}
-      <h1 class='h4 mb-1'>Session Date:</h1><h1 class='h5 mb-1'>{$getClient.data.client.attendance[0].checkIn}</h1>
-      <h1 class='h4 mb-1'>Product id:</h1><h1 class='h5 mb-1'>{$getClient.data.client.attendance[0].productId}</h1>
+        {#each $getClient.data.client.attendance as attendance}
+          <div>
+            <h1 class='h4 mb-1'>Session Date:</h1>
+            <h1 class='h5 mb-1'>{attendance.checkIn}</h1>
+            <h1 class='h4 mb-1'>Product id:</h1>
+            <h1 class='h5 mb-1'>{attendance.productId}</h1>
+          </div>
+        {/each}
       {/if}
-      {/if}
+    {/if}
+    
     </svelte:fragment>
   </TabGroup>
 </div>
