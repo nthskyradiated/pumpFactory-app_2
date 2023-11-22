@@ -70,10 +70,10 @@ console.log(singleClient);
   <TabGroup>
     <Tab bind:group={$tabSet} name="tab1" value={0}>
       <svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>
-      <span>Client Details</span>
+      Client Details
     </Tab>
-    <Tab bind:group={$tabSet} name="tab2" value={1}>Product Enrolment</Tab>
-    <Tab bind:group={$tabSet} name="tab3" value={2}>Sessions</Tab>
+    <Tab bind:group={$tabSet} name="tab2" value={1}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Product Enrolment</Tab>
+    <Tab bind:group={$tabSet} name="tab3" value={2}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Sessions</Tab>
     <!-- Tab Panels --->
     <svelte:fragment slot="panel">
       {#if $tabSet === 0}

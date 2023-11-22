@@ -11,11 +11,11 @@
 	const message = "Please fill in all required fields"
 	let result;
   
-	const addClient = ({ input, productId }) => {
+	const updateClient = ({ input, productId }) => {
 	  result = mutationStore({
 		client,
 		query: gql`
-		  mutation AddClient($input: AddClientInput!, $productId: ID) {
+		  mutation updateClient($input: updateClientInput!, $productId: ID) {
 			addClient(input: $input, productId: $productId) {
 			  id
 			  name
@@ -68,6 +68,7 @@
 
 	};
 
+	
 // Function to check if all required fields are filled
 function areFieldsFilled() {
   return (
@@ -87,7 +88,7 @@ async function onFormSubmit() {
     }
     // If product is 'NA', set productId to null
     const productId = formProduct.product === 'NA' ? null : formProduct.product;
-    addClient({ input: formData, productId });
+    updateClient({ input: formData, productId });
 
     // Wait for the mutation result
     await result;
@@ -127,7 +128,7 @@ toastStore.trigger(t);
   
   {#if $modalStore[0]}
 	<div class="modal-example-form {cBase}">
-	  <header class={cHeader}>{$modalStore[0].title ?? 'Register a New Customer'}</header>
+	  <header class={cHeader}>{$modalStore[0].title ?? 'Update Customer Information'}</header>
 	  <article>{$modalStore[0].body ?? 'Fill in below details'}</article>
 	  <!-- Enable for debugging: -->
 	  <form class="modal-form {cForm}">
@@ -169,7 +170,7 @@ toastStore.trigger(t);
 	  <!-- prettier-ignore -->
 	  <footer class="modal-footer {parent.regionFooter}">
 		<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-		<button class="btn {parent.buttonPositive}" on:click={onFormSubmit}>Register</button>
+		<button class="btn {parent.buttonPositive}" on:click={onFormSubmit}>Update</button>
 	  </footer>
 	</div>
 
