@@ -66,10 +66,10 @@ console.log(singleClient);
 
 
 
-
+<div class="card p-4 mt-8">
   <TabGroup>
     <Tab bind:group={tabSet} name="tab1" value={0}>
-      <!-- <svelte:fragment slot="lead">(icon)</svelte:fragment> -->
+      <svelte:fragment slot="lead">(icon)</svelte:fragment>
       <span>Client Details</span>
     </Tab>
     <Tab bind:group={tabSet} name="tab2" value={1}>Product Enrolment</Tab>
@@ -77,24 +77,33 @@ console.log(singleClient);
     <!-- Tab Panels --->
     <svelte:fragment slot="panel">
       {#if tabSet === 0}
-      <h1>{$getClient.data.client.id}</h1>
-      <h1>{$getClient.data.client.name}</h1>
-      <h1>{$getClient.data.client.email}</h1>
-      <h1>{$getClient.data.client.phone}</h1>
-      <h1>{$getClient.data.client.birthdate}</h1>
-      <h1>{$getClient.data.client.age}</h1>
-      <h1>{$getClient.data.client.membershipStatus}</h1>
-      <h1>{$getClient.data.client.waiver}</h1>
+      <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{$getClient.data.client.id}</h1>
+      <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{$getClient.data.client.name}</h1>
+      <h1 class='h4 mb-1'>Email:</h1><h1 class='h5 mb-1'>{$getClient.data.client.email}</h1>
+      <h1 class='h4 mb-1'>Phone:</h1><h1 class='h5 mb-1'>{$getClient.data.client.phone}</h1>
+      <h1 class='h4 mb-1'>Birthdate:</h1><h1 class='h5 mb-1'>{$getClient.data.client.birthdate}</h1>
+      <h1 class='h4 mb-1'>Age:</h1><h1 class='h5 mb-1'>{$getClient.data.client.age}</h1>
+      <h1 class='h4 mb-1'>Status:</h1><h1 class='h5 mb-1'>{$getClient.data.client.membershipStatus}</h1>
+      <h1 class='h4 mb-1'>Waiver:</h1><h1 class='h5 mb-1'>{$getClient.data.client.waiver}</h1>
       {:else if tabSet === 1}
-      <h1>{$getClient.data.client.product.name}</h1>
-      <h1>{$getClient.data.client.product.description}</h1>
+      {#if $getClient.data.client.product}
+      <h1 class='h4 mb-1'>Product Name:</h1><h1 class='h5 mb-1'>{$getClient.data.client.product.name}</h1>
+      <h1 class='h4 mb-1'>Product Description:</h1><h1 class='h5 mb-1'>{$getClient.data.client.product.description}</h1>
+      {:else}
+      <h1 class='h5 mb-1'>Client not enrolled in any product</h1>
+      {/if}
       {:else if tabSet === 2}
-  <h1>{$getClient.data.client.attendance[0].checkIn}</h1>
-  <h1>{$getClient.data.client.attendance[0].productId}</h1>
+      {#if !$getClient.data.client.attendance || 'undefined'}
+      <h1 class='h5 mb-1'>No attendance history for this client</h1>
+      
+      {:else}
+      <h1 class='h4 mb-1'>Session Date:</h1><h1 class='h5 mb-1'>{$getClient.data.client.attendance[0].checkIn}</h1>
+      <h1 class='h4 mb-1'>Product id:</h1><h1 class='h5 mb-1'>{$getClient.data.client.attendance[0].productId}</h1>
+      {/if}
       {/if}
     </svelte:fragment>
   </TabGroup>
-        
+</div>
 
 <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(updateModal)}}>Update Client</button>
 
