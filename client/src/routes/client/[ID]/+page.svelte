@@ -8,6 +8,8 @@
 
 export let data
 let {ID} = data
+// let ID = $clientID
+// console.log(ID);
   const client = getContextClient();
 
   let getClient = queryStore({
@@ -25,6 +27,7 @@ let {ID} = data
             membershipStatus
             product {
                 name
+                description
               }
             attendance {
                 checkIn
@@ -33,57 +36,21 @@ let {ID} = data
           }
         }
       `,
-      variables: {ID}
+      variables: {id: ID}
     });
 
 
   let isFetching = $getClient.fetching;
   let singleClient = $getClient.data?.client
-  // console.log($getClient?.data);
 
 
-  
-  let paginationSettings = {
-	page: 0,
-	limit: 10,
-	size: getClient.length,
-	amounts: [3,5,10],
-} 
-
-$: paginationSettings = {
- ...paginationSettings,
-   size: getClient.length,
-
-}
   const modalStore = getModalStore();
 
 
   $: {
     isFetching = $getClient.fetching;
-    singleClient = $getClient.data?.clients || [];
+    singleClient = $getClient.data?.client || [];
   }
-
-  $: tableSimple = {
-    head: ['ID', 'Name', 'Email', 'Phone', 'Birthdate', 'Age', 'MembershipStatus', 'Waiver'],
-    body: tableMapperValues(paginatedSource, [
-      'id',
-      'name',
-      'email',
-      'phone',
-      'birthdate',
-      'age',
-      'membershipStatus',
-      'waiver',
-    ]),
-  };
-
-
-
-$: paginatedSource = singleClient.slice(
-	paginationSettings.page * paginationSettings.limit,
-	paginationSettings.page * paginationSettings.limit + paginationSettings.limit
-);
-
 
 
 const modal = {
@@ -94,18 +61,8 @@ const updateModal = {
 	type: 'component',
   component: 'updateClientModal'
 };
-const mySelectionHandler = (event) => {
-    // Extract the ID from the 'detail' array in the event
-    // const ID = event.detail[0];
-    // console.log(ID);
-    // clientID.set(ID)
-    // console.log($clientID);
-    // modalStore.trigger(updateModal)
-    
-  };
 
-      
-
+console.log(singleClient);
 			
 </script>
 
@@ -116,18 +73,20 @@ const mySelectionHandler = (event) => {
   <p>Oh no... {$getClient.error.message}</p>
 {:else}
 
-  {#if singleClient.length > 0}
+  <h1>{$getClient.data.client.id}</h1>
+  <h1>{$getClient.data.client.name}</h1>
+  <h1>{$getClient.data.client.email}</h1>
+  <h1>{$getClient.data.client.phone}</h1>
+  <h1>{$getClient.data.client.birthdate}</h1>
+  <h1>{$getClient.data.client.age}</h1>
+  <h1>{$getClient.data.client.membershipStatus}</h1>
+  <h1>{$getClient.data.client.waiver}</h1>
+  <!-- <h1>{$getClient.data.client.product.name}</h1>
+  <h1>{$getClient.data.client.product.description}</h1>
+  <h1>{$getClient.data.client.attendance[0].checkIn}</h1>
+  <h1>{$getClient.data.client.attendance[0].productId}</h1> -->
 
-<Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} />
-
-
-<Paginator
-	bind:settings={paginationSettings}
-	showFirstLastButtons="{true}"
-	showPreviousNextButtons="{true}"
-/>
 
 <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add Client</button>
 
   {/if}
-{/if}

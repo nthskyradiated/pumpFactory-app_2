@@ -4,7 +4,7 @@
   import { Table, tableMapperValues, getModalStore } from '@skeletonlabs/skeleton';
   import { Paginator } from '@skeletonlabs/skeleton';
   import {clientID} from '$lib/clientStore'
-  import { goto } from '$app/navigation';
+  import { goto, preloadData } from '$app/navigation';
 
 
   const client = getContextClient();
@@ -144,6 +144,7 @@ const mySelectionHandler = (event) => {
     console.log(ID);
     clientID.set(ID)
     console.log($clientID);
+    preloadData(`/client/${ID}`)
     // modalStore.trigger(updateModal)
     goto(`/client/${ID}`)
     
