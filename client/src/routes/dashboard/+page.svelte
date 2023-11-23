@@ -83,7 +83,7 @@
   let clients = $getClients.data?.clients || [];
   let isFetchingClient = $getClient.fetching;
   let singleClient = $getClient.data?.client
-  console.log($getClient?.data);
+
 
 
   

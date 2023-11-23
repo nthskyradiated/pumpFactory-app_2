@@ -2,9 +2,9 @@
 	import { SvelteComponent } from 'svelte';
 	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-
+	import { onMount } from 'svelte';
 	export let parent: SvelteComponent;
-  
+	// export let singleClient;
 	const toastStore = getToastStore();
 	const client = getContextClient();
 	let visible = false;
@@ -12,11 +12,12 @@
 	let result;
   
 	const updateClient = ({ input, productId }) => {
+		
 	  result = mutationStore({
 		client,
 		query: gql`
-		  mutation updateClient($input: updateClientInput!, $productId: ID) {
-			addClient(input: $input, productId: $productId) {
+		  mutation updateClient($input: UpdateClientInput!, $productId: ID) {
+			updateClient(input: $input, productId: $productId) {
 			  id
 			  name
 			  email
@@ -34,6 +35,7 @@
 		  }
 		`,
 		variables: { input, productId },
+		
 	  });
 	};
   
@@ -51,23 +53,39 @@
 	  `,
 	});
   
-	let products = $getProducts.data?.products || [];
 	$: products = $getProducts.data?.products || [];
   
 	const modalStore = getModalStore();
   
 	let formData = {
-	  name: '',
-	  phone: '',
-	  email: '',
-	  birthdate: '',
-	  waiver: '',
-	};
-	let formProduct = {
-	  product: 'NA', // Default to 'NA'
+	id: "",
+    name: "",
+    phone: "",
+    email: "",
+    birthdate: "",
+    waiver: false,
+  };
 
-	};
+  let formProduct = {
+    product: 'NA', // Default to 'NA'
+  };
 
+  onMount(() => {
+    // Initialize formData with values from singleClient
+    formData = {
+		id: $modalStore[0].meta.singleClient.id,
+      name: $modalStore[0].meta.singleClient.name,
+      phone: $modalStore[0].meta.singleClient.phone,
+      email: $modalStore[0].meta.singleClient.email,
+      birthdate: $modalStore[0].meta.singleClient.birthdate,
+      waiver: $modalStore[0].meta.singleClient.waiver,
+    };
+	formProduct = {
+    product: $modalStore[0].meta.singleClient.product.id || 'NA'
+  };
+  });
+
+console.log($modalStore[0]);
 	
 // Function to check if all required fields are filled
 function areFieldsFilled() {
@@ -92,7 +110,7 @@ async function onFormSubmit() {
 
     // Wait for the mutation result
     await result;
-
+	formProduct.product = 'NA';
     // Check if there are errors in the result
     if (result.error) {
       // Handle the error, e.g., display an error message
@@ -125,7 +143,7 @@ toastStore.trigger(t);
   </script>
   
   <!-- @component This example creates a simple form modal. -->
-  
+
   {#if $modalStore[0]}
 	<div class="modal-example-form {cBase}">
 	  <header class={cHeader}>{$modalStore[0].title ?? 'Update Customer Information'}</header>
@@ -134,19 +152,19 @@ toastStore.trigger(t);
 	  <form class="modal-form {cForm}">
 		<label class="label">
 		  <span>Name</span>
-		  <input class="input" type="text" bind:value={formData.name} required placeholder="Enter name..." />
+		  <input class="input" type="text" bind:value={formData.name} />
 		</label>
 		<label class="label">
 		  <span>Phone Number</span>
-		  <input class="input" type="tel" bind:value={formData.phone} required placeholder="Enter phone..." />
+		  <input class="input" type="tel" bind:value={formData.phone}  />
 		</label>
 		<label class="label">
 		  <span>Email</span>
-		  <input class="input" type="email" bind:value={formData.email} required placeholder="Enter email address..." />
+		  <input class="input" type="email" bind:value={formData.email} />
 		</label>
 		<label class="label">
 		  <span>Birthdate</span>
-		  <input class="input" type="date" required bind:value={formData.birthdate} />
+		  <input class="input" type="date" bind:value={formData.birthdate} />
 		</label>
 		<!-- svelte-ignore a11y-label-has-associated-control -->
 		<label class="label">
@@ -159,7 +177,7 @@ toastStore.trigger(t);
 		  </select>
 		</label>
 		<label class="flex items-center space-x-2">
-		  <input class="radio" type="radio" required checked name="radio-direct" value={true} bind:group={formData.waiver}/>
+		  <input class="radio" type="radio" name="radio-direct" value={true} bind:group={formData.waiver}/>
 		  <p>Waiver (signed)</p>
 		</label>
 		<label class="flex items-center space-x-2">

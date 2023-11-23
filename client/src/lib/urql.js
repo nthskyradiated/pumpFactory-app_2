@@ -42,6 +42,7 @@ export const urqlClient = new Client({
       
     }}
   },
-  credentials: 'include'
+  credentials: 'include',
+  requestPolicy: 'cache-and-network'
 
 });
