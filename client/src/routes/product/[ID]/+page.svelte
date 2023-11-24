@@ -1,13 +1,15 @@
 <script>
-  import { queryStore, gql, getContextClient } from '@urql/svelte';
+  import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
-  import { TabGroup, Tab, getModalStore } from '@skeletonlabs/skeleton';
+  import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
   import {tabSet} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
+  import { goto } from '$app/navigation';
   import {auth} from '$lib/auth'
 export let data
 let {ID} = data
-
+let result
+const toastStore = getToastStore()
   const client = getContextClient();
 
   let getProduct = queryStore({
@@ -25,10 +27,36 @@ let {ID} = data
       variables: {id: ID}
     });
 
-    
+    const deleteProduct = async ( deleteProductId ) => {
+    result = mutationStore({
+      client,
+      query: gql`
+    mutation DeleteProduct($deleteProductId: ID!) {
+        deleteProduct(id: $deleteProductId) {
+        id
+        name
+        }
+    }
+      `,
+      variables: { deleteProductId },
+    });
+    await result;
+    if (result.error) {
+      console.error('Mutation error:', result.error);
+    } else {
+      const t = {
+        message: "Deleted Product:",
+        deleteProductId,
+        timeout: 2000
+      };
+      toastStore.trigger(t);
+      goto('/products');
+    }
+  };
     
   $: isFetching = $getProduct.fetching;
   $: singleProduct = $getProduct.data?.product;
+  $: deleteProductId = singleProduct?.id
   
 const modalStore = getModalStore();
 
@@ -39,6 +67,15 @@ $: updateProductModal = {
   meta: {singleProduct: singleProduct}
   
 };
+
+$: deleteProductModal = {
+	type: 'confirm',
+	title: 'Deleting Client Data',
+	body: 'Are you sure you wish to proceed?',
+	// TRUE if confirm pressed, FALSE if cancel pressed
+	response: async () => await deleteProduct(deleteProductId)
+
+  }
 
 </script>
 
@@ -62,6 +99,12 @@ $: updateProductModal = {
       <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleProduct.name}</h1>
       <h1 class='h4 mb-1'>Description:</h1><h1 class='h5 mb-1'>{singleProduct.description}</h1>
       <h1 class='h4 mb-1'>Price:</h1><h1 class='h5 mb-1'>{singleProduct.price}</h1>
+      {#if $auth.isAdmin}
+      <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(deleteProductModal)}}>
+        <Icon icon="la:skull-crossbones" />
+        <span>Delete Product</span>
+      </button>
+      {/if}
     </svelte:fragment>
   </TabGroup>
 </div>

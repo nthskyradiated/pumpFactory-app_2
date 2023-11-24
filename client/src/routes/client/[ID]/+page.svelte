@@ -1,12 +1,15 @@
 <script>
-  import { queryStore, gql, getContextClient } from '@urql/svelte';
+  import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
-  import { TabGroup, Tab, getModalStore } from '@skeletonlabs/skeleton';
+  import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
   import {tabSet} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
+  import { goto } from '$app/navigation';
+  import {auth} from '$lib/auth.js'
 export let data
 let {ID} = data
-
+let result
+const toastStore = getToastStore();
   const client = getContextClient();
 
   let getClient = queryStore({
@@ -37,11 +40,38 @@ let {ID} = data
       variables: {id: ID}
     });
 
-    
+    const deleteClient = async ( deleteClientId ) => {
+    result = mutationStore({
+      client,
+      query: gql`
+    mutation DeleteClient($deleteClientId: ID!) {
+        deleteClient(id: $deleteClientId) {
+        id
+        name
+        }
+    }
+      `,
+      variables: { deleteClientId },
+    });
+    await result;
+    if (result.error) {
+      console.error('Mutation error:', result.error);
+    } else {
+      const t = {
+        message: "Deleted Client:",
+        deleteClientId,
+        timeout: 2000
+      };
+      toastStore.trigger(t);
+      goto('/dashboard');
+    }
+  };
+
+
     
   $: isFetching = $getClient.fetching;
   $: singleClient = $getClient.data?.client;
-  
+  $: deleteClientId = singleClient?.id
 const modalStore = getModalStore();
 
 $: updateModal = {
@@ -51,6 +81,15 @@ $: updateModal = {
   meta: {singleClient: singleClient}
   
 };
+$: deleteModal = {
+	type: 'confirm',
+	title: 'Deleting Client Data',
+	body: 'Are you sure you wish to proceed?',
+	// TRUE if confirm pressed, FALSE if cancel pressed
+	response: async () => await deleteClient(deleteClientId)
+
+  }
+
 
 </script>
 
@@ -80,6 +119,12 @@ $: updateModal = {
       <h1 class='h4 mb-1'>Age:</h1><h1 class='h5 mb-1'>{singleClient.age}</h1>
       <h1 class='h4 mb-1'>Status:</h1><h1 class='h5 mb-1'>{singleClient.membershipStatus}</h1>
       <h1 class='h4 mb-1'>Waiver:</h1><h1 class='h5 mb-1'>{singleClient.waiver}</h1>
+      {#if $auth.isAdmin}
+      <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(deleteModal)}}>
+        <Icon icon="la:skull-crossbones" />
+        <span>Delete Client</span>
+      </button>
+      {/if}
       {:else if $tabSet === 1}
       {#if singleClient.product}
       <h1 class='h4 mb-1'>Product Name:</h1><h1 class='h5 mb-1'>{singleClient.product.name}</h1>
