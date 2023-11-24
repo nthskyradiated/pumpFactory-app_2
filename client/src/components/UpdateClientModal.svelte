@@ -77,7 +77,7 @@ let formProduct = {
       phone: "",
       email: "",
       birthdate: "",
-      waiver: $modalStore[0].meta.singleClient.waiver,
+      waiver: $modalStore[0].meta.singleClient.waiver
     };
 //  $:  formProduct = {
 //     product: $modalStore[0].meta.singleClient.product?.id || 'NA' || null || undefined
@@ -96,6 +96,7 @@ async function onFormSubmit() {
 
     await result;
 	formProduct.product = 'NA';
+
     // Check if there are errors in the result
     if (result.error) {
       // Handle the error, e.g., display an error message
@@ -167,13 +168,15 @@ toastStore.trigger(t);
 		  </select>
 		</label>
 		<label class="flex items-center space-x-2">
-		  <input class="radio" type="radio" name="radio-direct" value={true} bind:group={formData.waiver}/>
-		  <p>Waiver (signed)</p>
-		</label>
-		<label class="flex items-center space-x-2">
-		  <input class="radio" type="radio" name="radio-direct" value={false} bind:group={formData.waiver}/>
-		  <p>No Waiver</p>
-		</label>
+			<input class="radio" type="radio" name="radio-direct" value={true} bind:group={formData.waiver} />
+			<p>Waiver (signed)</p>
+		  </label>
+		  
+		  <label class="flex items-center space-x-2">
+			<input class="radio" type="radio" name="radio-direct" value={false} bind:group={formData.waiver} />
+			<p>No Waiver</p>
+		  </label>
+		  
 	  </form>
 	  <!-- prettier-ignore -->
 	  <footer class="modal-footer {parent.regionFooter}">

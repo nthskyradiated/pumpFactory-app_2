@@ -398,7 +398,7 @@ export const resolvers = {
                   // If productId is provided, the client should have 'active' membership status
                   membershipStatus = 'active';
                 }
-                
+                console.log("input", input)
                 // Create an updateFields object to specify the fields to update. Use the existing values if new values are not provided.
                 const updateFields = {
                   name: input.name || existingClient.name,
@@ -407,13 +407,14 @@ export const resolvers = {
                   birthdate: input.birthdate || existingClient.birthdate,
                   age,
                   membershipStatus,
-                  waiver: input.waiver || existingClient.waiver,
+                  waiver: input.waiver !==undefined ? input.waiver : existingClient.waiver,
                   productId: productId || null, // To remove the product, set it to null
                 };
                 
                 // Update and return the updated client
-                const updatedClient = await Client.findByIdAndUpdate(input.id, updateFields, { new: true });
-                
+                const updatedClient = await Client.findOneAndUpdate({_id: input.id}, updateFields, { new: true });
+    
+
                 return updatedClient;
               } catch (error) {
                 throw new Error(error.message);
