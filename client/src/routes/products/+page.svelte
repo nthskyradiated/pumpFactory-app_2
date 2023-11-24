@@ -2,8 +2,9 @@
   import { queryStore, gql, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, Paginator, getModalStore } from '@skeletonlabs/skeleton';
+  import {productID} from '$lib/productStore'
   import {auth} from '$lib/auth'
-
+  import { goto, preloadData } from '$app/navigation';
 
   export const load = async () => {
 $: isAdmin = $auth.isAdmin;
@@ -26,6 +27,20 @@ $: isAdmin = $auth.isAdmin;
       }
     `,
   });
+
+  let getProduct = queryStore({
+      client,
+      query: gql`
+        query ($id: ID!){
+          product (ID: $id){
+            id
+            name
+            description
+            price
+        }}
+      `,
+      variables: {ID : $productID}
+    })
 
   let isFetching = $getProducts.fetching;
   let products = $getProducts.data?.products || [];
@@ -67,7 +82,24 @@ const modal = {
   component: 'addProductModal'
 };
 
+const updateProductModal = {
+	type: 'component',
+  component: 'updateProductModal'
+};
 console.log($auth.isAdmin);
+
+const mySelectionHandler = (event) => {
+    // Extract the ID from the 'detail' array in the event
+    const ID = event.detail[0];
+    console.log(ID);
+    productID.set(ID)
+    // console.log($clientID);
+    preloadData(`/product/${ID}`)
+    // modalStore.trigger(updateModal)
+    goto(`/product/${ID}`)
+    
+  };
+
 </script>
 
 
@@ -80,7 +112,7 @@ console.log($auth.isAdmin);
 
   {#if products.length > 0}
 
-<Table source={tableSimple} interactive={true}/>
+<Table source={tableSimple} interactive={true} on:selected={mySelectionHandler}/>
 
 <Paginator
 	bind:settings={paginationSettings}

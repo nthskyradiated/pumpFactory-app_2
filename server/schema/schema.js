@@ -467,20 +467,19 @@ export const resolvers = {
             }
 
             const existingProduct = await Product.findOne({ $or: [{ name }, { description }] });
-            if (existingProduct) {
-                  throw new Error('A product with the same name or description already exists.');
-              }
 
-        return Product.findByIdAndUpdate(id,
-            {
-                $set: {
-                    name,
-                    description,
-                    price
-                }
+            if (existingProduct) {
+              throw new Error('A product with the same name or description already exists.');
             }
-            ,{new: true}
-            )
+            
+            const updateFields = {
+              name: name !== undefined ? name : (existingProduct?.name || product.name),
+              description: description !== undefined ? description : (existingProduct?.description || product.description),
+              price: price !== undefined ? price : (existingProduct?.price || product.price),
+            };
+            
+            return Product.findByIdAndUpdate(id, updateFields, { new: true });
+            
         },
 
         deleteProduct: async (parent, { id }, context) => {
