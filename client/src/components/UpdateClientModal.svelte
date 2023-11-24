@@ -65,8 +65,8 @@
 //     waiver: false,
 //   };
 
-  $: formProduct = {
-    product: "NA"
+let formProduct = {
+    product: $modalStore[0].meta.singleClient.product?.id || "NA"
   };
 
 //   onMount(() => {
@@ -95,7 +95,7 @@ async function onFormSubmit() {
     updateClient({ input: formData, productId });
 
     await result;
-	// formProduct.product = 'NA';
+	formProduct.product = 'NA';
     // Check if there are errors in the result
     if (result.error) {
       // Handle the error, e.g., display an error message
@@ -155,15 +155,15 @@ toastStore.trigger(t);
 		  <span>Product</span>
 		  <select class="select" bind:value={formProduct.product}>
 			{#each products as product (product.id)}
-			{#if product.id === $modalStore[0].meta.singleClient.product.id}
-			<option value={product.id} selected>{product.name}</option>
-			{:else if !$modalStore[0].meta.singleClient.product?.id === null}
-			<option value="NA" selected>N/A</option>
-			{:else}
-			<option value={product.id}>{product.name}</option>
-			{/if}
-			{/each}
-			<!-- <option value="NA">N/A</option> -->
+			  {#if product.id === $modalStore[0].meta.singleClient.product?.id}
+				<option value={product.id} selected>{product.name}</option>
+			  {:else if $modalStore[0].meta.singleClient.product?.id === null && product.id === 'NA'}
+				<option value="NA" selected>N/A</option>
+			  {:else}
+				<option value={product.id}>{product.name}</option>
+			  {/if}
+			  {/each}
+			  <option value="NA">NA</option>
 		  </select>
 		</label>
 		<label class="flex items-center space-x-2">
