@@ -4,6 +4,7 @@
   import { TabGroup, Tab, getModalStore } from '@skeletonlabs/skeleton';
   import {tabSet} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
+  import {auth} from '$lib/auth'
 export let data
 let {ID} = data
 
@@ -64,7 +65,9 @@ $: updateProductModal = {
     </svelte:fragment>
   </TabGroup>
 </div>
-
+{/if}
+{#if $auth.isAdmin}
 <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(updateProductModal)}}>Update Product</button>
-
-  {/if}
+{:else}
+  <p>You do not have permission to update products.</p>
+{/if}
