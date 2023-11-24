@@ -2,7 +2,6 @@
 	import { SvelteComponent } from 'svelte';
 	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-	import { onMount } from 'svelte';
 	export let parent: SvelteComponent;
 	// export let singleClient;
 	const toastStore = getToastStore();
@@ -57,60 +56,46 @@
   
 	const modalStore = getModalStore();
   
-	let formData = {
-	id: "",
-    name: "",
-    phone: "",
-    email: "",
-    birthdate: "",
-    waiver: false,
+// 	let formData = {
+// 	id: "",
+//     name: "",
+//     phone: "",
+//     email: "",
+//     birthdate: "",
+//     waiver: false,
+//   };
+
+  $: formProduct = {
+    product: "NA"
   };
 
-  let formProduct = {
-    product: 'NA', // Default to 'NA'
-  };
-
-  onMount(() => {
+//   onMount(() => {
     // Initialize formData with values from singleClient
-    formData = {
+  let formData = {
 		id: $modalStore[0].meta.singleClient.id,
-      name: $modalStore[0].meta.singleClient.name,
-      phone: $modalStore[0].meta.singleClient.phone,
-      email: $modalStore[0].meta.singleClient.email,
-      birthdate: $modalStore[0].meta.singleClient.birthdate,
+      name: "",
+      phone: "",
+      email: "",
+      birthdate: "",
       waiver: $modalStore[0].meta.singleClient.waiver,
     };
-	formProduct = {
-    product: $modalStore[0].meta.singleClient.product.id || 'NA'
-  };
-  });
+//  $:  formProduct = {
+//     product: $modalStore[0].meta.singleClient.product?.id || 'NA' || null || undefined
+//   };
+//   });
 
 console.log($modalStore[0]);
 	
-// Function to check if all required fields are filled
-function areFieldsFilled() {
-  return (
-    formData.name.trim() !== '' &&
-    formData.phone.trim() !== '' &&
-    formData.email.trim() !== '' &&
-    formData.birthdate.trim() !== '' &&
-    formData.waiver !== null
-  );
-}
 
 async function onFormSubmit() {
   try {
 
-	if (!areFieldsFilled()) {
-	  return visible = true
-    }
     // If product is 'NA', set productId to null
     const productId = formProduct.product === 'NA' ? null : formProduct.product;
     updateClient({ input: formData, productId });
 
-    // Wait for the mutation result
     await result;
-	formProduct.product = 'NA';
+	// formProduct.product = 'NA';
     // Check if there are errors in the result
     if (result.error) {
       // Handle the error, e.g., display an error message
@@ -124,7 +109,6 @@ toastStore.trigger(t);
       // If successful, close the modal
       if (result.data) {
         $modalStore[0].response(result);
-        console.log(result.data.addClient);
       }
       modalStore.close();
     }
@@ -152,28 +136,34 @@ toastStore.trigger(t);
 	  <form class="modal-form {cForm}">
 		<label class="label">
 		  <span>Name</span>
-		  <input class="input" type="text" bind:value={formData.name} />
+		  <input class="input" type="text" bind:value={formData.name} placeholder={$modalStore[0].meta.singleClient.name}/>
 		</label>
 		<label class="label">
 		  <span>Phone Number</span>
-		  <input class="input" type="tel" bind:value={formData.phone}  />
+		  <input class="input" type="tel" bind:value={formData.phone} placeholder={$modalStore[0].meta.singleClient.phone} />
 		</label>
 		<label class="label">
 		  <span>Email</span>
-		  <input class="input" type="email" bind:value={formData.email} />
+		  <input class="input" type="email" bind:value={formData.email} placeholder={$modalStore[0].meta.singleClient.email}/>
 		</label>
 		<label class="label">
 		  <span>Birthdate</span>
-		  <input class="input" type="date" bind:value={formData.birthdate} />
+		  <input class="input" type="date" bind:value={formData.birthdate} placeholder={$modalStore[0].meta.singleClient.birthdate}>
 		</label>
 		<!-- svelte-ignore a11y-label-has-associated-control -->
 		<label class="label">
 		  <span>Product</span>
 		  <select class="select" bind:value={formProduct.product}>
 			{#each products as product (product.id)}
+			{#if product.id === $modalStore[0].meta.singleClient.product.id}
+			<option value={product.id} selected>{product.name}</option>
+			{:else if !$modalStore[0].meta.singleClient.product?.id === null}
+			<option value="NA" selected>N/A</option>
+			{:else}
 			<option value={product.id}>{product.name}</option>
+			{/if}
 			{/each}
-			<option value="NA">N/A</option>
+			<!-- <option value="NA">N/A</option> -->
 		  </select>
 		</label>
 		<label class="flex items-center space-x-2">

@@ -23,6 +23,7 @@ let {ID} = data
             waiver
             membershipStatus
             product {
+                id
                 name
                 description
               }
