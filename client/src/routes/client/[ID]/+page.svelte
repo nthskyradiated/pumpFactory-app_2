@@ -81,14 +81,16 @@ $: updateModal = {
   meta: {singleClient: singleClient}
   
 };
-$: deleteModal = {
+const deleteModal = {
 	type: 'confirm',
 	title: 'Deleting Client Data',
 	body: 'Are you sure you wish to proceed?',
 	// TRUE if confirm pressed, FALSE if cancel pressed
-	response: async () => await deleteClient(deleteClientId)
-
-  }
+	response: async (r) => !r? modalStore.close(): await deleteClient(deleteClientId)  
+  } 
+    
+  
+  
 
 
 </script>

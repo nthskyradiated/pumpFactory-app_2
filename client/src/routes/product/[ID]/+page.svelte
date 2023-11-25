@@ -73,7 +73,7 @@ $: deleteProductModal = {
 	title: 'Deleting Client Data',
 	body: 'Are you sure you wish to proceed?',
 	// TRUE if confirm pressed, FALSE if cancel pressed
-	response: async () => await deleteProduct(deleteProductId)
+	response: async (r) => !r? modalStore.close(): await deleteProduct(deleteProductId) 
 
   }
 
