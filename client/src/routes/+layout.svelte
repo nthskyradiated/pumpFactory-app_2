@@ -9,6 +9,7 @@
   import UpdateClientModal from "../components/UpdateClientModal.svelte";
   import { goto } from '$app/navigation';
   import Footer from "../components/Footer.svelte";
+  import Logo from '../components/Logo.svelte'
 
   initializeStores()
   setContextClient(urqlClient);
@@ -31,24 +32,29 @@
 
 <Modal components={modalRegistry} />
 <Toast />
-<AppShell>
-  <AppBar>
-    <LightSwitch />
-    <svelte:fragment slot="header">Header</svelte:fragment>
-    <svelte:fragment slot="sidebarLeft">Sidebar Left</svelte:fragment>
-    <nav>
-      <!-- {#if $route.path.startsWith('/dashboard')} -->
-      <a href="/products">Products</a>
-      <a href="/attendance">Attendance</a>
-      <a href="/dashboard">Clients</a>
-      <a href="/#" on:click={handleLogout}>Logout</a>
-      <!-- {/if} -->
-    </nav>
-  </AppBar>
-	<!-- (sidebarRight) -->
-	<!-- (pageHeader) -->
-	<!-- Router Slot -->
-	<slot />
 
-	<Footer />
-</AppShell>
+<AppShell slotPageFooter slotPageHeader class='relative m-auto'>
+    <svelte:fragment slot="pageHeader">
+    <AppBar slotTrail='flex flex-row justify-end' gap-8 slotLead class='w-10/12 m-auto'>
+      <svelte:fragment slot="lead">
+      <LightSwitch />
+      <Logo />
+      </svelte:fragment>
+      <svelte:fragment slot="trail">
+          <nav class='text-xl'>
+              <!-- {#if $route.path.startsWith('/dashboard')} -->
+              <a href="/products">Products</a>
+              <a href="/attendance">Attendance</a>
+              <a href="/dashboard">Clients</a>
+              <a href="/#" on:click={handleLogout}>Logout</a>
+              <!-- {/if} -->
+            </nav>
+
+        </svelte:fragment>
+      </AppBar>
+    </svelte:fragment>
+    <slot />
+    <svelte:fragment slot="pageFooter">
+      <Footer />
+    </svelte:fragment>
+  </AppShell>

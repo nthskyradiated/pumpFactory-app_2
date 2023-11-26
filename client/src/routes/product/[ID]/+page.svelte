@@ -79,38 +79,40 @@ $: deleteProductModal = {
 
 </script>
 
-{#if isFetching}
-
-  <Spinner />
-{:else if $getProduct.error}
-  <p>Oh no... {$getProduct.error.message}</p>
-{:else}
-
-<div class="card p-4 mt-8">
-  <TabGroup>
-    <Tab bind:group={$tabSet} name="tab1" value={0}>
-      <svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>
-      Product Details
-    </Tab>
-    <!-- Tab Panels --->
-    <svelte:fragment slot="panel">
-      {$tabSet === 0}
-      <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{singleProduct.id}</h1>
-      <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleProduct.name}</h1>
-      <h1 class='h4 mb-1'>Description:</h1><h1 class='h5 mb-1'>{singleProduct.description}</h1>
-      <h1 class='h4 mb-1'>Price:</h1><h1 class='h5 mb-1'>{singleProduct.price}</h1>
-      {#if $auth.isAdmin}
-      <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(deleteProductModal)}}>
-        <Icon icon="la:skull-crossbones" />
-        <span>Delete Product</span>
-      </button>
-      {/if}
-    </svelte:fragment>
-  </TabGroup>
-</div>
-{/if}
-{#if $auth.isAdmin}
-<button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(updateProductModal)}}>Update Product</button>
-{:else}
-  <p>You do not have permission to update products.</p>
-{/if}
+<main class='w-10/12 m-auto pt-8'>
+  {#if isFetching}
+  
+    <Spinner />
+  {:else if $getProduct.error}
+    <p>Oh no... {$getProduct.error.message}</p>
+  {:else}
+  
+  <div class="card p-4">
+    <TabGroup class='pb-2'>
+      <Tab bind:group={$tabSet} name="tab1" value={0}>
+        <svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>
+        Product Details
+      </Tab>
+      <!-- Tab Panels --->
+      <svelte:fragment slot="panel">
+        {$tabSet === 0}
+        <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{singleProduct.id}</h1>
+        <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleProduct.name}</h1>
+        <h1 class='h4 mb-1'>Description:</h1><h1 class='h5 mb-1'>{singleProduct.description}</h1>
+        <h1 class='h4 mb-1'>Price:</h1><h1 class='h5 mb-1'>{singleProduct.price}</h1>
+        {#if $auth.isAdmin}
+        <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteProductModal)}}>
+          <Icon icon="la:skull-crossbones" />
+          <span>Delete Product</span>
+        </button>
+        {/if}
+      </svelte:fragment>
+    </TabGroup>
+  </div>
+  {/if}
+  {#if $auth.isAdmin}
+  <button type="button" class="btn variant-filled mt-4" on:click={ () => {modalStore.trigger(updateProductModal)}}>Update Product</button>
+  {:else}
+    <p>You do not have permission to update products.</p>
+  {/if}
+</main>

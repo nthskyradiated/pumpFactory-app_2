@@ -154,26 +154,29 @@ const mySelectionHandler = (event) => {
 
 			
 </script>
-
-{#if isFetching}
-
-  <Spinner />
-{:else if $getClients.error}
-  <p>Oh no... {$getClients.error.message}</p>
-{:else}
-
-  {#if clients.length > 0}
-
-<Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} />
-
-
-<Paginator
-	bind:settings={paginationSettings}
-	showFirstLastButtons="{true}"
-	showPreviousNextButtons="{true}"
-/>
-
-<button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add Client</button>
-
+<main class='w-10/12 m-auto pt-8'>
+  {#if isFetching}
+  
+    <Spinner />
+  {:else if $getClients.error}
+    <p>Oh no... {$getClients.error.message}</p>
+  {:else}
+  
+    {#if clients.length > 0}
+  
+  <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/>
+  
+  
+  <Paginator
+    bind:settings={paginationSettings}
+    showFirstLastButtons="{true}"
+    showPreviousNextButtons="{true}"
+    justify-between="{true}"
+    class="pb-8"
+  />
+  
+  <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add Client</button>
+  
+    {/if}
   {/if}
-{/if}
+</main>

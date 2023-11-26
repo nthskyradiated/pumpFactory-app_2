@@ -102,28 +102,32 @@ const mySelectionHandler = (event) => {
 
 </script>
 
+<main class='w-10/12 m-auto pt-8'>
 
-{#if isFetching}
-  <!-- <p>Loading...</p> -->
-  <Spinner />
-{:else if $getProducts.error}
-  <p>Oh no... {$getProducts.error.message}</p>
-{:else}
-
-  {#if products.length > 0}
-
-<Table source={tableSimple} interactive={true} on:selected={mySelectionHandler}/>
-
-<Paginator
-	bind:settings={paginationSettings}
-	showFirstLastButtons="{true}"
-	showPreviousNextButtons="{true}"
-/>
-{#if $auth.isAdmin}
-<button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add a Product</button>
-{:else}
-  <p>You do not have permission to add products.</p>
-{/if}
+  {#if isFetching}
+    <!-- <p>Loading...</p> -->
+    <Spinner />
+  {:else if $getProducts.error}
+    <p>Oh no... {$getProducts.error.message}</p>
+  {:else}
+  
+    {#if products.length > 0}
+  
+  <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/>
+  
+  <Paginator
+    bind:settings={paginationSettings}
+    showFirstLastButtons="{true}"
+    showPreviousNextButtons="{true}"
+    justify-between="{true}"
+    class="pb-8"
+  />
+  {#if $auth.isAdmin}
+  <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add a Product</button>
+  {:else}
+    <p>You do not have permission to add products.</p>
   {/if}
-  {/if}
+    {/if}
+    {/if}
+</main>  
 
