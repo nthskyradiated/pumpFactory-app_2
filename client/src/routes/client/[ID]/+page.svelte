@@ -67,11 +67,41 @@ const toastStore = getToastStore();
     }
   };
 
+  const addAttendance = async ({ input }) => {
+	  result = mutationStore({
+		client,
+		query: gql`
+  mutation Mutation($input: AddAttendanceInput!) {
+  addAttendance(input: $input) {
+    checkIn
+    clientId
+    productId
+  }
+}
+		`,
+		variables: { input: addAttendanceInput },
+	  });
+    await result;
+    if (result.error) {
+      console.error('Mutation error:', result.error);
+    } else {
+      const t = {
+        message: "Session booked",
+        timeout: 2000
+      };
+      toastStore.trigger(t);
+      goto('/dashboard')
+    }
+	};
 
     
   $: isFetching = $getClient.fetching;
   $: singleClient = $getClient.data?.client;
   $: deleteClientId = singleClient?.id
+  $: addAttendanceInput = {
+    clientId: singleClient?.id,
+    productId: singleClient?.product?.id || null
+  }
 const modalStore = getModalStore();
 
 $: updateModal = {
@@ -87,6 +117,13 @@ const deleteModal = {
 	body: 'Are you sure you wish to proceed?',
 	// TRUE if confirm pressed, FALSE if cancel pressed
 	response: async (r) => !r? modalStore.close(): await deleteClient(deleteClientId)  
+  } 
+const addAttendanceModal = {
+	type: 'confirm',
+	title: 'Record Client Session',
+	body: 'Recording client session now. click confirm to proceed...',
+	// TRUE if confirm pressed, FALSE if cancel pressed
+	response: async (r) => !r? modalStore.close(): await addAttendance(addAttendanceInput)  
   } 
     
   
@@ -152,7 +189,9 @@ const deleteModal = {
     </svelte:fragment>
   </TabGroup>
 </div>
-
+{#if singleClient.product}
+<button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(addAttendanceModal)}}>Add Session</button>
+{/if}
 <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(updateModal)}}>Update Client</button>
 
   {/if}
