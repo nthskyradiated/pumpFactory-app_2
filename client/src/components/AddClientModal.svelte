@@ -2,6 +2,8 @@
 	import { SvelteComponent } from 'svelte';
 	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { errorStore } from '../lib/urql';
+
 
 	export let parent: SvelteComponent;
   
@@ -51,7 +53,7 @@
 	  `,
 	});
   
-	let products = $getProducts.data?.products || [];
+	// let products = $getProducts.data?.products || [];
 	$: products = $getProducts.data?.products || [];
   
 	const modalStore = getModalStore();
@@ -81,7 +83,6 @@ function areFieldsFilled() {
 
 async function onFormSubmit() {
   try {
-
 	if (!areFieldsFilled()) {
 	  return visible = true
     }
@@ -92,15 +93,15 @@ async function onFormSubmit() {
     // Wait for the mutation result
     await result;
 
-    // Check if there are errors in the result
-    if (result.error) {
-      // Handle the error, e.g., display an error message
-      console.error('Mutation error:', result.error);
-	  const t = {
-	message: result.error
-	};
-toastStore.trigger(t);
-      // Optionally, update your UI to show an error message to the user
+    if ($errorStore) {
+		modalStore.close();
+    	console.error('Mutation error:', $errorStore);
+			const t = {
+			message: $errorStore,
+			timeout: 2000
+			};
+		toastStore.trigger(t);
+
     } else {
       // If successful, close the modal
       if (result.data) {
@@ -112,7 +113,6 @@ toastStore.trigger(t);
   } catch (error) {
     // Handle unexpected errors
     console.error('Unexpected error:', error);
-    // Optionally, update your UI to show an error message to the user
   }
 }
 

@@ -10,6 +10,7 @@
   import { goto } from '$app/navigation';
   import Footer from "../components/Footer.svelte";
   import Logo from '../components/Logo.svelte'
+  import {page} from '$app/stores'
 
   initializeStores()
   setContextClient(urqlClient);
@@ -39,15 +40,16 @@
       <svelte:fragment slot="lead">
       <LightSwitch />
       <Logo />
+      <h1>Pump Factory App</h1>
       </svelte:fragment>
       <svelte:fragment slot="trail">
           <nav class='text-xl'>
-              <!-- {#if $route.path.startsWith('/dashboard')} -->
+              {#if $page.url.pathname !== '/'}
               <a href="/products">Products</a>
-              <a href="/attendance">Attendance</a>
+              <!-- <a href="/attendance">Attendance</a> -->
               <a href="/dashboard">Clients</a>
               <a href="/#" on:click={handleLogout}>Logout</a>
-              <!-- {/if} -->
+              {/if}
             </nav>
 
         </svelte:fragment>

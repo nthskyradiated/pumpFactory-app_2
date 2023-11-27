@@ -81,8 +81,8 @@
 
   let isFetching = $getClients.fetching;
   let clients = $getClients.data?.clients || [];
-  let isFetchingClient = $getClient.fetching;
-  let singleClient = $getClient.data?.client
+  // let isFetchingClient = $getClient.fetching;
+  // let singleClient = $getClient.data?.client
 
 
 
@@ -143,9 +143,7 @@ const mySelectionHandler = (event) => {
     const ID = event.detail[0];
     console.log(ID);
     clientID.set(ID)
-    console.log($clientID);
-    preloadData(`/client/${ID}`)
-    // modalStore.trigger(updateModal)
+    // preloadData(`/client/${ID}`)
     goto(`/client/${ID}`)
     
   };

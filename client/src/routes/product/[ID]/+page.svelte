@@ -45,8 +45,7 @@ const toastStore = getToastStore()
       console.error('Mutation error:', result.error);
     } else {
       const t = {
-        message: "Deleted Product:",
-        deleteProductId,
+        message: `Deleted Product: ${deleteProductId}`,
         timeout: 2000
       };
       toastStore.trigger(t);

@@ -85,7 +85,7 @@ let formProduct = {
 //   };
 //   });
 
-console.log($modalStore[0]);
+// console.log($modalStore[0]);
 	
 
 async function onFormSubmit() {
@@ -99,15 +99,16 @@ async function onFormSubmit() {
 	formProduct.product = 'NA';
 
     // Check if there are errors in the result
-    if ($errorStore) {
+    if (result.error) {
 		modalStore.close();
       // Handle the error, e.g., display an error message
-    	  console.error('Mutation error:', $errorStore);
+    	  console.error(result.error);
 	  	const t = {
-		message: $errorStore
+		message: result.error,
+		timeout: 2000
 		};
 		toastStore.trigger(t);
-		errorStore.set(null)
+		// errorStore.set(null)
       // Optionally, update your UI to show an error message to the user
     } else {
       // If successful, close the modal

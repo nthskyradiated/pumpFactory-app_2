@@ -58,8 +58,7 @@ const toastStore = getToastStore();
       console.error('Mutation error:', result.error);
     } else {
       const t = {
-        message: "Deleted Client:",
-        deleteClientId,
+        message: "Deleted Client",
         timeout: 2000
       };
       toastStore.trigger(t);
@@ -178,7 +177,7 @@ const addAttendanceModal = {
           <h1 class='h5 mb-1'>No attendance history for this client</h1>
         {:else}
           {#each singleClient.attendance as attendance}
-            <div>
+            <div class='card p-3 my-2'>
               <h1 class='h4 mb-1'>Session Date:</h1>
               <h1 class='h5 mb-1'>{attendance.checkIn}</h1>
               <h1 class='h4 mb-1'>Product id:</h1>
@@ -187,12 +186,11 @@ const addAttendanceModal = {
           {/each}
         {/if}
       {/if}
-     <h1 class="hidden">{console.log(singleClient)}</h1> 
       </svelte:fragment>
     </TabGroup>
   </div>
   <div class='flex flex-row justify-between'>
-    {#if singleClient.product}
+    {#if singleClient?.product?.id}
     <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(addAttendanceModal)}}>Add Session</button>
     {/if}
     <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(updateModal)}}>Update Client</button>
