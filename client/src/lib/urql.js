@@ -1,4 +1,7 @@
 import { Client, cacheExchange, fetchExchange, mapExchange } from '@urql/svelte';
+import { writable } from 'svelte/store';
+
+export const errorStore = writable(null);
 
 const getToken = () => {
   if (typeof window !== 'undefined') {
@@ -31,7 +34,12 @@ const mapExchangeHandler = ({ client, forward }) => (ops$) => {
 };
 
 export const urqlClient = new Client({
-  exchanges: [cacheExchange, fetchExchange, mapExchange(mapExchangeHandler)],
+  exchanges: [cacheExchange, mapExchange({
+    onError(error) {
+      errorStore.set(error);
+      console.error(error);
+    },
+  }),, fetchExchange],
   url: 'http://api.localhost:5000', // Update with your GraphQL server URL
   fetchOptions: () => {
     const token = getToken()

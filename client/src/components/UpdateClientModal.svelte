@@ -2,6 +2,7 @@
 	import { SvelteComponent } from 'svelte';
 	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { errorStore } from '../lib/urql';
 	export let parent: SvelteComponent;
 	// export let singleClient;
 	const toastStore = getToastStore();
@@ -9,7 +10,7 @@
 	let visible = false;
 	const message = "Please fill in all required fields"
 	let result;
-  
+
 	const updateClient = ({ input, productId }) => {
 		
 	  result = mutationStore({
@@ -98,13 +99,15 @@ async function onFormSubmit() {
 	formProduct.product = 'NA';
 
     // Check if there are errors in the result
-    if (result.error) {
+    if ($errorStore) {
+		modalStore.close();
       // Handle the error, e.g., display an error message
-      console.error('Mutation error:', result.error);
-	  const t = {
-	message: result.error
-	};
-toastStore.trigger(t);
+    	  console.error('Mutation error:', $errorStore);
+	  	const t = {
+		message: $errorStore
+		};
+		toastStore.trigger(t);
+		errorStore.set(null)
       // Optionally, update your UI to show an error message to the user
     } else {
       // If successful, close the modal
