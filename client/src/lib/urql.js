@@ -37,7 +37,7 @@ export const urqlClient = new Client({
   exchanges: [mapExchange({
     onError(error) {
       return errorStore.set(error);
-      // console.error(error);
+      console.error(error);
     },
   }),cacheExchange, fetchExchange],
   url: 'http://api.localhost:5000', // Update with your GraphQL server URL

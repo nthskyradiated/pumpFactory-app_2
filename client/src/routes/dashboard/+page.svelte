@@ -28,63 +28,9 @@
   });
 
   let ID
-  let getClient = queryStore({
-      client,
-      query: gql`
-        query ($id: ID!){
-          client (ID: $id){
-            id
-            name
-            email
-            phone
-            birthdate
-            age
-            waiver
-            membershipStatus
-            product {
-                name
-              }
-            attendance {
-                checkIn
-                productId
-              }
-          }
-        }
-      `,
-      variables: {ID : $clientID}
-    });
-  $ : getClient = queryStore({
-      client,
-      query: gql`
-        query ($id: ID!){
-          client (ID: $id){
-            id
-            name
-            email
-            phone
-            birthdate
-            age
-            waiver
-            membershipStatus
-            product {
-                name
-              }
-            attendance {
-                checkIn
-                productId
-              }
-          }
-        }
-      `,
-      variables: {ID: clientID}
-    });
 
   let isFetching = $getClients.fetching;
   let clients = $getClients.data?.clients || [];
-  // let isFetchingClient = $getClient.fetching;
-  // let singleClient = $getClient.data?.client
-
-
 
   
   let paginationSettings = {
@@ -141,16 +87,12 @@ const updateModal = {
 const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
     const ID = event.detail[0];
-    console.log(ID);
     clientID.set(ID)
     // preloadData(`/client/${ID}`)
     goto(`/client/${ID}`)
     
   };
 
-      
-
-			
 </script>
 <main class='w-10/12 m-auto pt-8'>
   {#if isFetching}
@@ -163,7 +105,6 @@ const mySelectionHandler = (event) => {
     {#if clients.length > 0}
   
   <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/>
-  
   
   <Paginator
     bind:settings={paginationSettings}
