@@ -1,22 +1,17 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
+	import {  queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-	import { errorStore } from '../lib/urql';
 
 
 	export let parent: SvelteComponent;
-  
+	
 	const toastStore = getToastStore();
 	const client = getContextClient();
 	let visible = false;
 	const message = "Please fill in all required fields"
-	let result;
-  
-	const addClient = ({ input, productId }) => {
-	  result = mutationStore({
-		client,
-		query: gql`
+
+		const query = gql`
 		  mutation AddClient($input: AddClientInput!, $productId: ID) {
 			addClient(input: $input, productId: $productId) {
 			  id
@@ -34,10 +29,15 @@
 			  }
 			}
 		  }
-		`,
-		variables: { input, productId },
-	  });
-	};
+		  variables: { input, productId },
+		`
+		const addClient = async ({ input, productId }) => {
+		const result = await client
+		.mutation(query, {input, productId})
+		.toPromise()
+		.then()
+		return result
+	}
   
 	const getProducts = queryStore({
 	  client,
@@ -55,8 +55,6 @@
   
 	// let products = $getProducts.data?.products || [];
 	$: products = $getProducts.data?.products || [];
-  
-	const modalStore = getModalStore();
   
 	let formData = {
 	  name: '',
@@ -81,6 +79,7 @@ function areFieldsFilled() {
   );
 }
 
+const modalStore = getModalStore();
 async function onFormSubmit() {
   try {
 	if (!areFieldsFilled()) {
@@ -88,30 +87,27 @@ async function onFormSubmit() {
     }
     // If product is 'NA', set productId to null
     const productId = formProduct.product === 'NA' ? null : formProduct.product;
-    addClient({ input: formData, productId });
 
-    // Wait for the mutation result
-    await result;
-
-    if ($errorStore) {
-		modalStore.close();
-    	console.error('Mutation error:', $errorStore);
-			const t = {
-			message: $errorStore,
-			timeout: 2000
-			};
-		toastStore.trigger(t);
-
-    } else {
-      // If successful, close the modal
-      if (result.data) {
-        $modalStore[0].response(result);
-        console.log(result.data.addClient);
-      }
-      modalStore.close();
-    }
-  } catch (error) {
-    // Handle unexpected errors
+    const result = await addClient({ input: formData, productId })
+		const {error, data}	= result
+		if (error) {
+			modalStore.close();
+			console.error('Mutation error:', error.message);
+				const t = {
+				message: error.message,
+				timeout: 2000
+				};
+			toastStore.trigger(t);
+	
+		} else {
+		  // If successful, close the modal
+		  if (data) {
+			  modalStore.close();
+			  console.log(data);
+			$modalStore[0]?.response(result);
+		  }
+		}
+	} catch (error) {
     console.error('Unexpected error:', error);
   }
 }

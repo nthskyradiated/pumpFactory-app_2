@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import { mutationStore, gql, getContextClient } from '@urql/svelte';
+	import { gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 
 	export let parent: SvelteComponent;
@@ -9,12 +9,8 @@
 	const client = getContextClient();
 	let visible = false;
 	const message = "Please fill in all required fields. Minimum price value is 100."
-	let result;
-  
-	const addProduct = ({ input }) => {
-	  result = mutationStore({
-		client,
-		query: gql`
+
+		const query = gql`
 		  mutation AddProduct($input: AddProductInput!) {
 			addProduct(input: $input) {
 			  id
@@ -23,11 +19,16 @@
 			  price
 			}
 		  }
-		`,
-		variables: { input },
-	  });
-	};
-  
+		  variables: { input },
+		`
+	const addProduct = async ({ input }) => {
+		const result = await client
+		.mutation(query, { input})
+		.toPromise()
+		.then()
+		return result
+	}
+
 	const modalStore = getModalStore();
   
 	let formData = {
@@ -36,7 +37,7 @@
 	  price: 100,
 	};
 
-function areFieldsFilled() {
+async function areFieldsFilled() {
 const isPositiveNumber = typeof formData.price === 'number' && formData.price > 100;
   return (
     formData.name.trim() !== '' &&
@@ -52,25 +53,25 @@ async function onFormSubmit() {
 	  return visible = true
     }
 
-    addProduct({ input: formData });
+    const result = await addProduct({ input: formData });
 
-    await result;
+    const {error, data} = result;
 
-    if (result.error) {
-
-      console.error('Mutation error:', result.error);
+    if (error) {
+		modalStore.close();
+      console.error('Mutation error:', error.message);
 	  const t = {
-		message: result.error
+		message: error.message
 		};
 		toastStore.trigger(t);
 
     } else {
       // If successful, close the modal
-      if (result.data) {
-        $modalStore[0].response(result);
-        console.log(result.data.addProduct);
+      if (data) {
+		  modalStore.close();
+		  console.log(data);
+        $modalStore[0]?.response(result);
       }
-      modalStore.close();
     }
   } catch (error) {
     console.error('Unexpected error:', error);

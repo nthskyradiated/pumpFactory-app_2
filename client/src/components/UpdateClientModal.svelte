@@ -1,21 +1,16 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import { mutationStore, queryStore, gql, getContextClient } from '@urql/svelte';
+	import {  queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-	import { errorStore } from '../lib/urql';
+
 	export let parent: SvelteComponent;
-	// export let singleClient;
+
 	const toastStore = getToastStore();
 	const client = getContextClient();
 	let visible = false;
 	const message = "Please fill in all required fields"
-	let result;
-
-	const updateClient = ({ input, productId }) => {
 		
-	  result = mutationStore({
-		client,
-		query: gql`
+		const query = gql`
 		  mutation updateClient($input: UpdateClientInput!, $productId: ID) {
 			updateClient(input: $input, productId: $productId) {
 			  id
@@ -33,10 +28,14 @@
 			  }
 			}
 		  }
-		`,
-		variables: { input, productId },
-		
-	  });
+		  variables: { input, productId },
+		`
+		const updateClient = async ({ input, productId }) => {
+			const result = await client
+		.mutation(query, {input, productId})
+		.toPromise()
+		.then()
+		return result
 	};
   
 	const getProducts = queryStore({
@@ -70,8 +69,7 @@ let formProduct = {
     product: $modalStore[0].meta.singleClient.product?.id || "NA"
   };
 
-//   onMount(() => {
-    // Initialize formData with values from singleClient
+
   let formData = {
 		id: $modalStore[0].meta.singleClient.id,
       name: "",
@@ -93,34 +91,30 @@ async function onFormSubmit() {
 
     // If product is 'NA', set productId to null
     const productId = formProduct.product === 'NA' ? null : formProduct.product;
-    updateClient({ input: formData, productId });
-
-    await result;
+    const result = await updateClient({ input: formData, productId });
 	formProduct.product = 'NA';
-
+	const {error, data}	= result
     // Check if there are errors in the result
-    if (result.error) {
-		modalStore.close();
-      // Handle the error, e.g., display an error message
-    	  console.error(result.error);
-	  	const t = {
-		message: result.error,
-		timeout: 2000
-		};
-		toastStore.trigger(t);
-		// errorStore.set(null)
-      // Optionally, update your UI to show an error message to the user
+	if (error) {
+			modalStore.close();
+			console.error('Mutation error:', error.message);
+				const t = {
+				message: error.message,
+				timeout: 2000
+				};
+			toastStore.trigger(t);
+
     } else {
       // If successful, close the modal
-      if (result.data) {
-        $modalStore[0].response(result);
-      }
-      modalStore.close();
-    }
-  } catch (error) {
+      if (data) {
+			  modalStore.close();
+			  console.log(data);
+			$modalStore[0]?.response(result);
+		  }
+		}
+	} catch (error) {
     // Handle unexpected errors
     console.error('Unexpected error:', error);
-    // Optionally, update your UI to show an error message to the user
   }
 }
 
