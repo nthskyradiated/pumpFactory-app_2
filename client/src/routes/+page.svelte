@@ -52,7 +52,7 @@
 
   
   <main>
-	<form method="POST" on:submit|preventDefault={loginUser} class="my-auto flex flex-col items-center justify-center gap-6 h-screen">
+	<form method="POST" on:submit|preventDefault={loginUser} class="mt-52 flex flex-col items-center justify-center gap-6">
 		{#if autherror}
 		  <p style="color: red;">{autherror}</p>
 		{/if}
