@@ -24,7 +24,7 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    // path: 'api.localhost/graphql',
+    path: 'api.localhost/graphql',
     status400ForVariableCoercionErrors: true,
     credentials: 'include'
 });
@@ -41,9 +41,9 @@ app.use(cors({
 app.use(express.json())
 
 
-    app.use(vhost(`/graphql`, expressMiddleware(server, {
+    app.use(`/graphql`, expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
-      
+
     //     const token = req.headers.authorization || '';
 
         // Verify the token and get user information
@@ -64,7 +64,7 @@ app.use(express.json())
     
     // }))
 
-)
+
 
 // const authMiddleware = expressjwt({
 //     secret: process.env.JWT_SECRET, // Replace with your secret key
