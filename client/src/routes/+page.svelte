@@ -34,8 +34,8 @@
 			console.log(result.data.loginUser);
 			 const {token} = result.data.loginUser
 			 if (token) {
-				 localStorage.setItem('token', token)
-				 console.log(result.data.loginUser.user.isAdmin);
+				//  localStorage.setItem('token', token)
+				//  console.log(result.data.loginUser.user.isAdmin);
 				 auth.set({isAdmin: result.data.loginUser.user.isAdmin, isLoggedIn: true})
 				 refreshToken.set({isAdmin: result.data.loginUser.refreshToken})
 				 goto('/dashboard');
