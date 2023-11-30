@@ -26,7 +26,7 @@ const server = new ApolloServer({
     resolvers,
     path: 'api.localhost/graphql',
     status400ForVariableCoercionErrors: true,
-    credentials: 'include'
+    // credentials: 'include'
 });
 
 await server.start();  
@@ -35,8 +35,8 @@ app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
   origin: 'https://pump-factory-app-2.vercel.app/', // Replace with your SvelteKit app's domain
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
+  // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  // credentials: true,
 }));
 app.use(express.json())
 
