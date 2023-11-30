@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/5c4e1c6d-75e3-4c27-a424-b2279121d438/resourceGroups/pumpApp/providers/Microsoft.Web/sites/pumpApp",
+    "appService.deploySubpath": "."
+}

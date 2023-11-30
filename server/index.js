@@ -24,7 +24,7 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'api.localhost/graphql',
+    // path: 'api.localhost/graphql',
     status400ForVariableCoercionErrors: true,
     credentials: 'include'
 });
@@ -34,14 +34,14 @@ app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your SvelteKit app's domain
+  origin: 'https://pump-factory-app-2-novcquwgn-andy-pandaans-projects.vercel.app/', // Replace with your SvelteKit app's domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 }));
 app.use(express.json())
 
 
-    app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
+    app.use(vhost(`/graphql`, expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
     //     const token = req.headers.authorization || '';
 
