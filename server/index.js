@@ -70,7 +70,6 @@ app.use(express.json())
 
 //     algorithms: ['HS256'], // Use HS256 or the appropriate algorithm for your setup
 //   });
-  
 //   // Use the authentication middleware for protected routes
 //   app.use(authMiddleware);
   
