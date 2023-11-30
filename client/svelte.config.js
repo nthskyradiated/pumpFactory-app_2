@@ -10,7 +10,7 @@ const config = {
     adapter: adapter(),
   },
   preprocess: [vitePreprocess({})],
-  ssr:false
+  // ssr:false
 };
 
 export default config;
