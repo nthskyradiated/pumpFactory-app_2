@@ -43,6 +43,7 @@ app.use(express.json())
 
     app.use(vhost(`/graphql`, expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
+      
     //     const token = req.headers.authorization || '';
 
         // Verify the token and get user information
