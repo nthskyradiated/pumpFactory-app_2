@@ -22,7 +22,7 @@ export const urqlClient = new Client({
       console.error(error);
     },
   }),cacheExchange, fetchExchange],
-  url: 'http://api.localhost:5000', // Update with your GraphQL server URL
+  url: 'pumpapp.azurewebsites.net', // Update with your GraphQL server URL
   fetchOptions: () => {
     const token = getToken()
     const refreshToken = getCookie('refreshToken');
