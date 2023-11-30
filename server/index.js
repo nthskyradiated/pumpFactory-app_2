@@ -65,7 +65,6 @@ app.use(express.json())
 
 )
 
-
 // const authMiddleware = expressjwt({
 //     secret: process.env.JWT_SECRET, // Replace with your secret key
 
