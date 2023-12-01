@@ -24,7 +24,7 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'api.localhost/graphql',
+    path: 'pumpapp.azurewebsites.net',
     status400ForVariableCoercionErrors: true,
     // credentials: 'include'
 });
@@ -34,8 +34,8 @@ app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
-  origin: '*' // Replace with your SvelteKit app's domain
-  // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  origin: '*', // Replace with your SvelteKit app's domain
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   // credentials: true,
 }));
 app.use(express.json())
