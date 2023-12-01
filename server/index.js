@@ -24,9 +24,9 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'pumpapp.azurewebsites.net',
+    // path: 'pumpapp.azurewebsites.net',
     status400ForVariableCoercionErrors: true,
-    // credentials: 'include'
+    credentials: 'include'
 });
 
 await server.start();  
