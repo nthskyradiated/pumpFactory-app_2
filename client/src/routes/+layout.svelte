@@ -46,7 +46,7 @@
           <nav class='text-xl'>
               {#if $page.url.pathname !== '/'}
               <a href="/products">Products</a>
-              <!-- <a href="/attendance">Attendance</a> -->
+              <a href="/sessions">Sessions</a>
               <a href="/dashboard">Clients</a>
               <a href="/#" on:click={handleLogout}>Logout</a>
               {/if}
