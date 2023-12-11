@@ -53,6 +53,8 @@ export const typeDefs = `#graphql
         clientId: ID!
         productId: ID!
         checkIn: Date!
+        product: Product
+        client: Client
     }
 
     type Product {
@@ -140,6 +142,7 @@ export const typeDefs = `#graphql
         products: [Product]
         clients: [Client]
         users: [User]
+        attendances: [Attendance]
         attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
@@ -201,6 +204,10 @@ export const resolvers = {
             await authenticateUser(context)
             return Client.find()
         },
+        attendances: async (parent, args, context) => {
+            await authenticateUser(context);
+            return Attendance.find();
+          },
         users: async (parent, args, context) => {
             await authenticateAdmin(context)
             return User.find()
@@ -245,7 +252,9 @@ export const resolvers = {
 
     Attendance: {
         clientId: async (parent) => await parent.clientId,
-        productId: async (parent) => await parent.productId
+        productId: async (parent) => await parent.productId,
+        product: async (parent) => await Product.findById(parent.productId),
+        client: async (parent) => await Client.findById(parent.clientId)
     },
 
     Mutation: {

@@ -2,13 +2,15 @@
 
 <script>
   import { queryStore, gql, getContextClient, setContextClient } from '@urql/svelte';
-  import {urqlClient} from '$lib/urql.js'
-  setContextClient(urqlClient)
-  const getAttendance = queryStore({
-    client: getContextClient(),
+  import Spinner from '../../components/Spinner.svelte';
+
+  const client = getContextClient()
+
+  const getAttendances = queryStore({
+    client,
     query: gql`
-      query Attendance($id: ID!) {
-  attendance(ID: $id) {
+      query {
+  attendances {
     id
     checkIn
     clientId
@@ -17,16 +19,19 @@
 }
     `,
   });
+
+  console.log($getAttendances);
 </script>
 
-{#if $getAttendance.fetching}
-<p>Loading...</p>
-{:else if $getAttendance.error}
-<p>Oh no... {$getAttendance.error.message}</p>
+{#if $getAttendances.fetching}
+<Spinner />
+{:else if $getAttendances.error}
+<p>Oh no... {$getAttendances.error.message}</p>
 {:else}
 <ul>
-  {#each $getAttendance.data.attendance as attendance}
+  {#each $getAttendances.data.attendances as attendance}
   <li>{attendance.clientId} - {attendance.productId} - {attendance.checkIn}</li>
   {/each}
+  <!-- {$getAttendances.data?.attendance} -->
 </ul>
 {/if}
