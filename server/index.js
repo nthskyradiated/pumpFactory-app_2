@@ -36,6 +36,7 @@ app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') 
 app.use(cors({
   origin: 'http://localhost:5173', // Replace with your SvelteKit app's domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Authorization', 'Content-Type', 'refreshtoken'],
   credentials: true,
 }));
 app.use(express.json())
