@@ -103,7 +103,7 @@ const mySelectionHandler = (event) => {
 </script>
 
 <main class='w-10/12 m-auto pt-8'>
-
+  <h2 class='h2 mb-5'>Product List</h2>
   {#if isFetching}
     <!-- <p>Loading...</p> -->
     <Spinner />

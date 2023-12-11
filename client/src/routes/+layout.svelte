@@ -40,7 +40,7 @@
       <svelte:fragment slot="lead">
       <LightSwitch />
       <Logo />
-      <h1>Pump Factory App</h1>
+      <h2 class='h2'>Pump Factory App</h2>
       </svelte:fragment>
       <svelte:fragment slot="trail">
           <nav class='text-xl'>
