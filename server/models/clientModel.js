@@ -23,6 +23,12 @@ const ClientSchema = new mongoose.Schema({
     waiver: {
         type: Boolean
     },
+    waiverURL: {
+        type: String
+    },
+    photoURL: {
+        type: String
+    },
     productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'

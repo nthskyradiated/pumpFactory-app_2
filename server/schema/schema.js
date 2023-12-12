@@ -78,6 +78,8 @@ export const typeDefs = `#graphql
         membershipStatus: MembershipStatus!
         product: Product
         attendance: [Attendance]
+        waiverURL: String
+        photoURL: String
     }
 
     type User {
@@ -113,6 +115,8 @@ export const typeDefs = `#graphql
         phone: String!
         birthdate: String!
         waiver: Boolean!
+        waiverURL: String
+        photoURL: String
     }
     input UpdateClientInput {
         id: ID!
@@ -121,6 +125,8 @@ export const typeDefs = `#graphql
         phone: String
         birthdate: String
         waiver: Boolean
+        waiverURL: String
+        photoURL: String
     }
 
     input AddUserInput {
@@ -147,8 +153,6 @@ export const typeDefs = `#graphql
         product(ID: ID!) : Product
         client(ID: ID!) : Client
         user(ID: ID!) : User
-
-        
     }
 
     enum MembershipStatus {
