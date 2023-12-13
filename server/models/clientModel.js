@@ -23,12 +23,7 @@ const ClientSchema = new mongoose.Schema({
     waiver: {
         type: Boolean
     },
-    waiverURL: {
-        type: String
-    },
-    photoURL: {
-        type: String
-    },
+
     productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
@@ -37,6 +32,11 @@ const ClientSchema = new mongoose.Schema({
     attendance: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Attendance'
+    }],
+    
+    documents: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ClientDocument'
     }]
 
 },{timestamps: true}

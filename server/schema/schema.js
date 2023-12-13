@@ -2,6 +2,7 @@ import Client from '../models/clientModel.js'
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
 import Attendance from '../models/attendanceModel.js'
+import ClientDocument from '../models/clientDocumentModel.js'
 import {authenticateUser, createAccessToken, createRefreshToken, authenticateAdmin} from '../utils/userAuth.js'
 import { findExistingClient, validateAge, calculateExpirationDate, updateMembershipStatus } from '../utils/clientUtils.js';
 import { GraphQLScalarType, Kind } from 'graphql';
@@ -62,9 +63,9 @@ export const typeDefs = `#graphql
         name: String!
         description: String!
         price: Int!
-        # type: String!
-        # validity: String!
-        # expiresAt: Date!
+        productType: ProductType!
+        sessionsCounter: Int
+        expiresIn: Int  
     }
 
     type Client {
@@ -78,8 +79,15 @@ export const typeDefs = `#graphql
         membershipStatus: MembershipStatus!
         product: Product
         attendance: [Attendance]
-        waiverURL: String
-        photoURL: String
+        documents: [ClientDocument]
+    }
+
+    type ClientDocument {
+        id: ID!
+        clientId: ID!
+        documentType: String!
+        documentURL: String!
+        client: Client
     }
 
     type User {
@@ -100,6 +108,9 @@ export const typeDefs = `#graphql
         name: String!
         description: String!
         price: Int!
+        productType: ProductType!
+        sessionsCounter: Int
+        expiresIn: Int
     }
 
     input UpdateProductInput {
@@ -107,6 +118,9 @@ export const typeDefs = `#graphql
         name: String
         description: String
         price: Int
+        productType: ProductType
+        sessionsCounter: Int
+        expiresIn: Int
     }
 
     input AddClientInput {
@@ -115,8 +129,6 @@ export const typeDefs = `#graphql
         phone: String!
         birthdate: String!
         waiver: Boolean!
-        waiverURL: String
-        photoURL: String
     }
     input UpdateClientInput {
         id: ID!
@@ -125,8 +137,18 @@ export const typeDefs = `#graphql
         phone: String
         birthdate: String
         waiver: Boolean
-        waiverURL: String
-        photoURL: String
+    }
+
+    input AddClientDocumentInput {
+        clientId: ID!
+        documentType: String!
+        documentURL: String!
+    }
+    input UpdateClientDocumentInput {
+        id: ID!
+        clientId: ID!
+        documentType: String!
+        documentURL: String!
     }
 
     input AddUserInput {
@@ -147,17 +169,24 @@ export const typeDefs = `#graphql
     type Query {
         products: [Product]
         clients: [Client]
+        documents: [ClientDocument]
         users: [User]
         attendances: [Attendance]
         attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
+        document(ID: ID!) : ClientDocument
         user(ID: ID!) : User
     }
 
     enum MembershipStatus {
         active
         inactive
+    }
+    enum ProductType {
+        EVENT
+        SESSION_BASED
+        TIME_BASED
     }
 
     type AuthPayload {
@@ -178,6 +207,12 @@ export const typeDefs = `#graphql
         updateClient(input: UpdateClientInput! productId: ID): Client
         
         deleteClient(id: ID!): Client
+
+        addClientDocument(input: AddClientDocumentInput!): ClientDocument
+
+        updateClientDocument(input: UpdateClientDocumentInput!): ClientDocument
+
+        deleteClientDocument(id: ID!): ClientDocument
 
         addProduct(input: AddProductInput!): Product
         
@@ -208,6 +243,10 @@ export const resolvers = {
             await authenticateUser(context)
             return Client.find()
         },
+        documents: async (parent, args, context) => {
+            await authenticateUser(context)
+            return ClientDocument.find()
+        },
         attendances: async (parent, args, context) => {
             await authenticateUser(context);
             return Attendance.find();
@@ -224,6 +263,10 @@ export const resolvers = {
         client: async (parent, {ID}, context) => {
             await authenticateUser(context)
             return await Client.findById(ID)
+        },
+        document: async (parent, {ID}, context) => {
+            await authenticateUser(context)
+            return await ClientDocument.findById(ID)
         },
         user: async (parent, {ID}, context) => {
             await authenticateAdmin(context)
@@ -252,6 +295,11 @@ export const resolvers = {
             return populatedClientAttendance;
         }
     
+    },
+
+    ClientDocument: {
+        clientId: async (parent) => await parent.clientId,
+        client: async (parent) => await Client.findById(parent.clientId)
     },
 
     Attendance: {
