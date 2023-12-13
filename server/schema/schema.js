@@ -500,7 +500,14 @@ export const resolvers = {
 
         addProduct: async (parent, { input }, context) => {
             await authenticateAdmin(context)
-            const { name, description, price } = input;
+            const { name, description, price, productType, sessionsCounter, expiresIn } = input;
+
+            let additionalFields = {};
+            if (productType === 'SESSION_BASED') {
+              additionalFields.sessionsCounter = sessionsCounter;
+            } else if (productType === 'TIME_BASED') {
+              additionalFields.expiresIn = expiresIn;
+            }
         
             // Check if a product with the same name and description already exists
             const existingProduct = await Product.findOne({ $or: [{ name }, { description }] });
@@ -514,9 +521,11 @@ export const resolvers = {
                 name,
                 description,
                 price,
+                productType,
+                ...additionalFields,
             });
         
-            return product.save();
+            return await product.save();
         },
         
         updateProduct: async (parent, {input}, context) => {
