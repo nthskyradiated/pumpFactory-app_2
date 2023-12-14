@@ -64,8 +64,7 @@ export const typeDefs = `#graphql
         description: String!
         price: Int!
         productType: ProductType!
-        sessionsCounter: Int
-        expiresIn: Int  
+        counter: int!
     }
 
     type Client {
@@ -109,8 +108,7 @@ export const typeDefs = `#graphql
         description: String!
         price: Int!
         productType: ProductType!
-        sessionsCounter: Int
-        expiresIn: Int
+        counter: Int!
     }
 
     input UpdateProductInput {
@@ -119,8 +117,7 @@ export const typeDefs = `#graphql
         description: String
         price: Int
         productType: ProductType
-        sessionsCounter: Int
-        expiresIn: Int
+        counter: Int
     }
 
     input AddClientInput {

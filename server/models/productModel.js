@@ -14,12 +14,9 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         enum: ["EVENT", "SESSION_BASED", "TIME_BASED"]
     },
-    sessionsCounter: {
+    counter: {
         type: Number
     },
-    expiresIn: {
-        type: Number
-    }
 
 }, {timestamps: true}
 );
