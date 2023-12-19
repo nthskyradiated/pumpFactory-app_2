@@ -41,11 +41,10 @@
 // Function to check if all required fields are filled
 function areFieldsFilled() {
   return (
-    formData.name.trim() !== '' &&
-    formData.phone.trim() !== '' &&
-    formData.email.trim() !== '' &&
-    formData.birthdate.trim() !== '' &&
-    formData.waiver !== null
+    formData.clientId.trim() !== '' &&
+    formData.documentName.trim() !== '' &&
+    formData.documentType.trim() !== '' &&
+    formData.documentURL.trim() !== ''
   );
 }
 
@@ -55,9 +54,6 @@ async function onFormSubmit() {
 	if (!areFieldsFilled()) {
 	  return visible = true
     }
-    // If product is 'NA', set productId to null
-    const productId = formProduct.product === 'NA' ? null : formProduct.product;
-
     const result = await addClientDocument({ input: formData })
 		const {error, data}	= result
 		if (error) {
@@ -99,15 +95,15 @@ async function onFormSubmit() {
 	  <form class="modal-form {cForm}">
 		<label class="label">
 		  <span>Document Name</span>
-		  <input class="input" type="text" bind:value={formData.documentName} required placeholder="Enter name..." />
+		  <input class="input" type="text" bind:value={formData.documentName} required placeholder="Enter Filename..." />
 		</label>
 		<label class="label">
 		  <span>Document Type</span>
-		  <input class="input" type="tel" bind:value={formData.documentType} required placeholder="Enter phone..." />
+		  <input class="input" type="text" bind:value={formData.documentType} required placeholder="Enter Type..." />
 		</label>
 		<label class="label">
 		  <span>Document URL</span>
-		  <input class="input" type="email" bind:value={formData.documentURL} required placeholder="Enter email address..." />
+		  <input class="input" type="url" bind:value={formData.documentURL} required placeholder="Enter Document URL..." />
 		</label>
 		<!-- svelte-ignore a11y-label-has-associated-control -->
 		<label class="flex items-center space-x-2">
