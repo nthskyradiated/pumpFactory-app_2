@@ -7,6 +7,7 @@
   import AddProductModal from "../components/AddProductModal.svelte";
   import UpdateProductModal from "../components/UpdateProductModal.svelte";
   import UpdateClientModal from "../components/UpdateClientModal.svelte";
+  import AddClientDocumentModal from "../components/AddClientDocumentModal.svelte";
   import { goto } from '$app/navigation';
   import Footer from "../components/Footer.svelte";
   import Logo from '../components/Logo.svelte'
@@ -19,7 +20,8 @@
     addClientModal: {ref: AddClientModal},
     updateClientModal: {ref: UpdateClientModal},
     addProductModal: {ref: AddProductModal},
-    updateProductModal: {ref: UpdateProductModal}
+    updateProductModal: {ref: UpdateProductModal},
+    addClientDocumentModal: {ref: AddClientDocumentModal}
   }
 
   function handleLogout() {

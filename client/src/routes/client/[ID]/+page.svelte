@@ -33,7 +33,15 @@ const toastStore = getToastStore();
             attendance {
                 checkIn
                 productId
+                product {
+                  name
+                }
               }
+            documents {
+              documentName
+              documentType
+              documentURL
+            }
           }
         }
       `,
@@ -110,6 +118,13 @@ $: updateModal = {
   meta: {singleClient: singleClient}
   
 };
+$: addClientDocumentModal = {
+	type: 'component',
+  component: 'addClientDocumentModal',
+  props: {singleClient: singleClient, isFetching},
+  meta: {singleClient: singleClient}
+  
+};
 const deleteModal = {
 	type: 'confirm',
 	title: 'Deleting Client Data',
@@ -125,7 +140,7 @@ const addAttendanceModal = {
 	response: async (r) => !r? modalStore.close(): await addAttendance(addAttendanceInput)  
   } 
     
-  
+  console.log($getClient.data);
   
 
 
@@ -148,6 +163,7 @@ const addAttendanceModal = {
       </Tab>
       <Tab bind:group={$tabSet} name="tab2" value={1}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Product Enrolment</Tab>
       <Tab bind:group={$tabSet} name="tab3" value={2}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Sessions</Tab>
+      <Tab bind:group={$tabSet} name="tab4" value={3}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Documents</Tab>
       <!-- Tab Panels --->
       <svelte:fragment slot="panel">
         {#if $tabSet === 0}
@@ -182,10 +198,28 @@ const addAttendanceModal = {
               <h1 class='h5 mb-1'>{attendance.checkIn}</h1>
               <h1 class='h4 mb-1'>Product id:</h1>
               <h1 class='h5 mb-1'>{attendance.productId}</h1>
+              <h1 class='h4 mb-1'>Enrolled Package</h1>
+              <h1 class='h5 mb-1'>{attendance.product.name}</h1>
             </div>
           {/each}
+          {/if}
+          {:else if $tabSet === 3}
+          {#if !singleClient.documents || singleClient.documents.length === 0}
+          <h1 class='h5 mb-1'>No uploaded document for this client</h1>
+          {:else}
+          {#each singleClient.documents as document}
+          <div class='card p-3 my-2'>
+            <h1 class='h4 mb-1'>Document Name:</h1>
+            <a href={document.documentURL}><h1 class='h5 mb-2'>{document.documentName}</h1></a>
+            <h1 class='h4 mb-1'>Document Type:</h1>
+            <h1 class='h5 mb-2'>{document.documentType}</h1>
+            
+          </div>
+          {/each}
+          {/if}
+          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload Document</button>
         {/if}
-      {/if}
+
       </svelte:fragment>
     </TabGroup>
   </div>
