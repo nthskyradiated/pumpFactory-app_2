@@ -20,6 +20,13 @@ export type AddAttendanceInput = {
   productId: Scalars['ID']['input'];
 };
 
+export type AddClientDocumentInput = {
+  clientId: Scalars['ID']['input'];
+  documentName: Scalars['String']['input'];
+  documentType: Scalars['String']['input'];
+  documentURL: Scalars['String']['input'];
+};
+
 export type AddClientInput = {
   birthdate: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -29,9 +36,11 @@ export type AddClientInput = {
 };
 
 export type AddProductInput = {
+  counter: Scalars['Int']['input'];
   description: Scalars['String']['input'];
   name: Scalars['String']['input'];
   price: Scalars['Int']['input'];
+  productType: ProductType;
 };
 
 export type AddUserInput = {
@@ -45,13 +54,16 @@ export type AddUserInput = {
 export type Attendance = {
   __typename?: 'Attendance';
   checkIn: Scalars['Date']['output'];
+  client?: Maybe<Client>;
   clientId: Scalars['ID']['output'];
   id: Scalars['ID']['output'];
+  product?: Maybe<Product>;
   productId: Scalars['ID']['output'];
 };
 
 export type AuthPayload = {
   __typename?: 'AuthPayload';
+  refreshToken?: Maybe<Scalars['String']['output']>;
   token?: Maybe<Scalars['String']['output']>;
   user?: Maybe<User>;
 };
@@ -61,6 +73,7 @@ export type Client = {
   age: Scalars['Int']['output'];
   attendance?: Maybe<Array<Maybe<Attendance>>>;
   birthdate: Scalars['Date']['output'];
+  documents?: Maybe<Array<Maybe<ClientDocument>>>;
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   membershipStatus: MembershipStatus;
@@ -69,6 +82,22 @@ export type Client = {
   product?: Maybe<Product>;
   waiver: Scalars['Boolean']['output'];
 };
+
+export type ClientDocument = {
+  __typename?: 'ClientDocument';
+  client?: Maybe<Client>;
+  clientId: Scalars['ID']['output'];
+  documentName: Scalars['String']['output'];
+  documentType: DocumentType;
+  documentURL: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
+export enum DocumentType {
+  Identification = 'IDENTIFICATION',
+  Photo = 'PHOTO',
+  Waiver = 'WAIVER'
+}
 
 export enum MembershipStatus {
   Active = 'active',
@@ -79,14 +108,17 @@ export type Mutation = {
   __typename?: 'Mutation';
   addAttendance?: Maybe<Attendance>;
   addClient?: Maybe<Client>;
+  addClientDocument?: Maybe<ClientDocument>;
   addProduct?: Maybe<Product>;
   deleteAttendance?: Maybe<Attendance>;
   deleteClient?: Maybe<Client>;
+  deleteClientDocument?: Maybe<ClientDocument>;
   deleteProduct?: Maybe<Product>;
   deleteUser?: Maybe<User>;
   loginUser?: Maybe<AuthPayload>;
   registerUser?: Maybe<User>;
   updateClient?: Maybe<Client>;
+  updateClientDocument?: Maybe<ClientDocument>;
   updateProduct?: Maybe<Product>;
   updateUser?: Maybe<User>;
 };
@@ -103,6 +135,11 @@ export type MutationAddClientArgs = {
 };
 
 
+export type MutationAddClientDocumentArgs = {
+  input: AddClientDocumentInput;
+};
+
+
 export type MutationAddProductArgs = {
   input: AddProductInput;
 };
@@ -114,6 +151,11 @@ export type MutationDeleteAttendanceArgs = {
 
 
 export type MutationDeleteClientArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteClientDocumentArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -145,6 +187,11 @@ export type MutationUpdateClientArgs = {
 };
 
 
+export type MutationUpdateClientDocumentArgs = {
+  input: UpdateClientDocumentInput;
+};
+
+
 export type MutationUpdateProductArgs = {
   input: UpdateProductInput;
 };
@@ -157,17 +204,28 @@ export type MutationUpdateUserArgs = {
 
 export type Product = {
   __typename?: 'Product';
+  counter: Scalars['Int']['output'];
   description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   price: Scalars['Int']['output'];
+  productType: ProductType;
 };
+
+export enum ProductType {
+  Event = 'EVENT',
+  SessionBased = 'SESSION_BASED',
+  TimeBased = 'TIME_BASED'
+}
 
 export type Query = {
   __typename?: 'Query';
   attendance?: Maybe<Attendance>;
+  attendances?: Maybe<Array<Maybe<Attendance>>>;
   client?: Maybe<Client>;
   clients?: Maybe<Array<Maybe<Client>>>;
+  document?: Maybe<ClientDocument>;
+  documents?: Maybe<Array<Maybe<ClientDocument>>>;
   product?: Maybe<Product>;
   products?: Maybe<Array<Maybe<Product>>>;
   user?: Maybe<User>;
@@ -185,6 +243,11 @@ export type QueryClientArgs = {
 };
 
 
+export type QueryDocumentArgs = {
+  ID: Scalars['ID']['input'];
+};
+
+
 export type QueryProductArgs = {
   ID: Scalars['ID']['input'];
 };
@@ -192,6 +255,14 @@ export type QueryProductArgs = {
 
 export type QueryUserArgs = {
   ID: Scalars['ID']['input'];
+};
+
+export type UpdateClientDocumentInput = {
+  clientId: Scalars['ID']['input'];
+  documentName?: InputMaybe<Scalars['String']['input']>;
+  documentType?: InputMaybe<Scalars['String']['input']>;
+  documentURL?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 export type UpdateClientInput = {
@@ -204,10 +275,12 @@ export type UpdateClientInput = {
 };
 
 export type UpdateProductInput = {
+  counter?: InputMaybe<Scalars['Int']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   price?: InputMaybe<Scalars['Int']['input']>;
+  productType?: InputMaybe<ProductType>;
 };
 
 export type UpdateUserInput = {
