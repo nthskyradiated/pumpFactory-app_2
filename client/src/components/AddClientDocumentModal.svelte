@@ -43,7 +43,7 @@ function areFieldsFilled() {
   return (
     formData.clientId.trim() !== '' &&
     formData.documentName.trim() !== '' &&
-    formData.documentType.trim() !== '' &&
+    formData.documentType !== null &&
     formData.documentURL.trim() !== ''
   );
 }
@@ -98,21 +98,22 @@ async function onFormSubmit() {
 		  <input class="input" type="text" bind:value={formData.documentName} required placeholder="Enter Filename..." />
 		</label>
 		<label class="label">
-		  <span>Document Type</span>
-		  <input class="input" type="text" bind:value={formData.documentType} required placeholder="Enter Type..." />
-		</label>
-		<label class="label">
 		  <span>Document URL</span>
 		  <input class="input" type="url" bind:value={formData.documentURL} required placeholder="Enter Document URL..." />
 		</label>
 		<!-- svelte-ignore a11y-label-has-associated-control -->
+		<p>Document Type</p>
 		<label class="flex items-center space-x-2">
-		  <input class="radio" type="radio" required checked name="radio-direct" value={true} bind:group={formData.waiver}/>
-		  <p>Waiver (signed)</p>
+		  <input class="radio" type="radio" required checked name="radio-direct" value="PHOTO" bind:group={formData.documentType}/>
+		  <p>Photo</p>
 		</label>
 		<label class="flex items-center space-x-2">
-		  <input class="radio" type="radio" name="radio-direct" value={false} bind:group={formData.waiver}/>
-		  <p>No Waiver</p>
+		  <input class="radio" type="radio" name="radio-direct" value="IDENTIFICATION" bind:group={formData.documentType}/>
+		  <p>Identification</p>
+		</label>
+		<label class="flex items-center space-x-2">
+		  <input class="radio" type="radio" name="radio-direct" value="WAIVER" bind:group={formData.documentType}/>
+		  <p>Waiver</p>
 		</label>
 	  </form>
 	  <!-- prettier-ignore -->
