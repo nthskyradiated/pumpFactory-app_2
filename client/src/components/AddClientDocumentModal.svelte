@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import {  queryStore, gql, getContextClient } from '@urql/svelte';
+	import {  gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 
 
@@ -43,8 +43,6 @@
 // Function to check if all required fields are filled
 function areFieldsFilled() {
   return (
-    formData.clientId.trim() !== '' &&
-    formData.documentName.trim() !== '' &&
     formData.documentType !== null &&
 	formData.file !== null
   );
@@ -52,7 +50,7 @@ function areFieldsFilled() {
 
 const docUpload = async () => {
   try {
-    const { file, ...formDataWithoutFile } = formData;
+    const { file } = formData;
     const form = new FormData();
     form.append('file', file);
 
@@ -61,16 +59,22 @@ const docUpload = async () => {
     console.log('Form Data before fetch:', [...form.entries()]);
 
     // Use fetch to upload the file to the server
-    const response = await fetch('http:localhost:3000/upload', {
+    const response = await fetch('http://localhost:3000/upload', {
       method: 'POST',
       body: form,
+
     });
 
     // Debugging: Log response status and response body
     console.log('Response Status:', response.status);
-    console.log('Response Body:', await response.json());
+    // console.log('Response Body:', await response.json());
 
     if (response.ok) {
+		const resultUpload = await response.json()
+		formData.documentName = resultUpload.originalname;
+		formData.documentURL = resultUpload.url
+		console.log(resultUpload);
+		console.log(formData);
       // Proceed with the mutation
       const result = await addClientDocument({ input: formData });
       const { error, data } = result;
@@ -103,7 +107,7 @@ const docUpload = async () => {
   
   const handleFileChange = (event) => {
 	const fileInput = event.target;
-  const file = fileInput.file[0];
+  const file = fileInput.files[0];
   if (file) {
     // Update formData with the selected file
     formData.file = file;
@@ -112,8 +116,7 @@ const docUpload = async () => {
   }
 };
 
-async function onFormSubmit(event) {
-	event.preventDefault();
+async function onFormSubmit() {
 
   try {
 	if (!areFieldsFilled()) {
