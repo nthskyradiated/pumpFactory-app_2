@@ -13,7 +13,7 @@
 
 		const query = gql`
 		  mutation AddClientDocument($input: AddClientDocumentInput!) {
-			addClient(input: $input) {
+			addClientDocument(input: $input) {
 			  clientId
 			  documentName
 			  documentType
@@ -30,12 +30,14 @@
 		return result
 	}
 
+	const modalStore = getModalStore();
   
 	let formData = {
-	  clientId: '',
-	  documentName: '',
+	  clientId: $modalStore[0].meta.singleClient.id,
+	  documentName: $modalStore[0].meta.singleClient.name,
 	  documentType: '',
 	  documentURL: '',
+	  file: null
 	};
 
 // Function to check if all required fields are filled
@@ -44,35 +46,83 @@ function areFieldsFilled() {
     formData.clientId.trim() !== '' &&
     formData.documentName.trim() !== '' &&
     formData.documentType !== null &&
-    formData.documentURL.trim() !== ''
+	formData.file !== null
   );
 }
 
-const modalStore = getModalStore();
-async function onFormSubmit() {
+const docUpload = async () => {
+  try {
+    const { file, ...formDataWithoutFile } = formData;
+    const form = new FormData();
+    form.append('file', file);
+
+    // Debugging: Log formData and form data before the fetch
+    console.log('formData:', formData);
+    console.log('Form Data before fetch:', [...form.entries()]);
+
+    // Use fetch to upload the file to the server
+    const response = await fetch('http:localhost:3000/upload', {
+      method: 'POST',
+      body: form,
+    });
+
+    // Debugging: Log response status and response body
+    console.log('Response Status:', response.status);
+    console.log('Response Body:', await response.json());
+
+    if (response.ok) {
+      // Proceed with the mutation
+      const result = await addClientDocument({ input: formData });
+      const { error, data } = result;
+
+      if (error) {
+        modalStore.close();
+        console.error('Mutation error:', error.message);
+        const t = {
+          message: error.message,
+          timeout: 2000,
+        };
+        toastStore.trigger(t);
+      } else {
+        // If successful, close the modal
+        if (data) {
+          modalStore.close();
+          console.log(data);
+          $modalStore[0]?.response(result);
+        }
+      }
+    } else {
+      console.error('File upload failed');
+    }
+  } catch (error) {
+    console.error('Error during file upload:', error);
+  }
+};
+
+
+  
+  const handleFileChange = (event) => {
+	const fileInput = event.target;
+  const file = fileInput.file[0];
+  if (file) {
+    // Update formData with the selected file
+    formData.file = file;
+	console.log('Selected File:', file);
+    console.log('Updated FormData:', formData);
+  }
+};
+
+async function onFormSubmit(event) {
+	event.preventDefault();
+
   try {
 	if (!areFieldsFilled()) {
 	  return visible = true
     }
-    const result = await addClientDocument({ input: formData })
-		const {error, data}	= result
-		if (error) {
-			modalStore.close();
-			console.error('Mutation error:', error.message);
-				const t = {
-				message: error.message,
-				timeout: 2000
-				};
-			toastStore.trigger(t);
-	
-		} else {
-		  // If successful, close the modal
-		  if (data) {
-			  modalStore.close();
-			  console.log(data);
-			$modalStore[0]?.response(result);
-		  }
-		}
+
+	await docUpload();
+
+
 	} catch (error) {
     console.error('Unexpected error:', error);
   }
@@ -94,12 +144,9 @@ async function onFormSubmit() {
 	  <!-- Enable for debugging: -->
 	  <form class="modal-form {cForm}">
 		<label class="label">
-		  <span>Document Name</span>
-		  <input class="input" type="text" bind:value={formData.documentName} required placeholder="Enter Filename..." />
-		</label>
-		<label class="label">
-		  <span>Document URL</span>
-		  <input class="input" type="url" bind:value={formData.documentURL} required placeholder="Enter Document URL..." />
+		  <span>Browse Document</span>
+		  <input class="input" type="file" bind:value={formData.documentName} required accept=".pdf, .png, .jpg, .bmp, .doc" on:change={handleFileChange}/>
+
 		</label>
 		<!-- svelte-ignore a11y-label-has-associated-control -->
 		<p>Document Type</p>
@@ -133,6 +180,5 @@ async function onFormSubmit() {
 	<div class="alert-actions"><button type="button" class="btn-icon variant-ghost" on:click={() => {visible=false}}>X</button></div>
 </aside>
 {/if}
-		
   {/if}
   
