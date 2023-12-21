@@ -59,7 +59,7 @@ const docUpload = async () => {
     console.log('Form Data before fetch:', [...form.entries()]);
 
     // Use fetch to upload the file to the server
-    const response = await fetch('http://localhost:3000/upload', {
+    const response = await fetch('https://uploads.thepumpfactory.net/upload', {
       method: 'POST',
       body: form,
 
@@ -73,28 +73,10 @@ const docUpload = async () => {
 		const resultUpload = await response.json()
 		formData.documentName = resultUpload.originalname;
 		formData.documentURL = resultUpload.url
+		delete formData.file
 		console.log(resultUpload);
 		console.log(formData);
-      // Proceed with the mutation
-      const result = await addClientDocument({ input: formData });
-      const { error, data } = result;
 
-      if (error) {
-        modalStore.close();
-        console.error('Mutation error:', error.message);
-        const t = {
-          message: error.message,
-          timeout: 2000,
-        };
-        toastStore.trigger(t);
-      } else {
-        // If successful, close the modal
-        if (data) {
-          modalStore.close();
-          console.log(data);
-          $modalStore[0]?.response(result);
-        }
-      }
     } else {
       console.error('File upload failed');
     }
@@ -102,8 +84,6 @@ const docUpload = async () => {
     console.error('Error during file upload:', error);
   }
 };
-
-
   
   const handleFileChange = (event) => {
 	const fileInput = event.target;
@@ -125,7 +105,25 @@ async function onFormSubmit() {
 
 	await docUpload();
 
+	const result = await addClientDocument({ input: formData });
+      const { error, data } = result;
 
+      if (error) {
+        modalStore.close();
+        console.error('Mutation error:', error.message);
+        const t = {
+          message: error.message,
+          timeout: 2000,
+        };
+        toastStore.trigger(t);
+      } else {
+        // If successful, close the modal
+        if (data) {
+          modalStore.close();
+          console.log(data);
+          $modalStore[0]?.response(result);
+        }
+      }
 	} catch (error) {
     console.error('Unexpected error:', error);
   }
