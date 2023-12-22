@@ -52,7 +52,8 @@ const docUpload = async () => {
   try {
     const { file } = formData;
     const form = new FormData();
-    form.append('file', file);
+	const renamedFile = new File([file], formData.documentName, { type: file.type });
+    form.append('file', renamedFile);
 
     // Debugging: Log formData and form data before the fetch
     console.log('formData:', formData);
@@ -89,9 +90,17 @@ const docUpload = async () => {
 	const fileInput = event.target;
   const file = fileInput.files[0];
   if (file) {
-    // Update formData with the selected file
+    // Extract extension from the original file name
+    const extension = file.name.split('.').pop();
+	const clientIdSuffix = formData.clientId.slice(-5);
+    // Generate a new filename based on the document name and extension
+    const newFilename = `${$modalStore[0].meta.singleClient.name.replace(/\s+/g, '-')}-${clientIdSuffix}.${extension}`;
+
+    // Update formData with the selected file and new filename
     formData.file = file;
-	console.log('Selected File:', file);
+    formData.documentName = newFilename;
+
+    console.log('Selected File:', file);
     console.log('Updated FormData:', formData);
   }
 };
