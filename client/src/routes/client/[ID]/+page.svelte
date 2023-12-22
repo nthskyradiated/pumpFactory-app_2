@@ -38,6 +38,7 @@ const toastStore = getToastStore();
                 }
               }
             documents {
+              documentId
               documentName
               documentType
               documentURL
@@ -73,6 +74,35 @@ const toastStore = getToastStore();
       goto('/dashboard');
     }
   };
+
+  const deleteClientDocument = async ( deleteClientDocumentId ) => {
+    result = mutationStore({
+      client,
+      query: gql`
+      mutation ($deleteClientDocumentId: ID!) {
+        deleteClientDocument(id: $deleteClientDocumentId) {
+        documentName
+        documentType
+        documentURL
+      }   
+    }
+      `,
+      variables: { input: deleteClientDocumentId },
+    })
+    await result;
+    if (result.error) {
+      console.error('Mutation error:', result.error);
+    } else {
+      const t = {
+        message: "Deleted Client Document",
+        timeout: 2000
+      };
+      toastStore.trigger(t);
+      goto('/dashboard');
+    }
+  }
+    
+
 
   const addAttendance = async ({ input }) => {
 	  result = mutationStore({
@@ -131,6 +161,13 @@ const deleteModal = {
 	body: 'Are you sure you wish to proceed?',
 	// TRUE if confirm pressed, FALSE if cancel pressed
 	response: async (r) => !r? modalStore.close(): await deleteClient(deleteClientId)  
+  } 
+const deleteClientDocumentModal = {
+	type: 'confirm',
+	title: 'Deleting Client Document',
+	body: 'Are you sure you wish to proceed?',
+	// TRUE if confirm pressed, FALSE if cancel pressed
+	response: async (r) => !r? modalStore.close(): await deleteClientDocument(deleteClientDocumentId)  
   } 
 const addAttendanceModal = {
 	type: 'confirm',
@@ -213,6 +250,10 @@ const addAttendanceModal = {
             <a href={document.documentURL}><h1 class='h5 mb-2'>{document.documentName}</h1></a>
             <h1 class='h4 mb-1'>Document Type:</h1>
             <h1 class='h5 mb-2'>{document.documentType}</h1>
+            <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteClientDocumentModal)}}>
+              <Icon icon="la:skull-crossbones" />
+              <span>Delete Document</span>
+            </button>
             
           </div>
           {/each}
