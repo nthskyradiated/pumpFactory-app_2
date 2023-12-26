@@ -368,7 +368,7 @@ export const resolvers = {
             
                     // Save the attendance record
                     await attendance.save();
-                        client.attendance.push(attendance.id);
+                        client.sessions.push(attendance.id);
             
                         // Save the client to update the attendance array
                         await client.save();
@@ -382,18 +382,15 @@ export const resolvers = {
         deleteAttendance: async (parent, { id }, context) => {
         await authenticateAdmin(context)
         // Find the attendance record by its ID
-        const attendance = await Attendance.findById(id);
+        const attendance = await Attendance.findOne({id});
     
         if (!attendance) {
           throw new Error('Attendance record not found');
         }
-    
-        // Remove the attendance record's ID from the client's attendance array
-        await Client.updateOne({ _id: attendance.clientId }, { $pull: { attendance: attendance._id } });
         
     
         // Delete the attendance record
-        await Attendance.findByIdAndDelete(id);
+        await attendance.removeSession();
     
         return attendance;
         },

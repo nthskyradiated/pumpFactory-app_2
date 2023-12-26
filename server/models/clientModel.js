@@ -29,7 +29,7 @@ const ClientSchema = new mongoose.Schema({
         ref: 'Product'
     },
     
-    attendance: [{
+    sessions: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Attendance'
     }],

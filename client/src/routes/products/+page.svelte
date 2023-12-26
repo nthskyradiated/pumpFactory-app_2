@@ -8,7 +8,7 @@
 
   export const load = async () => {
 $: isAdmin = $auth.isAdmin;
-    console.log('isAdmin:', isAdmin);
+    // console.log('isAdmin:', isAdmin);
   };
  
   const modalStore = getModalStore();
@@ -86,16 +86,15 @@ const updateProductModal = {
 	type: 'component',
   component: 'updateProductModal'
 };
-console.log($auth.isAdmin);
+// console.log($auth.isAdmin);
 
 const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
     const ID = event.detail[0];
-    console.log(ID);
+    // console.log(ID);
     productID.set(ID)
     // console.log($clientID);
     preloadData(`/product/${ID}`)
-    // modalStore.trigger(updateModal)
     goto(`/product/${ID}`)
     
   };

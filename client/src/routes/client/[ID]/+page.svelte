@@ -2,7 +2,7 @@
   import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-  import {tabSet, deleteDocumentStore} from '$lib/utilsStore'
+  import {tabSet, deleteDocumentStore, deleteAttendanceStore} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
   import {auth} from '$lib/auth.js'
@@ -31,6 +31,7 @@ const toastStore = getToastStore();
                 description
               }
             attendance {
+                id
                 checkIn
                 productId
                 product {
@@ -126,6 +127,31 @@ const toastStore = getToastStore();
         goto('/dashboard');
       }
     }
+  const deleteAttendance = async ( deleteAttendanceId ) => {
+    result = mutationStore({
+      client,
+      query: gql`
+      mutation ($deleteAttendanceId: ID!) {
+        deleteAttendance(id: $deleteAttendanceId) {
+          checkIn
+          clientId
+        }
+      }
+      `,
+      variables: { deleteAttendanceId },
+    })
+      await result;
+      if (result.error) {
+        console.error('Mutation error:', result.error);
+      } else {
+        const t = {
+          message: "Deleted Attendance Record",
+          timeout: 2000
+        };
+        toastStore.trigger(t);
+        goto('/dashboard');
+      }
+    }
       
   
 
@@ -187,7 +213,8 @@ const deleteModal = {
 	body: 'Are you sure you wish to proceed?',
 	// TRUE if confirm pressed, FALSE if cancel pressed
 	response: async (r) => !r? modalStore.close(): await deleteClient(deleteClientId)  
-  } 
+  }
+
   const deleteClientDocumentModal = {
   type: 'confirm',
   title: 'Deleting Client Document',
@@ -205,6 +232,22 @@ const deleteModal = {
       }
   },
 };
+  const deleteAttendanceModal = {
+  type: 'confirm',
+  title: 'Deleting Attendance Record',
+  body: 'Are you sure you wish to proceed?',
+  // TRUE if confirm pressed, FALSE if cancel pressed
+  response: async (r) => {
+    if (!r) {
+      modalStore.close();
+    } else {
+          const {attendanceId} = $deleteAttendanceStore
+          console.log(attendanceId)
+          await deleteAttendance(attendanceId);
+          deleteAttendanceStore.set(null); // Reset the store after deletion
+        }
+      }
+  }
 
 const addAttendanceModal = {
 	type: 'confirm',
@@ -268,10 +311,16 @@ const addAttendanceModal = {
             <div class='card p-3 my-2'>
               <h1 class='h4 mb-1'>Session Date:</h1>
               <h1 class='h5 mb-1'>{attendance.checkIn}</h1>
-              <h1 class='h4 mb-1'>Product id:</h1>
-              <h1 class='h5 mb-1'>{attendance.productId}</h1>
+              <h1 class='h4 mb-1'>Session id:</h1>
+              <h1 class='h5 mb-1'>{attendance.id}</h1>
               <h1 class='h4 mb-1'>Enrolled Package</h1>
               <h1 class='h5 mb-1'>{attendance.product.name}</h1>
+              {#if $auth.isAdmin}
+              <button type="button" class="btn variant-filled mt-8" on:click={ () => {deleteAttendanceStore.set({attendanceId: attendance.id}), modalStore.trigger(deleteAttendanceModal)}}>
+                <Icon icon="la:skull-crossbones" />
+                <span>Delete</span>
+              </button>
+              {/if}
             </div>
           {/each}
           {/if}

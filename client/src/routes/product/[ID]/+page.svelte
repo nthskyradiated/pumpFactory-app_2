@@ -94,7 +94,7 @@ $: deleteProductModal = {
       </Tab>
       <!-- Tab Panels --->
       <svelte:fragment slot="panel">
-        {$tabSet === 0}
+        <!-- {$tabSet === 0} -->
         <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{singleProduct.id}</h1>
         <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleProduct.name}</h1>
         <h1 class='h4 mb-1'>Description:</h1><h1 class='h5 mb-1'>{singleProduct.description}</h1>
