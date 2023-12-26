@@ -61,6 +61,7 @@ const docUpload = async () => {
 
     // Use fetch to upload the file to the server
     const response = await fetch('https://uploads.thepumpfactory.net/upload', {
+    // const response = await fetch('http://localhost:3000/upload', {
       method: 'POST',
       body: form,
 

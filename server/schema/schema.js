@@ -804,18 +804,16 @@ export const resolvers = {
               deleteClientDocument: async (parent, { id }, context) => {
                 await authenticateAdmin(context)
                 // Find the attendance record by its ID
-                const document = await ClientDocument.findById(id);
+                const document = await ClientDocument.findOne({id});
             
                 if (!document) {
                   throw new Error('Document not found');
                 }
             
                 // Remove the attendance record's ID from the client's attendance array
-                await Client.updateOne({ _id: document.clientId }, { $pull: { documents: document._id } });
-                
-            
+
                 // Delete the attendance record
-                await ClientDocument.findByIdAndDelete(id);
+                await document.removeDocument();
             
                 return document;
                 },
