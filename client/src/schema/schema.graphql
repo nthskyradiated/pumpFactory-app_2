@@ -3,6 +3,8 @@ type Attendance {
         clientId: ID!
         productId: ID!
         checkIn: Date!
+        product: Product
+        client: Client
     }
 
     type Product {
@@ -10,6 +12,8 @@ type Attendance {
         name: String!
         description: String!
         price: Int!
+        productType: ProductType!
+        counter: Int!
     }
 
     type Client {
@@ -23,6 +27,16 @@ type Attendance {
         membershipStatus: MembershipStatus!
         product: Product
         attendance: [Attendance]
+        documents: [ClientDocument]
+    }
+
+    type ClientDocument {
+        id: ID!
+        clientId: ID!
+        documentName: String!
+        documentType: DocumentType!
+        documentURL: String!
+        client: Client
     }
 
     type User {
@@ -43,6 +57,8 @@ type Attendance {
         name: String!
         description: String!
         price: Int!
+        productType: ProductType!
+        counter: Int!
     }
 
     input UpdateProductInput {
@@ -50,6 +66,8 @@ type Attendance {
         name: String
         description: String
         price: Int
+        productType: ProductType
+        counter: Int
     }
 
     input AddClientInput {
@@ -66,6 +84,20 @@ type Attendance {
         phone: String
         birthdate: String
         waiver: Boolean
+    }
+
+    input AddClientDocumentInput {
+        clientId: ID!
+        documentName: String!
+        documentType: String!
+        documentURL: String!
+    }
+    input UpdateClientDocumentInput {
+        id: ID!
+        clientId: ID!
+        documentName: String
+        documentType: String
+        documentURL: String
     }
 
     input AddUserInput {
@@ -86,23 +118,35 @@ type Attendance {
     type Query {
         products: [Product]
         clients: [Client]
+        documents: [ClientDocument]
         users: [User]
+        attendances: [Attendance]
         attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
+        document(ID: ID!) : ClientDocument
         user(ID: ID!) : User
-
-        
     }
 
     enum MembershipStatus {
         active
         inactive
     }
+    enum ProductType {
+        EVENT
+        SESSION_BASED
+        TIME_BASED
+    }
+    enum DocumentType {
+        WAIVER
+        IDENTIFICATION
+        PHOTO
+    }
 
     type AuthPayload {
         token: String
         user: User
+        refreshToken: String
     }
 
 
@@ -117,6 +161,12 @@ type Attendance {
         updateClient(input: UpdateClientInput! productId: ID): Client
         
         deleteClient(id: ID!): Client
+
+        addClientDocument(input: AddClientDocumentInput!): ClientDocument
+
+        updateClientDocument(input: UpdateClientDocumentInput!): ClientDocument
+
+        deleteClientDocument(id: ID!): ClientDocument
 
         addProduct(input: AddProductInput!): Product
         
