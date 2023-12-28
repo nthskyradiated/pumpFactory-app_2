@@ -65,7 +65,8 @@ export const typeDefs = `#graphql
         description: String!
         price: Int!
         productType: ProductType!
-        counter: Int!
+        sessionCounter: Int
+        expiresIn: Int
     }
 
     type Client {
@@ -78,6 +79,8 @@ export const typeDefs = `#graphql
         waiver: Boolean!
         membershipStatus: MembershipStatus!
         product: Product
+        clientSessionCounter: Int
+        clientExpiresIn: Date
         attendance: [Attendance]
         documents: [ClientDocument]
     }
@@ -110,7 +113,8 @@ export const typeDefs = `#graphql
         description: String!
         price: Int!
         productType: ProductType!
-        counter: Int!
+        sessionCounter: Int
+        expiresIn: Int
     }
 
     input UpdateProductInput {
@@ -119,7 +123,8 @@ export const typeDefs = `#graphql
         description: String
         price: Int
         productType: ProductType
-        counter: Int
+        sessionCounter: Int
+        expiresIn: Int
     }
 
     input AddClientInput {
@@ -430,6 +435,13 @@ export const resolvers = {
             if (product) {
               // Update the client with the associated product
               savedClient.product = product;
+              if (product.productType === 'SESSION_BASED') {
+                savedClient.clientSessionCounter = product.sessionCounter;
+                savedClient.clientExpiresIn = calculateExpirationDate(product.expiresIn)
+            } else if (product.productType === 'TIME_BASED') {
+                savedClient.clientSessionCounter = null; // Assuming time-based doesn't have session count
+                savedClient.clientExpiresIn = calculateExpirationDate(product.expiresIn);
+            }
                 savedClient.save();
             }
           }
@@ -470,10 +482,31 @@ export const resolvers = {
                 
                 // Determine the membership status based on the productId or use the existing status
                 let membershipStatus = 'inactive';
-                
+                let clientSessionCounter = existingClient.clientSessionCounter;
+                let clientExpiresIn = existingClient.clientExpiresIn;
+
                 if (productId) {
                   // If productId is provided, the client should have 'active' membership status
                   membershipStatus = 'active';
+                  const product = await Product.findById(productId);
+                    if (product) {
+                      if (product.productType === 'SESSION_BASED') {
+                        clientSessionCounter = product.sessionCounter;
+                        clientExpiresIn = calculateExpirationDate(product.expiresIn);
+                      } else if (product.productType === 'TIME_BASED') {
+                        // Assuming time-based doesn't have session count
+                        clientSessionCounter = null;
+                        clientExpiresIn = calculateExpirationDate(product.expiresIn);
+                      }else if (product.productType === 'EVENT') {
+                        // Set clientExpiresIn to null for EVENT productType
+                        clientExpiresIn = null;
+                      }
+                    }
+                  
+                } else {
+                  // If productId is null, reset counters to default values
+                  clientSessionCounter = 0;
+                  clientExpiresIn = null;
                 }
                 console.log("input", input)
                 // Create an updateFields object to specify the fields to update. Use the existing values if new values are not provided.
@@ -486,6 +519,8 @@ export const resolvers = {
                   membershipStatus,
                   waiver: input.waiver !==undefined ? input.waiver : existingClient.waiver,
                   productId: productId || null, // To remove the product, set it to null
+                  clientSessionCounter,
+                  clientExpiresIn,
                 };
                 
                 // Update and return the updated client
@@ -516,14 +551,7 @@ export const resolvers = {
 
         addProduct: async (parent, { input }, context) => {
             await authenticateAdmin(context)
-            const { name, description, price, productType, sessionsCounter, expiresIn } = input;
-
-            let additionalFields = {};
-            if (productType === 'SESSION_BASED') {
-              additionalFields.sessionsCounter = sessionsCounter;
-            } else if (productType === 'TIME_BASED') {
-              additionalFields.expiresIn = expiresIn;
-            }
+            const { name, description, price, productType, sessionCounter, expiresIn } = input;
         
             // Check if a product with the same name and description already exists
             const existingProduct = await Product.findOne({ $or: [{ name }, { description }] });
@@ -531,14 +559,28 @@ export const resolvers = {
             if (existingProduct) {
                 throw new Error('A product with the same name or description already exists.');
             }
-        
+            if (expiresIn === null) {
+              throw new Error('Invalid value for expiresIn');
+            }
+          
+            if (sessionCounter === null) {
+              throw new Error('Invalid value for sessionCounter');
+            }
             // If no existing product found, create and save the new product
+              if ( productType !== 'EVENT') {
+                if (productType === 'SESSION_BASED' && (sessionCounter === undefined || expiresIn === undefined)) {
+                    throw new Error('Counter and expiry is required for SESSION_BASED products');
+                } else if (productType === 'TIME_BASED' && expiresIn === undefined) {
+                    throw new Error('Expiry is required for TIME_BASED products');
+                }
+              }
             const product = new Product({
-                name,
-                description,
-                price,
-                productType,
-                ...additionalFields,
+              name,
+              description,
+              price,
+              productType,
+              sessionCounter: productType === 'SESSION_BASED' ? sessionCounter : null,
+              expiresIn: productType === 'SESSION_BASED' ? expiresIn : (productType === 'TIME_BASED' ? expiresIn : null),
             });
         
             return await product.save();
@@ -546,7 +588,7 @@ export const resolvers = {
         
         updateProduct: async (parent, {input}, context) => {
             await authenticateAdmin(context)
-            const { id, name, description, price } = input;
+            const { id, name, description, price, productType, expiresIn, sessionCounter } = input;
             const product = await Product.findById(id)
             if (!product) {
                 throw new Error('Product not found');
@@ -557,13 +599,37 @@ export const resolvers = {
             if (existingProduct) {
               throw new Error('A product with the same name or description already exists.');
             }
-            
+            if (expiresIn === null) {
+              throw new Error('Invalid value for expiresIn');
+            }
+          
+            if (sessionCounter === null) {
+              throw new Error('Invalid value for sessionCounter');
+            }
+          // Ensure that at least one counter is provided when switching between SESSION_BASED and TIME_BASED
+            if (product.productType !== productType && productType !== 'EVENT') {
+              if (productType === 'SESSION_BASED' && (sessionCounter === undefined || expiresIn === undefined)) {
+                  throw new Error('Counter and expiry is required when switching to SESSION_BASED product type');
+              } else if (productType === 'TIME_BASED' && (expiresIn === undefined)) {
+                  throw new Error('Counter is required when switching to TIME_BASED product type');
+              }
+            }
             const updateFields = {
               name: name !== undefined ? name : (existingProduct?.name || product.name),
               description: description !== undefined ? description : (existingProduct?.description || product.description),
               price: price !== undefined ? price : (existingProduct?.price || product.price),
+              productType: productType !== undefined ? productType : (existingProduct?.productType || product.productType),
+              sessionCounter: null,
+              expiresIn: null,
             };
             
+            // Update sessionCounter and expiresIn based on the product type
+            if (productType === 'SESSION_BASED') {
+              updateFields.sessionCounter = (sessionCounter !== undefined) ? sessionCounter : product.sessionCounter;
+              updateFields.expiresIn = (expiresIn !== undefined) ? expiresIn : product.expiresIn;
+            } else if (productType === 'TIME_BASED') {
+              updateFields.expiresIn = (expiresIn !== undefined) ? expiresIn : product.expiresIn;
+            }
             return Product.findByIdAndUpdate(id, updateFields, { new: true });
             
         },

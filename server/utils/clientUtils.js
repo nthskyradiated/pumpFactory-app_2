@@ -30,32 +30,7 @@ export const validateAge = (birthdate) => {
 
 export const calculateExpirationDate = (validity) => {
     const currentDate = new Date();
-    const expirationDate = new Date(currentDate);
-
-    switch (validity) {
-        case '1 day':
-            expirationDate.setDate(currentDate.getDate() + 1);
-            break;
-        case '10 sessions':
-            // Implement logic to handle session-based validity
-            break;
-        case '1 month':
-            expirationDate.setMonth(currentDate.getMonth() + 1);
-            break;
-        case '3 months':
-            expirationDate.setMonth(currentDate.getMonth() + 3);
-            break;
-        case '1 year':
-            expirationDate.setFullYear(currentDate.getFullYear() + 1);
-            break;
-        case 'lifetime':
-            // No expiration for lifetime pass
-            break;
-        default:
-            // Handle unsupported validity types
-            break;
-    }
-
+    const expirationDate = new Date(currentDate.getTime() + validity * 24 * 60 * 60 * 1000);
     return expirationDate;
 };
 

@@ -28,6 +28,15 @@ const ClientSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     },
+
+    clientSessionCounter: {
+        type: Number,
+        default: 0,
+    },
+
+    clientExpiresIn: {
+        type: Date,
+    },
     
     sessions: [{
             type: mongoose.Schema.Types.ObjectId,
