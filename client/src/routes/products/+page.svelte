@@ -23,24 +23,28 @@ $: isAdmin = $auth.isAdmin;
           name
           description
           price
+          productType
+          expiresIn
         }
       }
     `,
   });
 
-  let getProduct = queryStore({
-      client,
-      query: gql`
-        query ($id: ID!){
-          product (ID: $id){
-            id
-            name
-            description
-            price
-        }}
-      `,
-      variables: {ID : $productID}
-    })
+  // let getProduct = queryStore({
+  //     client,
+  //     query: gql`
+  //       query ($id: ID!){
+  //         product (ID: $id){
+  //           id
+  //           name
+  //           description
+  //           price
+  //           productType
+  //           expiresIn
+  //       }}
+  //     `,
+  //     variables: {ID : $productID}
+  //   })
 
   let isFetching = $getProducts.fetching;
   let products = $getProducts.data?.products || [];
@@ -63,11 +67,13 @@ $: isAdmin = $auth.isAdmin;
 } 
 
   $: tableSimple = {
-    head: ['ID', 'Name', 'Description', 'Price'],
+    head: ['ID', 'Name', 'Description', 'Product Type','Expiry (in days)','Price'],
     body: tableMapperValues(paginatedSource, [
       'id',
       'name',
       'description',
+      'productType',
+      'expiresIn',
       'price',
     ]),
   };

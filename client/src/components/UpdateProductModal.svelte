@@ -19,6 +19,9 @@
 			  name
 			  description
 			  price
+			  productType
+    		  expiresIn
+    		  sessionCounter
 			}
 		  }
 		  variables: { input },
@@ -39,12 +42,35 @@
 	  	name: "",
 	  	description: "",
 	  	price: $modalStore[0].meta.singleProduct.price,
+		productType: $modalStore[0].meta.singleProduct.productType,
+		expiresIn: $modalStore[0].meta.singleProduct.expiresIn,
+		sessionCounter: $modalStore[0].meta.singleProduct.sessionCounter,
 	};
 	
 	async function onFormSubmit() {
 	const isPositiveNumber = typeof formData.price === 'number' && formData.price > 100;
+	const isValidEvent =
+    formData.productType === 'EVENT' &&
+    (formData.sessionCounter === 0 || formData.sessionCounter === null) &&
+    (formData.expiresIn === 0 || formData.expiresIn === null);
+
+  	const isValidSessionBased =
+    formData.productType === 'SESSION_BASED' &&
+    formData.sessionCounter !== null &&
+    formData.expiresIn !== null &&
+    typeof formData.sessionCounter === 'number' &&
+    typeof formData.expiresIn === 'number' &&
+    formData.sessionCounter >= 1 &&  // Ensure non-negative value
+    formData.expiresIn >= 1;         // Ensure non-negative value
+
+  const isValidTimeBased =
+    formData.productType === 'TIME_BASED' &&
+    (formData.sessionCounter === null || formData.sessionCounter === 0)&&
+    formData.expiresIn !== null &&
+    typeof formData.expiresIn === 'number' &&
+    formData.expiresIn >= 1;         // Ensure non-negative value
   try {
-	if (!isPositiveNumber) {
+	if (!isPositiveNumber && (!isValidSessionBased || !isValidTimeBased || !isValidEvent)) {
 	  return visible = true
     }
     const input = Object.fromEntries(Object.entries(formData).filter(([_, v]) => v !== '' && v !== null && v !== undefined));
@@ -93,8 +119,24 @@
 		</label>
 		<label class="label">
 		  <span>Price</span>
-		  <input class="input" type="number" bind:value={formData.price}  placeholder={$modalStore[0].meta.singleProduct.price} />
+		  <input class="input" type="number" bind:value={formData.price} placeholder={$modalStore[0].meta.singleProduct.price} />
 		</label>
+		<label class="label">
+			<span>Product Type</span>
+			<select class="select" bind:value={formData.productType} >
+				<option value="SESSION_BASED">Session-based</option>
+				<option value="TIME_BASED">Time-based</option>
+				<option value="EVENT">Event</option>
+			</select>
+		</label>
+		<label class="label">
+			<span>Expiration</span>
+			<input class="input" type="number" bind:value={formData.expiresIn} placeholder={$modalStore[0].meta.singleProduct.expiresIn} />
+		  </label>
+		  <label class="label">
+			<span>Session Count</span>
+			<input class="input" type="number" bind:value={formData.sessionCounter} placeholder={$modalStore[0].meta.singleProduct.sessionCounter} />
+		  </label>	
 		<label class="label">
 			<textarea class="textarea" rows="4" bind:value={formData.description} placeholder={$modalStore[0].meta.singleProduct.description} />
 		</label>

@@ -25,6 +25,8 @@ const toastStore = getToastStore();
             age
             waiver
             membershipStatus
+            clientSessionCounter
+            clientExpiresIn
             product {
                 id
                 name
@@ -290,6 +292,13 @@ const addAttendanceModal = {
         <h1 class='h4 mb-1'>Age:</h1><h1 class='h5 mb-1'>{singleClient.age}</h1>
         <h1 class='h4 mb-1'>Status:</h1><h1 class='h5 mb-1'>{singleClient.membershipStatus}</h1>
         <h1 class='h4 mb-1'>Waiver:</h1><h1 class='h5 mb-1'>{singleClient.waiver}</h1>
+        {#if singleClient.clientSessionCounter !== null && singleClient.clientSessionCounter !== 0 }
+        <h1 class='h4 mb-1'>Session Count:</h1><h1 class='h5 mb-1'>{singleClient.clientSessionCounter}</h1>
+        {/if}
+        {#if singleClient.clientExpiresIn !== null}
+        <h1 class='h4 mb-1'>Package Expiration:</h1><h1 class='h5 mb-1'>{singleClient.clientExpiresIn}</h1>
+        {/if}
+
         {#if $auth.isAdmin}
         <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteModal)}}>
           <Icon icon="la:skull-crossbones" />

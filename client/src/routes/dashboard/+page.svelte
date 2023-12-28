@@ -22,6 +22,8 @@
           age
           waiver
           membershipStatus
+          clientSessionCounter
+          clientExpiresIn
         }
       }
     `,
@@ -54,16 +56,16 @@ $: paginationSettings = {
   }
 
   $: tableSimple = {
-    head: ['ID', 'Name', 'Email', 'Phone', 'Birthdate', 'Age', 'MembershipStatus', 'Waiver'],
+    head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
     body: tableMapperValues(paginatedSource, [
       'id',
       'name',
       'email',
       'phone',
-      'birthdate',
-      'age',
       'membershipStatus',
+      'clientExpiresIn',
       'waiver',
+
     ]),
   };
 

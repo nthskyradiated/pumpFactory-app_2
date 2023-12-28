@@ -559,19 +559,29 @@ export const resolvers = {
             if (existingProduct) {
                 throw new Error('A product with the same name or description already exists.');
             }
-            if (expiresIn === null) {
+            if (price === null || price === undefined || price <= 100) {
+              throw new Error('Invalid value for price (Price must not fall below 100)');
+            }
+            if (expiresIn === null && productType !== "EVENT") {
               throw new Error('Invalid value for expiresIn');
             }
           
-            if (sessionCounter === null) {
+            if (sessionCounter === null && productType !== "EVENT") {
               throw new Error('Invalid value for sessionCounter');
             }
             // If no existing product found, create and save the new product
               if ( productType !== 'EVENT') {
                 if (productType === 'SESSION_BASED' && (sessionCounter === undefined || expiresIn === undefined)) {
                     throw new Error('Counter and expiry is required for SESSION_BASED products');
-                } else if (productType === 'TIME_BASED' && expiresIn === undefined) {
+                } else if (productType === 'SESSION_BASED' && (sessionCounter <= 0 || expiresIn <= 0)){
+                  throw new Error('negative and 0 values not allowed');
+                }
+                
+                else if (productType === 'TIME_BASED' && expiresIn === undefined) {
                     throw new Error('Expiry is required for TIME_BASED products');
+                }
+                else if (productType === 'TIME_BASED' && expiresIn <= 0) {
+                    throw new Error('negative and 0 values not allowed');
                 }
               }
             const product = new Product({
@@ -599,20 +609,26 @@ export const resolvers = {
             if (existingProduct) {
               throw new Error('A product with the same name or description already exists.');
             }
-            if (expiresIn === null) {
+            if (expiresIn === null && productType !== "EVENT") {
               throw new Error('Invalid value for expiresIn');
             }
           
-            if (sessionCounter === null) {
+            if (sessionCounter === null && productType !== "EVENT") {
               throw new Error('Invalid value for sessionCounter');
             }
           // Ensure that at least one counter is provided when switching between SESSION_BASED and TIME_BASED
             if (product.productType !== productType && productType !== 'EVENT') {
               if (productType === 'SESSION_BASED' && (sessionCounter === undefined || expiresIn === undefined)) {
                   throw new Error('Counter and expiry is required when switching to SESSION_BASED product type');
-              } else if (productType === 'TIME_BASED' && (expiresIn === undefined)) {
+              } else if (productType === 'SESSION_BASED' && (sessionCounter <= 0 || expiresIn <= 0)){
+                throw new Error('negative and 0 values not allowed');
+              }
+              else if (productType === 'TIME_BASED' && (expiresIn === undefined)) {
                   throw new Error('Counter is required when switching to TIME_BASED product type');
               }
+              else if (productType === 'TIME_BASED' && expiresIn <= 0) {
+                throw new Error('negative and 0 values not allowed');
+            }
             }
             const updateFields = {
               name: name !== undefined ? name : (existingProduct?.name || product.name),
@@ -625,10 +641,15 @@ export const resolvers = {
             
             // Update sessionCounter and expiresIn based on the product type
             if (productType === 'SESSION_BASED') {
+              if (productType === 'SESSION_BASED' && (sessionCounter <= 0 || expiresIn <= 0)){
+                throw new Error('negative and 0 values not allowed')}
               updateFields.sessionCounter = (sessionCounter !== undefined) ? sessionCounter : product.sessionCounter;
               updateFields.expiresIn = (expiresIn !== undefined) ? expiresIn : product.expiresIn;
-            } else if (productType === 'TIME_BASED') {
-              updateFields.expiresIn = (expiresIn !== undefined) ? expiresIn : product.expiresIn;
+            } else if (productType === 'TIME_BASED' && expiresIn <= 0) {
+              throw new Error('negative and 0 values not allowed');
+          }
+            else if (productType === 'TIME_BASED') {
+              updateFields.expiresIn = (expiresIn !== undefined && !expiresIn <= 0) ? expiresIn : product.expiresIn;
             }
             return Product.findByIdAndUpdate(id, updateFields, { new: true });
             
