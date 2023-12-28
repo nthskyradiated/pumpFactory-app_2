@@ -36,11 +36,12 @@ export type AddClientInput = {
 };
 
 export type AddProductInput = {
-  counter: Scalars['Int']['input'];
   description: Scalars['String']['input'];
+  expiresIn?: InputMaybe<Scalars['Int']['input']>;
   name: Scalars['String']['input'];
   price: Scalars['Int']['input'];
   productType: ProductType;
+  sessionCounter?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type AddUserInput = {
@@ -73,6 +74,8 @@ export type Client = {
   age: Scalars['Int']['output'];
   attendance?: Maybe<Array<Maybe<Attendance>>>;
   birthdate: Scalars['Date']['output'];
+  clientExpiresIn?: Maybe<Scalars['Date']['output']>;
+  clientSessionCounter?: Maybe<Scalars['Int']['output']>;
   documents?: Maybe<Array<Maybe<ClientDocument>>>;
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
@@ -204,12 +207,13 @@ export type MutationUpdateUserArgs = {
 
 export type Product = {
   __typename?: 'Product';
-  counter: Scalars['Int']['output'];
   description: Scalars['String']['output'];
+  expiresIn?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   price: Scalars['Int']['output'];
   productType: ProductType;
+  sessionCounter?: Maybe<Scalars['Int']['output']>;
 };
 
 export enum ProductType {
@@ -275,12 +279,13 @@ export type UpdateClientInput = {
 };
 
 export type UpdateProductInput = {
-  counter?: InputMaybe<Scalars['Int']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  expiresIn?: InputMaybe<Scalars['Int']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   price?: InputMaybe<Scalars['Int']['input']>;
   productType?: InputMaybe<ProductType>;
+  sessionCounter?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type UpdateUserInput = {
