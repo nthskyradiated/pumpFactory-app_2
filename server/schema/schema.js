@@ -360,10 +360,31 @@ export const resolvers = {
                         throw new Error('Invalid productId for the client');
                     }
                     // // Calculate the expiration date for the product based on its validity
-                    // const expirationDate = calculateExpirationDate(product.validity);
-                    // updateMembershipStatus(client, product, expirationDate)
-            
-            
+                    // Update client session and check expiration
+                    if (product.productType === 'SESSION_BASED') {
+                      if (client.clientSessionCounter > 0 && client.clientExpiresIn > new Date()) {
+                        client.clientSessionCounter -= 1;
+                      } else {
+                        client.membershipStatus = 'inactive';
+                        client.productId = null;
+                        client.clientSessionCounter = 0;
+                        client.clientExpiresIn = null;
+                        await client.save();
+                        throw new Error('Invalid client session or expiration date');
+                      }
+                    } else if (product.productType === 'TIME_BASED') {
+                      if (client.clientExpiresIn > new Date()) {
+                        // No session counter update for TIME_BASED, only check expiration date
+                      } else {
+                        client.membershipStatus = 'inactive';
+                        client.productId = null;
+                        client.clientSessionCounter = 0;
+                        client.clientExpiresIn = null;
+                        await client.save();
+                        throw new Error('Invalid client expiration date');
+                      }
+                    }
+
                     // Create a new attendance record
                     const attendance = new Attendance({
                         clientId,
@@ -377,8 +398,6 @@ export const resolvers = {
             
                         // Save the client to update the attendance array
                         await client.save();
-                        // Update the client's membership status based on attendance and expiration date
-                        // updateMembershipStatus(client, product, expirationDate);
             
                     return attendance;
         },

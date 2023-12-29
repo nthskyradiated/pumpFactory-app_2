@@ -1,4 +1,6 @@
-type Attendance {
+    scalar Date
+
+    type Attendance {
         id: ID!
         clientId: ID!
         productId: ID!
@@ -13,7 +15,8 @@ type Attendance {
         description: String!
         price: Int!
         productType: ProductType!
-        counter: Int!
+        sessionCounter: Int
+        expiresIn: Int
     }
 
     type Client {
@@ -26,6 +29,8 @@ type Attendance {
         waiver: Boolean!
         membershipStatus: MembershipStatus!
         product: Product
+        clientSessionCounter: Int
+        clientExpiresIn: Date
         attendance: [Attendance]
         documents: [ClientDocument]
     }
@@ -58,7 +63,8 @@ type Attendance {
         description: String!
         price: Int!
         productType: ProductType!
-        counter: Int!
+        sessionCounter: Int
+        expiresIn: Int
     }
 
     input UpdateProductInput {
@@ -67,7 +73,8 @@ type Attendance {
         description: String
         price: Int
         productType: ProductType
-        counter: Int
+        sessionCounter: Int
+        expiresIn: Int
     }
 
     input AddClientInput {
