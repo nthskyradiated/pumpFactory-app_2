@@ -31,9 +31,9 @@
 
  let paginationSettings = {
 	page: 0,
-	limit: 10,
+	limit: 30,
 	size: attendances.length,
-	amounts: [3,5,10],
+	amounts: [5,10,20,30],
 } 
 
 $: paginationSettings = {
@@ -63,7 +63,7 @@ $: paginationSettings = {
 {:else if $getAttendances.error}
   <p>Oh no... {$getAttendances.error.message}</p>
 {:else if attendances.length > 0}
-  <div class="table-container">
+  <div class="table-container  pb-8">
     <table class="table table-hover">
       <thead>
         <tr>

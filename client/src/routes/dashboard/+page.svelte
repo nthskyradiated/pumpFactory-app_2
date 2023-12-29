@@ -37,9 +37,9 @@
   
   let paginationSettings = {
 	page: 0,
-	limit: 10,
+	limit: 30,
 	size: clients.length,
-	amounts: [3,5,10],
+	amounts: [5,10,20,30],
 } 
 
 $: paginationSettings = {

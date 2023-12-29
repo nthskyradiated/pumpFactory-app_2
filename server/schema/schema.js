@@ -362,27 +362,25 @@ export const resolvers = {
                     // // Calculate the expiration date for the product based on its validity
                     // Update client session and check expiration
                     if (product.productType === 'SESSION_BASED') {
-                      if (client.clientSessionCounter > 0 && client.clientExpiresIn > new Date()) {
+                      if (client.clientSessionCounter >= 0 && client.clientExpiresIn > new Date()) {
                         client.clientSessionCounter -= 1;
+                        if (client.clientSessionCounter === 0){
+                          client.membershipStatus = 'inactive'
+                          client.productId = null;
+                          client.clientSessionCounter = 0;
+                          client.clientExpiresIn = null;
+                        }
                       } else {
-                        client.membershipStatus = 'inactive';
-                        client.productId = null;
-                        client.clientSessionCounter = 0;
-                        client.clientExpiresIn = null;
                         await client.save();
                         throw new Error('Invalid client session or expiration date');
                       }
-                    } else if (product.productType === 'TIME_BASED') {
-                      if (client.clientExpiresIn > new Date()) {
-                        // No session counter update for TIME_BASED, only check expiration date
-                      } else {
-                        client.membershipStatus = 'inactive';
-                        client.productId = null;
-                        client.clientSessionCounter = 0;
-                        client.clientExpiresIn = null;
-                        await client.save();
-                        throw new Error('Invalid client expiration date');
-                      }
+                    } else if (product.productType === 'TIME_BASED' && client.clientExpiresIn <= new Date()) {
+                      client.membershipStatus = 'inactive';
+                      client.productId = null;
+                      client.clientSessionCounter = 0;
+                      client.clientExpiresIn = null;
+                      await client.save();
+                      throw new Error('Invalid client expiration date');
                     }
 
                     // Create a new attendance record

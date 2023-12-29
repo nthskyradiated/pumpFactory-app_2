@@ -1,7 +1,7 @@
 <script>
   import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
-  import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+  import { TabGroup, Tab, getModalStore, getToastStore, Avatar } from '@skeletonlabs/skeleton';
   import {tabSet, deleteDocumentStore, deleteAttendanceStore} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
@@ -273,7 +273,7 @@ const addAttendanceModal = {
   {:else}
   
   <div class="card p-4">
-    <TabGroup class='pb-2'>
+    <TabGroup>
       <Tab bind:group={$tabSet} name="tab1" value={0}>
         <svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>
         Client Details
@@ -284,20 +284,31 @@ const addAttendanceModal = {
       <!-- Tab Panels --->
       <svelte:fragment slot="panel">
         {#if $tabSet === 0}
-        <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{singleClient.id}</h1>
-        <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleClient.name}</h1>
-        <h1 class='h4 mb-1'>Email:</h1><h1 class='h5 mb-1'>{singleClient.email}</h1>
-        <h1 class='h4 mb-1'>Phone:</h1><h1 class='h5 mb-1'>{singleClient.phone}</h1>
-        <h1 class='h4 mb-1'>Birthdate:</h1><h1 class='h5 mb-1'>{singleClient.birthdate}</h1>
-        <h1 class='h4 mb-1'>Age:</h1><h1 class='h5 mb-1'>{singleClient.age}</h1>
-        <h1 class='h4 mb-1'>Status:</h1><h1 class='h5 mb-1'>{singleClient.membershipStatus}</h1>
-        <h1 class='h4 mb-1'>Waiver:</h1><h1 class='h5 mb-1'>{singleClient.waiver}</h1>
-        {#if singleClient.clientSessionCounter !== null && singleClient.clientSessionCounter !== 0 }
-        <h1 class='h4 mb-1'>Session Count:</h1><h1 class='h5 mb-1'>{singleClient.clientSessionCounter}</h1>
-        {/if}
-        {#if singleClient.clientExpiresIn !== null}
-        <h1 class='h4 mb-1'>Package Expiration:</h1><h1 class='h5 mb-1'>{singleClient.clientExpiresIn}</h1>
-        {/if}
+        
+        <div class='card p-6 my-2 flex flex-col-reverse lg:justify-between lg:flex-row justify-evenly lg:items-start'>
+          <div class='mb-4'>
+            <h1 class='h5 mb-3'>Id:  <span>{singleClient.id}</span></h1>
+            <h1 class='h5 mb-3'>Name:  <span>{singleClient.name}</span></h1>
+            <h1 class='h5 mb-3'>Email:  <span>{singleClient.email}</span></h1>
+            <h1 class='h5 mb-3'>Phone:  <span>{singleClient.phone}</span></h1>
+            <h1 class='h5 mb-3'>Birthdate:  <span>{singleClient.birthdate}</span></h1>
+            <h1 class='h5 mb-3'>Age:  <span>{singleClient.age}</span></h1>
+            <h1 class='h5 mb-3'>Status:  <span>{singleClient.membershipStatus}</span></h1>
+            <h1 class='h5 mb-3'>Waiver:  <span>{singleClient.waiver}</span></h1>
+            {#if singleClient.clientSessionCounter !== null && singleClient.clientSessionCounter !== 0 }
+            <h1 class='h5 mb-3'>Session Count:  <span>{singleClient.clientSessionCounter}</span></h1>
+            {/if}
+            {#if singleClient.clientExpiresIn !== null}
+            <h1 class='h5 mb-3'>Package Expiration:  <span>{singleClient.clientExpiresIn}</span></h1>
+            {/if}
+          </div>
+
+          {#if singleClient.documents && singleClient.documents.find(doc => doc.documentType === 'PHOTO')}
+          <div class="pr-8 mb-4">
+            <Avatar src={singleClient.documents.find(doc => doc.documentType === 'PHOTO').documentURL} width="w-32" rounded="rounded-full" class="object-scale-down h-32 w-32" />
+          </div>
+          {/if}
+        </div>
 
         {#if $auth.isAdmin}
         <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteModal)}}>
@@ -306,44 +317,54 @@ const addAttendanceModal = {
         </button>
         {/if}
         {:else if $tabSet === 1}
-        {#if singleClient.product}
-        <h1 class='h4 mb-1'>Product Name:</h1><h1 class='h5 mb-1'>{singleClient.product.name}</h1>
-        <h1 class='h4 mb-1'>Product Description:</h1><h1 class='h5 mb-1'>{singleClient.product.description}</h1>
-        {:else}
-        <h1 class='h5 mb-1'>Client not enrolled in any product</h1>
-        {/if}
+        <div class='card p-6 my-2'>
+          {#if singleClient.product}
+          <h1 class='h5 mb-3'>Product Name:  <span>{singleClient.product.name}</span></h1>
+          <h1 class='h5 mb-3'>Product Description:  <span>{singleClient.product.description}</span></h1>
+          {#if singleClient.clientSessionCounter !== null && singleClient.clientSessionCounter !== 0 }
+          <h1 class='h5 mb-3'>Session Count:  <span>{singleClient.clientSessionCounter}</span></h1>
+          {/if}
+          {#if singleClient.clientExpiresIn !== null}
+          <h1 class='h5 mb-3'>Package Expiration:  <span>{singleClient.clientExpiresIn}</span></h1>
+          {/if}
+          {/if}
+          {#if !singleClient.product}
+          <h1 class='h5 mb-3'>Client not enrolled in any product</h1>
+          {/if}
+          
+        </div>
+
         {:else if $tabSet === 2}
         {#if !singleClient.attendance || singleClient.attendance.length === 0}
-          <h1 class='h5 mb-1'>No attendance history for this client</h1>
-        {:else}
+        <div class='card p-6 my-2'>
+            <h1 class='h5 mb-3'>No attendance history for this client</h1>
+          </div>
+          {/if}
           {#each singleClient.attendance as attendance}
-            <div class='card p-3 my-2'>
-              <h1 class='h4 mb-1'>Session Date:</h1>
-              <h1 class='h5 mb-1'>{attendance.checkIn}</h1>
-              <h1 class='h4 mb-1'>Session id:</h1>
-              <h1 class='h5 mb-1'>{attendance.id}</h1>
-              <h1 class='h4 mb-1'>Enrolled Package</h1>
-              <h1 class='h5 mb-1'>{attendance.product.name}</h1>
+          <div class='card p-3 my-2'>
+              <h1 class='h5 mb-3 pt-3 pl-3'>Session Date:  <span>{attendance.checkIn}</span></h1>
+              <h1 class='h5 mb-3 pl-3'>Session id:  <span>{attendance.id}</span></h1>
+              <h1 class='h5 mb-3 pl-3'>Enrolled Package:  <span>{attendance.product.name}</span></h1>
               {#if $auth.isAdmin}
-              <button type="button" class="btn variant-filled mt-8" on:click={ () => {deleteAttendanceStore.set({attendanceId: attendance.id}), modalStore.trigger(deleteAttendanceModal)}}>
+              <button type="button" class="btn variant-filled m-3" on:click={ () => {deleteAttendanceStore.set({attendanceId: attendance.id}), modalStore.trigger(deleteAttendanceModal)}}>
                 <Icon icon="la:skull-crossbones" />
                 <span>Delete</span>
               </button>
               {/if}
             </div>
           {/each}
-          {/if}
           {:else if $tabSet === 3}
           {#if !singleClient.documents || singleClient.documents.length === 0}
-          <h1 class='h5 mb-1'>No uploaded document for this client</h1>
+          <div class='card p-6 my-2'>
+            <h1 class='h5 mb-3'>No uploaded document for this client</h1>
+          </div>
           {:else}
           {#each singleClient.documents as document}
           <div class='card p-3 my-2'>
-            <h1 class='h4 mb-1'>Document Name:</h1>
-            <a href={document.documentURL}><h1 class='h5 mb-2'>{document.documentName}</h1></a>
-            <h1 class='h4 mb-1'>Document Type:</h1>
-            <h1 class='h5 mb-2'>{document.documentType}</h1>
-            <button type="button" class="btn variant-filled mt-8" on:click={ () => {deleteDocumentStore.set({documentId: document.id, documentURL: document.documentURL}), modalStore.trigger(deleteClientDocumentModal)}}>
+            <h1 class='h5 mb-3 pt-3 pl-3'>Document Name:  <a href={document.documentURL}><span>{document.documentName}</span></a></h1>
+            
+            <h1 class='h5 mb-3 pl-3'>Document Type:  <span>{document.documentType}</span></h1>
+            <button type="button" class="btn variant-filled m-3" on:click={ () => {deleteDocumentStore.set({documentId: document.id, documentURL: document.documentURL}), modalStore.trigger(deleteClientDocumentModal)}}>
               <Icon icon="la:skull-crossbones" />
               <span>Delete</span>
             </button>
@@ -351,7 +372,7 @@ const addAttendanceModal = {
           </div>
           {/each}
           {/if}
-          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload Document</button>
+          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload</button>
         {/if}
 
       </svelte:fragment>
