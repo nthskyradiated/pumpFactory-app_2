@@ -128,9 +128,12 @@
         documents: [ClientDocument]
         users: [User]
         attendances: [Attendance]
+        monthlyAttendance(month: Int!, year: Int!): [Attendance]
         attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
+        clientByName(name: String) : [Client]
+        activeClients(membershipStatus: MembershipStatus) : [Client]
         document(ID: ID!) : ClientDocument
         user(ID: ID!) : User
     }

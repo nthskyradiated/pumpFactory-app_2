@@ -125,8 +125,9 @@
     
     try {
       const clients = await getClientByName();
-      console.log('Clients:', clients);
-      console.log(searchValue);
+      // console.log('Clients:', clients);
+      // console.log(searchValue);
+      // console.log(clients.length);
       paginatedSource = clients.slice(
       paginationSettings.page * paginationSettings.limit,
       paginationSettings.page * paginationSettings.limit + paginationSettings.limit
@@ -171,20 +172,23 @@
     <p class="mb-8">Oh no... {$getClients.error.message}</p>
   {:else}
   
-    {#if clients.length > 0}
+  {#if clients.length > 0}
   
   <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/>
-  
+
+  <!-- {#if paginatedSource.length === 0}
+  <p class="mb-8">Oh no... Client record for <strong>{searchValue}</strong> not found... Did you type correctly?</p>
+  {/if} -->
+
   <Paginator
-    bind:settings={paginationSettings}
-    showFirstLastButtons="{true}"
-    showPreviousNextButtons="{true}"
-    justify-between="{true}"
-    class="pb-8"
+  bind:settings={paginationSettings}
+  showFirstLastButtons="{true}"
+  showPreviousNextButtons="{true}"
+  justify-between="{true}"
+  class="pb-8"
   />
   
   <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add Client</button>
-  
-    {/if}
+  {/if}
   {/if}
 </main>

@@ -224,16 +224,24 @@ export enum ProductType {
 
 export type Query = {
   __typename?: 'Query';
+  activeClients?: Maybe<Array<Maybe<Client>>>;
   attendance?: Maybe<Attendance>;
   attendances?: Maybe<Array<Maybe<Attendance>>>;
   client?: Maybe<Client>;
+  clientByName?: Maybe<Array<Maybe<Client>>>;
   clients?: Maybe<Array<Maybe<Client>>>;
   document?: Maybe<ClientDocument>;
   documents?: Maybe<Array<Maybe<ClientDocument>>>;
+  monthlyAttendance?: Maybe<Array<Maybe<Attendance>>>;
   product?: Maybe<Product>;
   products?: Maybe<Array<Maybe<Product>>>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
+};
+
+
+export type QueryActiveClientsArgs = {
+  membershipStatus?: InputMaybe<MembershipStatus>;
 };
 
 
@@ -247,8 +255,19 @@ export type QueryClientArgs = {
 };
 
 
+export type QueryClientByNameArgs = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryDocumentArgs = {
   ID: Scalars['ID']['input'];
+};
+
+
+export type QueryMonthlyAttendanceArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
