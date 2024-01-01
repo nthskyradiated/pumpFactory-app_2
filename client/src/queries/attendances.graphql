@@ -1,0 +1,12 @@
+query {
+  attendances {
+    id
+    checkIn
+    client {
+      name
+    }
+    product {
+      name
+    }
+  }
+}

@@ -1,0 +1,8 @@
+mutation {
+			addClientDocument(input: $input) {
+			  clientId
+			  documentName
+			  documentType
+			  documentURL
+			}
+		  }

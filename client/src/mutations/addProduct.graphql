@@ -1,0 +1,11 @@
+		  mutation {
+			addProduct(input: $input) {
+			  id
+			  name
+			  description
+			  price
+			  productType
+    		  expiresIn
+    		  sessionCounter
+			}
+		  }

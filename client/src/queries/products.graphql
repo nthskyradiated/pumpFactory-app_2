@@ -1,0 +1,10 @@
+query {
+        products {
+          id
+          name
+          description
+          price
+          productType
+          expiresIn
+        }
+      }

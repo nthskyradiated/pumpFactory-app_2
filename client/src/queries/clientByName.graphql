@@ -1,0 +1,14 @@
+query{
+      clientByName(name: $name) {
+        id
+        name
+        email
+        phone
+        birthdate
+        age
+        waiver
+        membershipStatus
+        clientSessionCounter
+        clientExpiresIn
+      }
+    }

@@ -1,21 +1,14 @@
 query {
-  clients {
-    id
-    name
-    email
-    phone
-    birthdate
-    age
-    waiver
-    membershipStatus
-    product {
-      id
-      description
-      name
-    }
-    attendance {
-      checkIn
-      clientId
-    }
-  }
-}
+        clients {
+          id
+          name
+          email
+          phone
+          birthdate
+          age
+          waiver
+          membershipStatus
+          clientSessionCounter
+          clientExpiresIn
+        }
+      }

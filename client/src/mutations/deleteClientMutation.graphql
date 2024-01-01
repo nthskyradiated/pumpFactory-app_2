@@ -1,6 +1,4 @@
-    mutation DeleteClient($deleteClientId: ID!) {
-        deleteClient(id: $deleteClientId) {
+    mutation  deleteClient(id: $deleteClientId) {
         id
         name
         }
-    }
