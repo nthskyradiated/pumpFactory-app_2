@@ -154,9 +154,9 @@
 
   </script>
 <main class='w-10/12 m-auto pt-8'>
-  <div class="flex flex-row justify-between mb-4 align-bottom">
-    <h2 class='h2'>Client List</h2>
-    <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] w-3/6 sm:grid-cols-3[auto_auto_auto]">
+  <div class="flex md:flex-row flex-col justify-between mb-4 align-bottom">
+    <h2 class='h2 mb-5'>Client List</h2>
+    <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] sm:w-2/6 w-full sm:grid-cols-3[auto_auto_auto]">
       <div class="input-group-shim"><Icon icon="emojione:skull" /></div>
         <input type="search" placeholder="Search by name..." bind:value={searchValue} on:input={() => {mySearchClientHandler}} on:keydown={(e)=> {if(e.key ==='Enter') {mySearchClientHandler()}}}/>
         <button class="variant-filled-secondary w-auto" type="button" on:click={mySearchClientHandler}>Submit</button>

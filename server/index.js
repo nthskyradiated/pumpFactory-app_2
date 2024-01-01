@@ -8,7 +8,6 @@ import ansi from '../node_modules/ansi-colors-es6/index.js'
 import morgan from "morgan";
 import helmet from "helmet";
 import vhost from "vhost";
-// import { expressjwt } from "express-jwt";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -65,14 +64,5 @@ app.use(express.json())
     // }))
 
 )
-
-// const authMiddleware = expressjwt({
-//     secret: process.env.JWT_SECRET, // Replace with your secret key
-
-//     algorithms: ['HS256'], // Use HS256 or the appropriate algorithm for your setup
-//   });
-//   // Use the authentication middleware for protected routes
-//   app.use(authMiddleware);
   
-
 app.listen(port, () => console.log(ansi.green.bold.underline(`server running on port ${port}`)));

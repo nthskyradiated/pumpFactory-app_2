@@ -105,9 +105,9 @@ const mySearchMonthlyHandler = async () => {
   };
 </script>
 <main class='w-10/12 m-auto pt-8'>
-  <div class="flex flex-row justify-between mb-4 align-bottom">
+  <div class="flex md:flex-row flex-col w-full justify-between mb-4 align-bottom">
     <h2 class='h2 mb-5'>Session History</h2>
-    <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] w-3/6 sm:grid-cols-3[auto_auto_auto]">
+    <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] sm:w-3/6 w-full">
       <div class="input-group-shim"><Icon icon="emojione:skull" /></div>
         <input type="month" placeholder="Enter year and month (YYYY-MM)" bind:value={searchValue} on:input={() => {mySearchMonthlyHandler}} on:keydown={(e)=> {if(e.key ==='Enter') {mySearchMonthlyHandler()}}}/>
         <button class="variant-filled-secondary w-auto" type="button" on:click={mySearchMonthlyHandler}>Submit</button>
