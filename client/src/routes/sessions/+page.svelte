@@ -61,7 +61,7 @@ $: paginationSettings = {
   {#if isFetching}
   <Spinner />
 {:else if $getAttendances.error}
-  <p>Oh no... {$getAttendances.error.message}</p>
+  <p class="mb-8">Oh no... {$getAttendances.error.message}</p>
 {:else if attendances.length > 0}
   <div class="table-container  pb-8">
     <table class="table table-hover">

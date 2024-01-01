@@ -178,9 +178,12 @@ export const typeDefs = `#graphql
         documents: [ClientDocument]
         users: [User]
         attendances: [Attendance]
+        monthlyAttendance(month: Int!, year: Int!): [Attendance]
         attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
+        clientByName(name: String) : [Client]
+        activeClients(membershipStatus: MembershipStatus) : [Client]
         document(ID: ID!) : ClientDocument
         user(ID: ID!) : User
     }
@@ -262,6 +265,12 @@ export const resolvers = {
             await authenticateUser(context);
             return Attendance.find();
           },
+        monthlyAttendance: async (parent, { month, year }, context) => {
+            await authenticateUser(context);
+            const startDate = new Date(year, month - 1, 1)
+            const endDate = new Date(year, month, 0);
+            return Attendance.find({checkIn: { $gte: startDate, $lt: endDate }});
+          },
         users: async (parent, args, context) => {
             await authenticateAdmin(context)
             return User.find()
@@ -274,6 +283,16 @@ export const resolvers = {
         client: async (parent, {ID}, context) => {
             await authenticateUser(context)
             return await Client.findById(ID)
+        },
+        clientByName: async (parent, {name}, context) => {
+            await authenticateUser(context)
+            const regex = new RegExp(name, 'i');
+            // Find clients with names containing the provided substring
+            return await Client.find({ name: { $regex: regex } });
+        },
+        activeClients: async (parent, {membershipStatus}, context) => {
+            await authenticateUser(context)
+            return await Client.find({membershipStatus: 'active'});
         },
         document: async (parent, {ID}, context) => {
             await authenticateUser(context)

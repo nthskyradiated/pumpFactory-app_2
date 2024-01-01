@@ -2,7 +2,7 @@
 	import { SvelteComponent } from 'svelte';
 	import {  queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-
+	import {goto} from '$app/navigation'
 
 	export let parent: SvelteComponent;
 	
@@ -105,6 +105,7 @@ async function onFormSubmit() {
 			  modalStore.close();
 			  console.log(data);
 			$modalStore[0]?.response(result);
+			goto('/dashboard');
 		  }
 		}
 	} catch (error) {

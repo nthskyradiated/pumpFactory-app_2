@@ -113,7 +113,7 @@ const mySelectionHandler = (event) => {
     <!-- <p>Loading...</p> -->
     <Spinner />
   {:else if $getProducts.error}
-    <p>Oh no... {$getProducts.error.message}</p>
+    <p class="mb-8">Oh no... {$getProducts.error.message}</p>
   {:else}
   
     {#if products.length > 0}

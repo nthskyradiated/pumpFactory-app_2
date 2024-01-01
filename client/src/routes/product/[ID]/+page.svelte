@@ -86,7 +86,7 @@ $: deleteProductModal = {
   
     <Spinner />
   {:else if $getProduct.error}
-    <p>Oh no... {$getProduct.error.message}</p>
+    <p class="mb-8">Oh no... {$getProduct.error.message}</p>
   {:else}
   
   <div class="card p-4">

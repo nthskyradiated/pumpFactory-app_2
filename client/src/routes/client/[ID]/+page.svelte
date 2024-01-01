@@ -269,7 +269,7 @@ const addAttendanceModal = {
   
     <Spinner />
   {:else if $getClient.error}
-    <p>Oh no... {$getClient.error.message}</p>
+    <p class="mb-8">Oh no... {$getClient.error.message}</p>
   {:else}
   
   <div class="card p-4">
