@@ -109,5 +109,4 @@ const mySelectionHandler = (event) => {
   {/if}
     {/if}
     {/if}
-</main>  
-
+</main>

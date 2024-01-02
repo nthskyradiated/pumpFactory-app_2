@@ -1,5 +1,3 @@
-<!-- src/routes/Dashboard.svelte -->
-
 <script>
   import { queryStore, getContextClient } from '@urql/svelte';
   import { Paginator } from '@skeletonlabs/skeleton';
