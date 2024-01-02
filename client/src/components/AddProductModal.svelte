@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import { gql, getContextClient } from '@urql/svelte';
+	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { AddProductDocument } from '../generated/graphql';
 
 	export let parent: SvelteComponent;
   
@@ -10,23 +11,9 @@
 	let visible = false;
 	const message = "Invalid fields found. Minimum price is 100. Negative values are not allowed. Event expiry and session count should be set to zero";
 
-		const query = gql`
-		  mutation AddProduct($input: AddProductInput!) {
-			addProduct(input: $input) {
-			  id
-			  name
-			  description
-			  price
-			  productType
-    		  expiresIn
-    		  sessionCounter
-			}
-		  }
-		  variables: { input },
-		`
 	const addProduct = async ({ input }) => {
 		const result = await client
-		.mutation(query, { input})
+		.mutation(AddProductDocument, { input})
 		.toPromise()
 		.then()
 		return result

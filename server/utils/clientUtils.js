@@ -18,7 +18,7 @@ export const validateAge = (birthdate) => {
                     // Calculate the age based on the provided birthday
                     const birthDate = new Date(birthdate);
                     const currentDate = new Date();
-                    const age = currentDate.getFullYear() - birthDate.getFullYear();
+                    let age = currentDate.getFullYear() - birthDate.getFullYear();
     
                     // Adjust age for leap years
                     if (currentDate.getMonth() < birthDate.getMonth() ||

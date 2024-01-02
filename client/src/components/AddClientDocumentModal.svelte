@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import {  gql, getContextClient } from '@urql/svelte';
+	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { AddClientDocumentDocument } from '../generated/graphql';
 
 
 	export let parent: SvelteComponent;
@@ -11,20 +12,9 @@
 	let visible = false;
 	const message = "Please fill in all required fields"
 
-		const query = gql`
-		  mutation AddClientDocument($input: AddClientDocumentInput!) {
-			addClientDocument(input: $input) {
-			  clientId
-			  documentName
-			  documentType
-			  documentURL
-			}
-		  }
-		  variables: { input },
-		`
 		const addClientDocument = async ({ input }) => {
 		const result = await client
-		.mutation(query, {input})
+		.mutation(AddClientDocumentDocument, {input})
 		.toPromise()
 		.then()
 		return result

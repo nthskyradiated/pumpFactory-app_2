@@ -1,34 +1,21 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { setContextClient, gql, getContextClient } from '@urql/svelte';
+	import { setContextClient, getContextClient } from '@urql/svelte';
 	import {urqlClient} from '$lib/urql.js'
 	import {error} from '@sveltejs/kit'
 	import {auth, refreshToken} from '$lib/auth.js'
+	import {LoginUserDocument} from '../generated/graphql.ts'
  
 	setContextClient(urqlClient);
 	let client = getContextClient();
 	let username = '';
 	let password = '';
 	let autherror;
-        const query = gql`
-          mutation ($username: String!, $password: String!) {
-            loginUser(username: $username, password: $password) {
-              token
-              user {
-                id
-                email
-                isAdmin
-                name
-                username
-              }
-			  refreshToken
-            }
-          }
-        `,
+        
 	
-	loginUser = async () => {
+	const login = async () => {
 		client
-		 .mutation(query, {username, password})
+		 .mutation(LoginUserDocument, {username, password})
 		 .toPromise()
 		 .then((result) => {
 			console.log(result.data.loginUser);
@@ -52,7 +39,7 @@
 
   
   <main>
-	<form method="POST" on:submit|preventDefault={loginUser} class="mt-52 flex flex-col items-center justify-center gap-6">
+	<form method="POST" on:submit|preventDefault={login} class="mt-52 flex flex-col items-center justify-center gap-6">
 		{#if autherror}
 		  <p style="color: red;">{autherror}</p>
 		{/if}

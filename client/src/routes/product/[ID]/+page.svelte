@@ -1,11 +1,12 @@
 <script>
-  import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
+  import { queryStore, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
   import {tabSet} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
   import {auth} from '$lib/auth';
+	import { DeleteProductDocument, ProductDocument } from '../../../generated/graphql';
 export let data
 let {ID} = data
 let result
@@ -14,33 +15,14 @@ const toastStore = getToastStore()
 
   let getProduct = queryStore({
       client,
-      query: gql`
-        query ($id: ID!){
-          product (ID: $id){
-            id
-            name
-            description,
-            price,
-            productType,
-            sessionCounter,
-            expiresIn
-          }
-        }
-      `,
+      query: ProductDocument,
       variables: {id: ID}
     });
 
     const deleteProduct = async ( deleteProductId ) => {
     result = mutationStore({
       client,
-      query: gql`
-    mutation DeleteProduct($deleteProductId: ID!) {
-        deleteProduct(id: $deleteProductId) {
-        id
-        name
-        }
-    }
-      `,
+      query: DeleteProductDocument,
       variables: { deleteProductId },
     });
     await result;

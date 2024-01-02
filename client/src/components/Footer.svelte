@@ -2,7 +2,7 @@
     import Icon from '@iconify/svelte';
 
 </script>
-<footer class="flex flex-row justify-between mx-8 mt-10 mb--5">
+<footer class="flex flex-row justify-between mx-8 mt-10 mb-0">
 
 
         <span>Developed by Andy </span>

@@ -1,54 +1,24 @@
 <script>
-  import { queryStore, gql, getContextClient } from '@urql/svelte';
+  import { queryStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, getModalStore } from '@skeletonlabs/skeleton';
   import { Paginator } from '@skeletonlabs/skeleton';
   import Icon from '@iconify/svelte';
   import {clientID} from '$lib/clientStore'
-  import { goto, preloadData } from '$app/navigation';
+  import { goto } from '$app/navigation';
+  import {ClientByNameDocument, ClientsDocument} from '../../generated/graphql'
 
 
   const client = getContextClient();
   let searchValue = ''
   const getClients = queryStore({
     client,
-    query: gql`
-      query {
-        clients {
-          id
-          name
-          email
-          phone
-          birthdate
-          age
-          waiver
-          membershipStatus
-          clientSessionCounter
-          clientExpiresIn
-        }
-      }
-    `,
+    query: ClientsDocument
   });
 
-  const query = gql`
-    query ClientByName($name: String!) {
-      clientByName(name: $name) {
-        id
-        name
-        email
-        phone
-        birthdate
-        age
-        waiver
-        membershipStatus
-        clientSessionCounter
-        clientExpiresIn
-      }
-    }
-  `;
     const getClientByName = async () => {
     try {
-      const result = await client.query(query, { name: searchValue }).toPromise();
+      const result = await client.query(ClientByNameDocument, { name: searchValue }).toPromise();
       return result.data?.clientByName || [];
     } catch (error) {
       console.error('Error fetching client by name:', error.message);

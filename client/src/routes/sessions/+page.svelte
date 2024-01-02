@@ -1,50 +1,26 @@
 <!-- src/routes/Dashboard.svelte -->
 
 <script>
-  import { queryStore, gql, getContextClient } from '@urql/svelte';
+  import { queryStore, getContextClient } from '@urql/svelte';
   import { Paginator } from '@skeletonlabs/skeleton';
   import Spinner from '../../components/Spinner.svelte';
   import Icon from '@iconify/svelte';
+  import {AttendancesDocument, MonthlyAttendanceDocument} from '../../generated/graphql'
+
   const client = getContextClient()
   let searchValue = '';
   let error
   const getAttendances = queryStore({
     client,
-    query: gql`
-      query {
-  attendances {
-    id
-    checkIn
-    client {
-      name
-    }
-    product {
-      name
-    }
-  }
-}
-    `,
+    query: AttendancesDocument
   });
 
-const query = gql`
-query MonthlyAttendance($month: Int!, $year: Int!) {
-  monthlyAttendance(month: $month, year: $year) {
-    id
-    checkIn
-    client {
-      name
-    }
-    product {
-      name
-    }
-  }
-}
-  `;
+
     const getMonthlyAttendance = async () => {
       console.log(searchValue);
     const [year, month] = searchValue.split('-').map(value => parseInt(value, 10));
     try {
-      const result = await client.query(query, { year, month }).toPromise();
+      const result = await client.query(MonthlyAttendanceDocument, { year, month }).toPromise();
       const {data, error} = result
       if (data) {
         return data?.monthlyAttendance || [];

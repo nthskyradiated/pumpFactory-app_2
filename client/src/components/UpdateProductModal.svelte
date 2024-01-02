@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import { mutationStore, gql, getContextClient } from '@urql/svelte';
+	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { UpdateProductDocument } from '../generated/graphql';
 
 	export let parent: SvelteComponent;
   
@@ -12,23 +13,9 @@
 
   
 	
-	const query = gql`
-		  mutation UpdateProduct($input: UpdateProductInput!) {
-			updateProduct(input: $input) {
-			  id
-			  name
-			  description
-			  price
-			  productType
-    		  expiresIn
-    		  sessionCounter
-			}
-		  }
-		  variables: { input },
-		`
 	const updateProduct = async ({ input }) => {
 		const result = await client
-		.mutation(query, { input})
+		.mutation(UpdateProductDocument, { input})
 		.toPromise()
 		.then()
 		return result

@@ -1,10 +1,11 @@
 <script>
-  import { queryStore, gql, getContextClient } from '@urql/svelte';
+  import { queryStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, Paginator, getModalStore } from '@skeletonlabs/skeleton';
   import {productID} from '$lib/productStore'
   import {auth} from '$lib/auth'
   import { goto, preloadData } from '$app/navigation';
+	import { ProductsDocument } from '../../generated/graphql';
 
   export const load = async () => {
 $: isAdmin = $auth.isAdmin;
@@ -16,35 +17,9 @@ $: isAdmin = $auth.isAdmin;
 
   const getProducts = queryStore({
     client,
-    query: gql`
-      query {
-        products {
-          id
-          name
-          description
-          price
-          productType
-          expiresIn
-        }
-      }
-    `,
+    query: ProductsDocument
   });
 
-  // let getProduct = queryStore({
-  //     client,
-  //     query: gql`
-  //       query ($id: ID!){
-  //         product (ID: $id){
-  //           id
-  //           name
-  //           description
-  //           price
-  //           productType
-  //           expiresIn
-  //       }}
-  //     `,
-  //     variables: {ID : $productID}
-  //   })
 
   let isFetching = $getProducts.fetching;
   let products = $getProducts.data?.products || [];

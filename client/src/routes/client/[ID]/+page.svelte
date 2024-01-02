@@ -1,11 +1,12 @@
 <script>
-  import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
+  import { queryStore, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore, getToastStore, Avatar } from '@skeletonlabs/skeleton';
   import {tabSet, deleteDocumentStore, deleteAttendanceStore} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
   import {auth} from '$lib/auth.js'
+	import { AddAttendanceDocument, ClientDocument, DeleteAttendanceDocument, DeleteClientDocument, DeleteClientDocumentDocument } from '../../../generated/graphql';
 export let data
 let {ID} = data
 let result
@@ -14,57 +15,17 @@ const toastStore = getToastStore();
 
   let getClient = queryStore({
       client,
-      query: gql`
-        query ($id: ID!){
-          client (ID: $id){
-            id
-            name
-            email
-            phone
-            birthdate
-            age
-            waiver
-            membershipStatus
-            clientSessionCounter
-            clientExpiresIn
-            product {
-                id
-                name
-                description
-              }
-            attendance {
-                id
-                checkIn
-                productId
-                product {
-                  name
-                }
-              }
-            documents {
-              id
-              documentName
-              documentType
-              documentURL
-            }
-          }
-        }
-      `,
+      query: ClientDocument,
       variables: {id: ID}
     });
 
     const deleteClient = async ( deleteClientId ) => {
     result = mutationStore({
       client,
-      query: gql`
-    mutation DeleteClient($deleteClientId: ID!) {
-        deleteClient(id: $deleteClientId) {
-        id
-        name
-        }
-    }
-      `,
+      query: DeleteClientDocument,
       variables: { deleteClientId },
     });
+
     await result;
     if (result.error) {
       console.error('Mutation error:', result.error);
@@ -102,19 +63,11 @@ const toastStore = getToastStore();
 
   const deleteClientDocument = async ( deleteClientDocumentId, documentURL ) => {
     await deleteFileOnServer(documentURL)
-    console.log(documentURL);
-    console.log(deleteClientDocumentId);
+    // console.log(documentURL);
+    // console.log(deleteClientDocumentId);
     result = mutationStore({
       client,
-      query: gql`
-      mutation ($deleteClientDocumentId: ID!) {
-        deleteClientDocument(id: $deleteClientDocumentId) {
-        documentName
-        documentType
-        documentURL
-      }   
-    }
-      `,
+      query: DeleteClientDocumentDocument,
       variables: { deleteClientDocumentId },
     })
       await result;
@@ -132,14 +85,7 @@ const toastStore = getToastStore();
   const deleteAttendance = async ( deleteAttendanceId ) => {
     result = mutationStore({
       client,
-      query: gql`
-      mutation ($deleteAttendanceId: ID!) {
-        deleteAttendance(id: $deleteAttendanceId) {
-          checkIn
-          clientId
-        }
-      }
-      `,
+      query: DeleteAttendanceDocument,
       variables: { deleteAttendanceId },
     })
       await result;
@@ -161,15 +107,7 @@ const toastStore = getToastStore();
   const addAttendance = async ({ input }) => {
 	  result = mutationStore({
 		client,
-		query: gql`
-  mutation Mutation($input: AddAttendanceInput!) {
-  addAttendance(input: $input) {
-    checkIn
-    clientId
-    productId
-  }
-}
-		`,
+		query: AddAttendanceDocument,
 		variables: { input: addAttendanceInput },
 	  });
     await result;
