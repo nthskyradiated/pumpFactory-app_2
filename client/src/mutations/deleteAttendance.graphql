@@ -1,0 +1,6 @@
+mutation DeleteAttendance($deleteAttendanceId: ID!) {
+  deleteAttendance(id: $deleteAttendanceId) {
+    checkIn
+    clientId
+  }
+}

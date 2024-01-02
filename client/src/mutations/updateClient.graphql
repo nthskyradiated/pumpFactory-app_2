@@ -1,5 +1,5 @@
-mutation AddClient($input: AddClientInput!) {
-  addClient(input: $input) {
+mutation UpdateClient($input: UpdateClientInput!) {
+  updateClient(input: $input) {
     id
     name
     email

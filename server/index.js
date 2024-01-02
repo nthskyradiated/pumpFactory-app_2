@@ -41,7 +41,8 @@ app.use(cors({
 app.use(express.json())
 
 
-    app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
+    // app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
+    app.use(expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
     //     const token = req.headers.authorization || '';
 
@@ -63,6 +64,6 @@ app.use(express.json())
     
     // }))
 
-)
+// )
   
 app.listen(port, () => console.log(ansi.green.bold.underline(`server running on port ${port}`)));

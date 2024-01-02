@@ -1,10 +1,11 @@
-query Products {
-  products {
+query Product($id: ID!) {
+  product(ID: $id) {
     id
     name
     description
     price
     productType
+    sessionCounter
     expiresIn
   }
 }

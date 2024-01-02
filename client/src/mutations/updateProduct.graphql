@@ -1,5 +1,5 @@
-mutation AddProduct($input: AddProductInput!) {
-  addProduct(input: $input) {
+mutation UpdateProduct($input: UpdateProductInput!) {
+  updateProduct(input: $input) {
     id
     name
     description

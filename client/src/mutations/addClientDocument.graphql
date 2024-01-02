@@ -1,8 +1,8 @@
-mutation {
-			addClientDocument(input: $input) {
-			  clientId
-			  documentName
-			  documentType
-			  documentURL
-			}
-		  }
+mutation AddClientDocument($input: AddClientDocumentInput!) {
+  addClientDocument(input: $input) {
+    clientId
+    documentName
+    documentType
+    documentURL
+  }
+}

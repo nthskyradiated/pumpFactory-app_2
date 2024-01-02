@@ -1,6 +1,6 @@
 overwrite: true
-schema: "http://api.localhost:5555"
-# documents: "src/**/*.graphql"
+schema: "http://localhost:5555"
+documents: "src/**/*.graphql"
 config:
   withHooks: false
 generates:

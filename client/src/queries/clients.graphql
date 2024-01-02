@@ -1,14 +1,14 @@
-query {
-        clients {
-          id
-          name
-          email
-          phone
-          birthdate
-          age
-          waiver
-          membershipStatus
-          clientSessionCounter
-          clientExpiresIn
-        }
-      }
+query Clients {
+  clients {
+    id
+    name
+    email
+    phone
+    birthdate
+    age
+    waiver
+    membershipStatus
+    clientSessionCounter
+    clientExpiresIn
+  }
+}
