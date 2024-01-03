@@ -348,7 +348,12 @@ export const resolvers = {
     Attendance: {
         clientId: async (parent) => await parent.clientId,
         productId: async (parent) => await parent.productId,
-        product: async (parent) => await Product.findById(parent.productId),
+        product: async (parent) => {
+          if (!parent.productId) {
+            return null;
+          }
+          return await Product.findById(parent.productId)
+        },
         client: async (parent) => await Client.findById(parent.clientId)
     },
 
@@ -690,29 +695,45 @@ export const resolvers = {
             return Product.findByIdAndUpdate(id, updateFields, { new: true });
             
         },
-
+        
         deleteProduct: async (parent, { id }, context) => {
-            await authenticateAdmin(context)
-            try {
+          await authenticateAdmin(context);
+      
+          try {
               // Find the product to be deleted
               const product = await Product.findById(id);
-          
+      
               if (!product) {
-                throw new Error('Product not found');
+                  throw new Error('Product not found');
               }
-          
-              // Find clients with this product ID and update their membershipStatus
-              await Client.updateMany({ productId: id }, { $set: { membershipStatus: 'inactive', productId: null } });
-          
-              // Delete the product
-              return Product.findByIdAndDelete(id);
-          
-            } catch (error) {
-              throw new Error(error.message);
-            }
-        
-        },
+      
+              // Find clients with this product ID
+              const clients = await Client.find({ productId: id });
 
+              for (const client of clients) {
+                // Find attendance records for the client and product
+                const attendances = await Attendance.find({ clientId: client.id, productId: id });
+    
+                // Remove each attendance record
+                for (const attendance of attendances) {
+                    await attendance.removeSession();
+                }
+            }
+
+            // Update clients' membershipStatus and other fields
+            await Client.updateMany(
+              { productId: id },
+              { $set: { membershipStatus: 'inactive', productId: null, clientSessionCounter: 0, clientExpiresIn: null },
+            });
+            
+            // Delete the product
+            return await Product.findByIdAndDelete(id);
+            
+          } catch (error) {
+              throw new Error(error.message);
+          }
+      },
+      
         registerUser: async (parent, {input}, context) => {
          await authenticateAdmin(context)
         // Check if the username or email is already in use
@@ -929,10 +950,7 @@ export const resolvers = {
                 if (!document) {
                   throw new Error('Document not found');
                 }
-            
-                // Remove the attendance record's ID from the client's attendance array
 
-                // Delete the attendance record
                 await document.removeDocument();
             
                 return document;
