@@ -22,7 +22,7 @@ export default {
 	plugins: [
 		forms,
 		skeleton ({
-      themes: { preset: ["crimson"]}
+      themes: { preset: ["crimson", "skeleton", "modern"]}
     })
 	]
 }
