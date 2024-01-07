@@ -147,6 +147,13 @@ $: addClientDocumentModal = {
   meta: {singleClient: singleClient}
   
 };
+$: uploadWaiverModal = {
+	type: 'component',
+  component: 'uploadWaiverModal',
+  props: {singleClient: singleClient, isFetching},
+  meta: {singleClient: singleClient}
+  
+};
 const deleteModal = {
 	type: 'confirm',
 	title: 'Deleting Client Data',
@@ -310,9 +317,11 @@ const addAttendanceModal = {
           </div>
           {/each}
           {/if}
-          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload</button>
-        {/if}
-
+          {#if !singleClient.documents.find(doc => doc.documentType === 'WAIVER')}
+          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(uploadWaiverModal)}}>Upload Waiver</button>
+          {/if}
+          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload ID</button>
+          {/if}
       </svelte:fragment>
     </TabGroup>
   </div>

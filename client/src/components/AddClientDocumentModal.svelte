@@ -146,7 +146,7 @@ async function onFormSubmit() {
 	  <form class="modal-form {cForm}">
 		<label class="label">
 		  <span>Browse Document</span>
-		  <input class="input" type="file" bind:value={formData.documentName} required accept=".pdf, .png, .jpg, .bmp, .doc" on:change={handleFileChange}/>
+		  <input class="input" type="file" bind:value={formData.documentName} required accept=".pdf, .png, .jpg, .bmp, .doc, .html" on:change={handleFileChange}/>
 
 		</label>
 		<!-- svelte-ignore a11y-label-has-associated-control -->

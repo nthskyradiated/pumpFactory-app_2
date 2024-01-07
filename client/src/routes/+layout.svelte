@@ -8,6 +8,7 @@
   import UpdateProductModal from "../components/UpdateProductModal.svelte";
   import UpdateClientModal from "../components/UpdateClientModal.svelte";
   import AddClientDocumentModal from "../components/AddClientDocumentModal.svelte";
+  import UploadWaiverModal from "../components/UploadWaiverModal.svelte";
   import { goto } from '$app/navigation';
   import Footer from "../components/Footer.svelte";
   import Logo from '../components/Logo.svelte'
@@ -21,7 +22,8 @@
     updateClientModal: {ref: UpdateClientModal},
     addProductModal: {ref: AddProductModal},
     updateProductModal: {ref: UpdateProductModal},
-    addClientDocumentModal: {ref: AddClientDocumentModal}
+    addClientDocumentModal: {ref: AddClientDocumentModal},
+    uploadWaiverModal: {ref: UploadWaiverModal}
   }
 
   function handleLogout() {

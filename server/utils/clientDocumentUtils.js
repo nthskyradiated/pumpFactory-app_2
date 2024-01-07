@@ -7,7 +7,7 @@ export const isValidURL = (url) => {
 export const isValidFileExtension = (documentType, fileName) => {
     // Map document types to valid file extensions
     const validExtensions = {
-      WAIVER: ['pdf', 'doc'],
+      WAIVER: ['pdf', 'doc', 'html'],
       IDENTIFICATION: ['png', 'jpg', 'bmp', 'pdf'],
       PHOTO: ['jpg', 'png', 'bmp'],
     };

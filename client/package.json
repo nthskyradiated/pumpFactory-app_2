@@ -37,6 +37,17 @@
   "dependencies": {
     "@urql/svelte": "^4.0.4",
     "graphql": "^16.8.1",
+    "perfect-freehand": "^1.2.0",
     "urql": "^4.0.5"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./src/lib/index.js",
+      "svelte": "./src/lib/index.js"
+    }
   }
 }
