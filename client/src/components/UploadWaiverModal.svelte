@@ -6,20 +6,31 @@
 	import { AddClientDocumentDocument } from '../generated/graphql';
 
   export let parent: SvelteComponent;
+  const toastStore = getToastStore();
 	const client = getContextClient();
 	let visible = false;
 	const message = "Please fill in all required fields"
+  const modalStore = getModalStore();
+  
+      const addClientDocument = async ({ input }) => {
+      const result = await client
+      .mutation(AddClientDocumentDocument, {input})
+      .toPromise()
+      .then()
+      return result
+    }
 
-		const addClientDocument = async ({ input }) => {
-		const result = await client
-		.mutation(AddClientDocumentDocument, {input})
-		.toPromise()
-		.then()
-		return result
-	}
+  
+  // Initialize the formData with the defined interface
+  let formData = {
+    clientId: $modalStore[0]?.meta.singleClient.id || '',
+    documentName: $modalStore[0]?.meta.singleClient.name || '',
+    documentType: '',
+    documentURL: '',
+    file: null,
+  };
 
 
-	const modalStore = getModalStore();
 	let layers: { path: string; width: number; height: number }[] = []
 
 	let width: number
@@ -36,7 +47,16 @@
 		layers = []
 	}
 
-  const generateHTML = async () => {
+  const uploadWaiver = async (file, clientId, documentName) => {
+      // Retrieve the necessary data from the form and build the formData object
+  const formDataObject = {
+    clientId: $modalStore[0]?.meta.singleClient.id || '',
+    documentName: $modalStore[0]?.meta.singleClient.name || '',
+    documentType: 'WAIVER',
+    documentURL: '', // You can leave this empty for now; it will be updated after upload
+    file: null,
+  };
+
     const participantName = (document.getElementById('participantName') as HTMLInputElement)?.value;
     const address = (document.getElementById('address') as HTMLInputElement)?.value;
     const guardianName = (document.getElementById('guardianName') as HTMLInputElement)?.value;
@@ -90,25 +110,41 @@
     `;
 
     // Uploading to pump endpoint
+    const clientIdSuffix = formDataObject.clientId.slice(-5);
+    const fileName = `${formDataObject.documentName}-${clientIdSuffix}`; // Constructing the filename
+
     const formData = new FormData();
-    formData.append('file', new Blob([content], { type: 'text/html' }), 'waiver.html');
+    formData.append('file', new Blob([content], { type: 'text/html' }), fileName);
+    formData.append('documentType', 'WAIVER'); // Set the documentType
+    formData.append('documentURL', ''); // This can be left empty for now, as the URL will be obtained after upload
+
 
     try {
       const response = await fetch('https://uploads.thepumpfactory.net/upload', {
+        // const response = await fetch('http://localhost:3000/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
-        console.log('Upload successful');
-        // Optionally, you can redirect or display a success message here.
+      const resultUpload = await response.json();
+      const clientIdSuffix = clientId.slice(-5);
+      const nameParts = documentName.split(' ');
+      const lastName = nameParts.length > 1 ? nameParts[1] : '';
+      const firstName = nameParts.length > 0 ? nameParts[0] : '';
+      const fileName = `waiver-${lastName}-${firstName}-${clientIdSuffix}.html`;
+
+      return {
+        documentURL: `https://uploads.thepumpfactory.net/uploads/${fileName}`,
+        fileName,
+      };
       } else {
-        console.error('Upload failed:', response.statusText);
-        // Handle the error accordingly.
+        console.error('File upload failed');
+        return null
       }
     } catch (error) {
-      console.error('Error during upload:', error);
-      // Handle the error accordingly.
+      console.error('Error during file upload:', error);
+
     }
 
     //code block below is for saving html locally
@@ -125,23 +161,52 @@
 
   const onSubmit = async () => {
   try {
-    await generateHTML(); // Call the generateHTML function
+    const fileUploadResult = await uploadWaiver(formData.file, formData.clientId, formData.documentName); // Call the generateHTML function
+    if (!fileUploadResult) {
+      console.log('formData:', formData);
+    console.log('Form Data before fetch:', [...formData.entries()]);
+      console.error('File upload failed. Cannot proceed with mutation.');
+      return;
+    }
 
-    // Call your mutation or perform any other actions on successful upload
-    const result = await addClientDocument({ input: formData });
-    // ... handle the result as needed ...
-  } catch (error) {
-    // Handle errors, show a message, etc.
-    console.error('Error during HTML generation or upload:', error);
+    // Use the file information in the mutation input
+    const input = {
+      clientId: formData.clientId,
+      documentName: fileUploadResult.fileName,
+      documentType: 'WAIVER',
+      documentURL: fileUploadResult.documentURL,
+    };
+    const result = await addClientDocument({ input });
+      const { error, data } = result;
+
+      if (error) {
+        modalStore.close();
+        console.log(input);
+        console.error('Mutation error:', error.message);
+        const t = {
+          message: error.message,
+          timeout: 2000,
+        };
+        toastStore.trigger(t);
+      } else {
+        // If successful, close the modal
+        if (data) {
+          modalStore.close();
+          console.log(data);
+          $modalStore[0]?.response(result);
+        }
+      }
+	} catch (error) {
+    console.error('Unexpected error:', error);
   }
-};
+}
 	const cBase = 'card p-4 shadow-xl space-y-4 w-5/6';
 	const cHeader = 'text-2xl font-bold';
 	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';
 </script>
 
 {#if $modalStore[0]}
-<div class="{cBase}">
+<div class="modal-example-form {cBase}">
   <header class={cHeader}>{$modalStore[0].title ?? 'Pump Factory Electronic Waiver'}</header>
 <main class="w-5/6 m-auto leading-8">
   <p class="mt-2 text-sm text-center mb-4">Please sign on the dotted line to indicate that you agree to all the legal terms stipulated above.</p>
