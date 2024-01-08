@@ -48,14 +48,15 @@
 	}
 
   const uploadWaiver = async (file, clientId, documentName) => {
-      // Retrieve the necessary data from the form and build the formData object
-  const formDataObject = {
-    clientId: $modalStore[0]?.meta.singleClient.id || '',
-    documentName: $modalStore[0]?.meta.singleClient.name || '',
-    documentType: 'WAIVER',
-    documentURL: '', // You can leave this empty for now; it will be updated after upload
-    file: null,
-  };
+    try {
+    const clientIdSuffix = clientId.slice(-5);
+    const nameParts = documentName.split(' ');
+    const lastName = nameParts.length > 1 ? nameParts[1] : '';
+    const firstName = nameParts.length > 0 ? nameParts[0] : '';
+    const fileName = `waiver-${lastName}-${firstName}-${clientIdSuffix}.html`;
+    // Constructing the filename for the Blob
+    const blobFileName = `waiver-${lastName}-${firstName}-${clientIdSuffix}.html`;
+
 
     const participantName = (document.getElementById('participantName') as HTMLInputElement)?.value;
     const address = (document.getElementById('address') as HTMLInputElement)?.value;
@@ -110,33 +111,27 @@
     `;
 
     // Uploading to pump endpoint
-    const clientIdSuffix = formDataObject.clientId.slice(-5);
-    const fileName = `${formDataObject.documentName}-${clientIdSuffix}`; // Constructing the filename
 
     const formData = new FormData();
-    formData.append('file', new Blob([content], { type: 'text/html' }), fileName);
+    formData.append('file', new Blob([content], { type: 'text/html' }), blobFileName);
     formData.append('documentType', 'WAIVER'); // Set the documentType
     formData.append('documentURL', ''); // This can be left empty for now, as the URL will be obtained after upload
 
-
-    try {
-      const response = await fetch('https://uploads.thepumpfactory.net/upload', {
-        // const response = await fetch('http://localhost:3000/upload', {
+      // const response = await fetch('https://uploads.thepumpfactory.net/upload', {
+        const response = await fetch('http://localhost:3000/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
       const resultUpload = await response.json();
-      const clientIdSuffix = clientId.slice(-5);
-      const nameParts = documentName.split(' ');
-      const lastName = nameParts.length > 1 ? nameParts[1] : '';
-      const firstName = nameParts.length > 0 ? nameParts[0] : '';
-      const fileName = `waiver-${lastName}-${firstName}-${clientIdSuffix}.html`;
+      // Constructing the filename for the mutation
+      const mutationFileName = `waiver-${lastName}-${firstName}-${clientIdSuffix}.html`;
 
       return {
-        documentURL: `https://uploads.thepumpfactory.net/uploads/${fileName}`,
-        fileName,
+        // documentURL: `https://uploads.thepumpfactory.net/uploads/${mutationFileName}`,
+        documentURL: `http://localhost/uploads/${mutationFileName}`,
+        fileName: mutationFileName,
       };
       } else {
         console.error('File upload failed');
@@ -164,7 +159,6 @@
     const fileUploadResult = await uploadWaiver(formData.file, formData.clientId, formData.documentName); // Call the generateHTML function
     if (!fileUploadResult) {
       console.log('formData:', formData);
-    console.log('Form Data before fetch:', [...formData.entries()]);
       console.error('File upload failed. Cannot proceed with mutation.');
       return;
     }
@@ -242,7 +236,7 @@
 
 	<div>
 		<p>I,
-			<input type="text" required placeholder="enter full name" class="w-72 pl-2 input" id='participantName'/>, of legal age, and resident of <input type="text" required placeholder="enter complete address" class="input w-96 pl-2" id='address'/>, hereby acknowledge that I/my minor am/is voluntarily participating in activities at The Pump Factory Rock Climbing Gym (hereinafter “the Gym”). In consideration to use the facilities and equipment provided, I agree to the following terms and conditions:</p>
+			<input type="text" required placeholder="enter full name" class="w-1/4 pl-2 input" id='participantName'/>, of legal age, and resident of <input type="text" required placeholder="enter complete address" class="input w-96 pl-2" id='address'/>, hereby acknowledge that I/my minor am/is voluntarily participating in activities at The Pump Factory Rock Climbing Gym (hereinafter “the Gym”). In consideration to use the facilities and equipment provided, I agree to the following terms and conditions:</p>
 
 
 		<ol>
@@ -257,10 +251,10 @@
 		<p class="text-2xl uppercase mt-8 leading-10 text-center">I have carefully read and hereby waive, release, and assume all risk and voluntarily sign this waiver and release of liability agreement.</p>
 
     
-		<p><strong>Printed Name of Participant:</strong><input type="text" required placeholder="Full name of participant" id='participantName' class="w-72 pl-2 my-8 input"/></p>
-		<p><strong>Printed Name of Guardian:</strong><input type="text" required placeholder="Full name of guardian" class="w-72 pl-2 mb-8 input" id='guardianName'/></p>
+		<p><strong>Printed Name of Participant: </strong><input type="text" required placeholder="Full name of participant" id='participantName' class="w-72 pl-2 my-8 input"/></p>
+		<p><strong>Printed Name of Guardian: </strong><input type="text" required placeholder="Full name of guardian" class="w-72 pl-2 mb-8 input" id='guardianName'/></p>
 		<label for="date"> 
-			<input type="date" required placeholder="date" title="Input (date)" id="date" class='input w-1/6 mb-8'/>
+		<strong class="pr-16">Date of Signature: </strong><input type="date" required placeholder="date" title="Input (date)" id="date" class='input w-1/6 mb-8'/>
 		</label>
 	</div>
 
