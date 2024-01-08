@@ -117,8 +117,8 @@
     formData.append('documentType', 'WAIVER'); // Set the documentType
     formData.append('documentURL', ''); // This can be left empty for now, as the URL will be obtained after upload
 
-      // const response = await fetch('https://uploads.thepumpfactory.net/upload', {
-        const response = await fetch('http://localhost:3000/upload', {
+      const response = await fetch('https://uploads.thepumpfactory.net/upload', {
+        // const response = await fetch('http://localhost:3000/upload', {
         method: 'POST',
         body: formData,
       });
@@ -129,8 +129,8 @@
       const mutationFileName = `waiver-${lastName}-${firstName}-${clientIdSuffix}.html`;
 
       return {
-        // documentURL: `https://uploads.thepumpfactory.net/uploads/${mutationFileName}`,
-        documentURL: `http://localhost/uploads/${mutationFileName}`,
+        documentURL: `https://uploads.thepumpfactory.net/uploads/${mutationFileName}`,
+        // documentURL: `http://localhost:3000/uploads/${mutationFileName}`,
         fileName: mutationFileName,
       };
       } else {
