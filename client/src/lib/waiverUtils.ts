@@ -1,5 +1,5 @@
 // place files you want to import through the `$lib` alias in this folder.
-import { getStroke } from 'perfect-freehand'
+import { getStroke } from 'perfect-freehand-for-svelte'
 import { cubicInOut } from 'svelte/easing'
 import { getSvgPathFromStroke } from './svg-path'
 

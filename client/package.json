@@ -37,7 +37,7 @@
   "dependencies": {
     "@urql/svelte": "^4.0.4",
     "graphql": "^16.8.1",
-    "perfect-freehand": "^1.2.0",
+    "perfect-freehand-for-svelte": "^1.2.1",
     "urql": "^4.0.5"
   },
   "files": [
