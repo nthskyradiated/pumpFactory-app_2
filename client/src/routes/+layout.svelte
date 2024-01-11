@@ -13,7 +13,7 @@
   import Footer from "../components/Footer.svelte";
   import Logo from '../components/Logo.svelte'
   import {page} from '$app/stores'
-  import {auth} from '$lib/auth.js'
+  // import {auth} from '$lib/auth.js'
 
   initializeStores()
   setContextClient(urqlClient);
@@ -56,9 +56,9 @@
               <a class='mr-4' href="/products">Products</a>
               <a class='mr-4' href="/sessions">Sessions</a>
               <a class='mr-4' href="/dashboard">Clients</a>
-              {#if $auth.isLoggedIn && $auth.isAdmin}
+              <!-- {#if $auth.isLoggedIn && $auth.isAdmin} -->
               <a class='mr-4' href="/waiver">Waiver</a>
-              {/if}
+              <!-- {/if} -->
               <a class='mr-4' href="/#" on:click={handleLogout}>Logout</a>
               {/if}
             </nav>

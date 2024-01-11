@@ -1,8 +1,5 @@
-<script context="module" lang="ts">
+<script lang="ts">
     import { signature } from '$lib/signatureUtils'
-    // import { authGuard } from '$lib/hooks.js';
-
-    // export { authGuard };
 
     let layers: { path: string; width: number; height: number }[] = []
 

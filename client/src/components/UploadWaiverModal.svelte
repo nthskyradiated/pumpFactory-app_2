@@ -48,6 +48,8 @@
 		layers = []
 	}
 
+  let participantName = ''
+
   const onSubmit = async () => {
   try {
     const fileUploadResult = await uploadWaiver(formData.file, formData.clientId, formData.documentName, layers, width, height, preview)
@@ -130,7 +132,7 @@
 
 	<div>
 		<p>I,
-			<input type="text" required placeholder="enter full name" class="sm:w-1/4 w-2/3 pl-2 input" id='participantName'/>, of legal age, and resident of <input type="text" required placeholder="enter complete address" class="input sm:w-1/3 w-5/5 pl-2" id='address'/>, hereby acknowledge that I/my minor am/is voluntarily participating in activities at The Pump Factory Rock Climbing Gym (hereinafter “the Gym”). In consideration to use the facilities and equipment provided, I agree to the following terms and conditions:</p>
+			<input type="text" required placeholder="enter full name" class="sm:w-1/4 w-2/3 pl-2 input" id='participantName' bind:value={participantName}/>, of legal age, and resident of <input type="text" required placeholder="enter complete address" class="input sm:w-1/3 w-5/5 pl-2" id='address'/>, hereby acknowledge that I/my minor am/is voluntarily participating in activities at The Pump Factory Rock Climbing Gym (hereinafter “the Gym”). In consideration to use the facilities and equipment provided, I agree to the following terms and conditions:</p>
 
 
 		<ol>
@@ -145,7 +147,7 @@
 		<p class="text-2xl uppercase mt-8 leading-10 text-center">I have carefully read and hereby waive, release, and assume all risk and voluntarily sign this waiver and release of liability agreement.</p>
 
     
-		<p><strong>Printed Name of Participant: </strong><input type="text" required placeholder="Full name of participant" id='participantName' class="w-72 pl-2 my-8 input"/></p>
+		<p><strong>Printed Name of Participant: </strong><input type="text" required placeholder="Full name of participant" id='participantName' class="w-72 pl-2 my-8 input" bind:value={participantName}/></p>
 		<p><strong>Printed Name of Guardian: </strong><input type="text" required placeholder="Full name of guardian" class="w-72 pl-2 mb-8 input" id='guardianName'/></p>
 		<label for="date"> 
 		<strong class="pr-16">Date of Signature: </strong><input type="date" required placeholder="date" title="Input (date)" id="date" class='input sm:w-1/6 w-2/3 mb-8'/>
