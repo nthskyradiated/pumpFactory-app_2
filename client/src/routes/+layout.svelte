@@ -13,6 +13,7 @@
   import Footer from "../components/Footer.svelte";
   import Logo from '../components/Logo.svelte'
   import {page} from '$app/stores'
+  import {auth} from '$lib/auth.js'
 
   initializeStores()
   setContextClient(urqlClient);
@@ -29,6 +30,7 @@
   function handleLogout() {
     // Perform logout logic here
     localStorage.removeItem('token');
+    auth.update((value) => ({ ...value, isLoggedIn: false }))
     goto('/');
   }
 
@@ -54,6 +56,9 @@
               <a class='mr-4' href="/products">Products</a>
               <a class='mr-4' href="/sessions">Sessions</a>
               <a class='mr-4' href="/dashboard">Clients</a>
+              {#if $auth.isLoggedIn && $auth.isAdmin}
+              <a class='mr-4' href="/waiver">Waiver</a>
+              {/if}
               <a class='mr-4' href="/#" on:click={handleLogout}>Logout</a>
               {/if}
             </nav>

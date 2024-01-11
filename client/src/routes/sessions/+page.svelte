@@ -48,10 +48,8 @@ $: paginationSettings = {
 
 }
 
-  $: {
-      isFetching = getMonthlyAttendance.isFetching || $getAttendances.fetching;
-      attendances = getMonthlyAttendance.data?.monthlyAttendance ||  $getAttendances.data?.attendances || [];
-    }
+$: attendances = getMonthlyAttendance.data?.monthlyAttendance ||  $getAttendances.data?.attendances || [];
+$: isFetching = getMonthlyAttendance.isFetching || $getAttendances.fetching;
 
 
   $: paginatedSource = attendances.slice(
@@ -90,9 +88,10 @@ const mySearchMonthlyHandler = async () => {
   </div>
   {#if isFetching}
   <Spinner />
-{:else if attendances.error}
-  <p class="mb-8">Oh no... {attendances.error.message}</p>
-{:else if attendances.length > 0}
+{:else if $getAttendances.error}
+  <p class="mb-8">Oh no... {$getAttendances.error.message}</p>
+{:else}
+{#if attendances.length > 0}
   <div class="table-container  pb-8">
     <table class="table table-hover">
       <thead>
@@ -123,5 +122,6 @@ const mySearchMonthlyHandler = async () => {
     justify-between="{true}"
     class="pb-8"
   />
+{/if}
 {/if}
 </main>
