@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { signature } from '$lib/signatureUtils'
+    import { signature } from '$lib/signatureUtils.ts'
 
     let layers: { path: string; width: number; height: number }[] = []
 
