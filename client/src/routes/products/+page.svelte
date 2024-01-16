@@ -71,7 +71,7 @@ const updateProductModal = {
 
 const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
-    const ID = event.detail[0];
+    const ID = event.detail[5];
     // console.log(ID);
     productID.set(ID)
     // console.log($clientID);
