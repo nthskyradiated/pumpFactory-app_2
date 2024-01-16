@@ -428,7 +428,7 @@ export type ClientByNameQuery = { __typename?: 'Query', clientByName?: Array<{ _
 export type ClientsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ClientsQuery = { __typename?: 'Query', clients?: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, birthdate: any, age: number, waiver: boolean, membershipStatus: MembershipStatus, clientSessionCounter?: number | null, clientExpiresIn?: any | null } | null> | null };
+export type ClientsQuery = { __typename?: 'Query', clients?: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, birthdate: any, age: number, waiver: boolean, membershipStatus: MembershipStatus, clientSessionCounter?: number | null, clientExpiresIn?: any | null, product?: { __typename?: 'Product', name: string } | null } | null> | null };
 
 export type MonthlyAttendanceQueryVariables = Exact<{
   month: Scalars['Int']['input'];
@@ -644,6 +644,9 @@ export const ClientByNameDocument = gql`
     membershipStatus
     clientSessionCounter
     clientExpiresIn
+    product {
+      name
+    }
   }
 }
     `;
@@ -660,6 +663,9 @@ export const ClientsDocument = gql`
     membershipStatus
     clientSessionCounter
     clientExpiresIn
+    product {
+      name
+    }
   }
 }
     `;

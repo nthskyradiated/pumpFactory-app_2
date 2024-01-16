@@ -10,5 +10,8 @@ query Clients {
     membershipStatus
     clientSessionCounter
     clientExpiresIn
+    product {
+      name
+    }
   }
 }
