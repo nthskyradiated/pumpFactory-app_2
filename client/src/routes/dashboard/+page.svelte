@@ -44,15 +44,14 @@
   );
   
   let tableSimple = {
-    head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
+    head: ['Name', 'Email', 'Phone',  'Status', 'Expiry', 'ID'],
     body: tableMapperValues(paginatedSource, [
-      'id',
       'name',
       'email',
       'phone',
       'membershipStatus',
       'clientExpiresIn',
-      'waiver',
+      'id',
     
   ]),
 }
@@ -61,15 +60,14 @@
     console.log(paginatedSource);
     paginatedSource = paginatedSource
     return {
-      head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
+      head: ['Name', 'Email', 'Phone',  'Status', 'Expiry', 'ID'],
       body: tableMapperValues(paginatedSource, [
-        'id',
         'name',
         'email',
         'phone',
         'membershipStatus',
         'clientExpiresIn',
-      'waiver',
+        'id',
       
     ])
   }}
@@ -85,7 +83,8 @@
   
   const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
-    const ID = event.detail[0];
+    // console.log(event.detail);
+    const ID = event.detail[5];
     clientID.set(ID)
     goto(`/client/${ID}`)
     

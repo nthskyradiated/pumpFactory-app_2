@@ -42,14 +42,14 @@ $: isAdmin = $auth.isAdmin;
 } 
 
   $: tableSimple = {
-    head: ['ID', 'Name', 'Description', 'Product Type','Expiry (in days)','Price'],
+    head: ['Name', 'Description', 'Product Type','Expiry (in days)','Price', 'Product ID'],
     body: tableMapperValues(paginatedSource, [
-      'id',
       'name',
       'description',
       'productType',
       'expiresIn',
       'price',
+      'id',
     ]),
   };
 
