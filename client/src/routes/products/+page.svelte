@@ -42,14 +42,14 @@ $: isAdmin = $auth.isAdmin;
 } 
 
   $: tableSimple = {
-    head: ['ID', 'Name', 'Description', 'Product Type','Expiry (in days)','Price'],
+    head: ['Name', 'Description', 'Product Type','Expiry (in days)','Price', 'Product ID'],
     body: tableMapperValues(paginatedSource, [
-      'id',
       'name',
       'description',
       'productType',
       'expiresIn',
       'price',
+      'id',
     ]),
   };
 
@@ -71,7 +71,7 @@ const updateProductModal = {
 
 const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
-    const ID = event.detail[0];
+    const ID = event.detail[5];
     // console.log(ID);
     productID.set(ID)
     // console.log($clientID);

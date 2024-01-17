@@ -96,19 +96,19 @@ const mySearchMonthlyHandler = async () => {
     <table class="table table-hover">
       <thead>
         <tr>
-          <th>ID</th>
           <th>CheckIn Date</th>
           <th>Client Name</th>
           <th>Product Info</th>
+          <th>Session ID</th>
         </tr>
       </thead>
       <tbody>
         {#each paginatedSource as attendance (attendance.id)}
           <tr>
-            <td>{attendance.id}</td>
             <td>{attendance.checkIn}</td>
             <td>{attendance.client.name}</td>
             <td>{attendance.product.name}</td>
+            <td>{attendance.id}</td>
           </tr>
         {/each}
       </tbody>
