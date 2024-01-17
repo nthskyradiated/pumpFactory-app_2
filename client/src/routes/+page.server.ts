@@ -1,76 +1,116 @@
+import { newToken, refreshToken } from '$lib/auth.js';
+import { LoginUserDocument } from '../generated/graphql';
+import { fail, redirect } from '@sveltejs/kit';
+import type { Action, Actions, PageServerLoad } from './$types';
+import { browser } from '$app/environment';
+import { Client, mapExchange, cacheExchange, fetchExchange } from '@urql/svelte';
 
-import {auth, refreshToken} from '$lib/auth.js'
-import {LoginUserDocument} from '../generated/graphql'
-import { setContextClient, getContextClient } from '@urql/svelte';
-import { fail, redirect } from '@sveltejs/kit'
-import type { Action, Actions, PageServerLoad } from './$types'
-import {urqlClient} from '$lib/urql'
-import {error} from '@sveltejs/kit'
-import { onMount } from 'svelte';
-let autherror;
+// const query = gql`
+//   mutation LoginUser($username: String!, $password: String!) {
+//     loginUser(username: $username, password: $password) {
+//       token
+//       refreshToken
+//       user {
+//         id
+//         email
+//         isAdmin
+//         name
+//         username
+//       }
+//     }
+//   }
+// `;
 
+// const getToken = () => {
+//   if (browser) {
+//     return localStorage.getItem('token') || '';
+//   }
+//   return '';
+// };
 
-onMount(async () => {
-  setContextClient(urqlClient)
-  let client = getContextClient();
-})
-const login: Action = async ({cookies, request}, client) => {
-  const data = await request.formData()
-  const username = data.get('username')
-  const password = data.get('password')
-  if (
-    typeof username !== 'string' ||
-    typeof password !== 'string' ||
-    !username ||
-    !password
-    ) {
-      return fail(400, { invalid: true })
+const login: Action = async ({ cookies, request }) => {
+  const client = new Client({
+    exchanges: [
+      mapExchange({
+        onError(error) {
+          console.error(error);
+        },
+      }),
+      cacheExchange,
+      fetchExchange,
+    ],
+    url: 'http://localhost:5555', // Update with your GraphQL server URL
+    fetchOptions: () => {
+      // const token = getToken();
+      const refreshTokenValue = cookies.get('refreshToken');
+      return {
+        headers: {
+          authorization: newToken ? `Bearer ${newToken}` : '',
+          refreshToken: refreshTokenValue || '',
+          // timeout: 15000,
+        },
+      };
+    },
+    // credentials: 'include',
+    requestPolicy: 'cache-and-network',
+  });
+
+  const loginUser = async (username, password) => {
+    const result = await client.mutation(LoginUserDocument, { username, password }).toPromise();
+    return result;
+  };
+
+  const formData = await request.formData();
+  const username = formData.get('username');
+  const password = formData.get('password');
+
+  if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
+    return fail(400, { invalid: true });
+  }
+
+  try {
+    const result = await loginUser(username, password);
+
+    if (result.data) {
+      const { loginUser } = result.data;
+      if (loginUser) {
+        const { token, refreshToken: newRefreshToken, user } = loginUser;
+
+        if (token) {
+          newToken.set(token)
+          refreshToken.set({ isAdmin: loginUser.isAdmin });
+          cookies.set('refreshToken', newRefreshToken, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 30,
+          });
+
+          // Return an object indicating a successful login
+          throw redirect(302, '/dashboard');
+          
+        } else {
+          // Handle the case when token is undefined
+          console.error('Token is undefined');
+        }
+      } else {
+        // Handle the case when loginUser is undefined
+        console.error('loginUser is undefined');
+      }
     }
-    
-    
-    client
-    ?.mutation( LoginUserDocument, {username, password})
-    .toPromise()
-    .then((result) => {
-      console.log(username, password);
-      console.log(result);
-      const {token} = result.data.loginUser
-      if (token) {
-        localStorage.setItem('token', token)
-        console.log(result.data.loginUser.user.isAdmin);
-        auth.set({isAdmin: result.data.loginUser.user.isAdmin, isLoggedIn: true})
-        refreshToken.set({isAdmin: result.data.loginUser.refreshToken})
-        cookies.set('refreshToken', result.data?.loginUser.refreshToken, {
-          // send cookie for every page
-          path: '/',
-          // server side only cookie so you can't use `document.cookie`
-          httpOnly: true,
-          // only requests from same site can send cookies
-          // https://developer.mozilla.org/en-US/docs/Glossary/CSRF
-          sameSite: 'strict',
-          // only sent over HTTPS in production
-          secure: process.env.NODE_ENV === 'production',
-          // set cookie to expire after a month
-          maxAge: 60 * 60 * 24 * 30,
-        })
-        
-        // redirect the user
-        throw redirect(302, '/dashboard')
-        
-        //  goto('/dashboard');
-      }})
-      .catch((err) => {
-        console.error(err.message)
-        autherror = 'Invalid Username or Password';
-        return error (401, autherror)
-      })
-      
-    }
-    
-    export const actions: Actions = { login }
-    
-    export const load: PageServerLoad = async () => {
+  } catch (error) {
+    // Handle other errors during login
+    console.error('An error occurred during login:', error);
 
-      
-    }
-    
+    // Return an error response
+    return {
+      status: 500, // Internal Server Error
+      error: 'An error occurred during login',
+    };
+  }
+};
+
+export const actions: Actions = { login };
+
+export const load: PageServerLoad = async () => {};

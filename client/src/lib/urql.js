@@ -1,6 +1,13 @@
-import { Client, cacheExchange, fetchExchange, mapExchange } from '@urql/svelte';
+import { Client, cacheExchange, fetchExchange, mapExchange, ssrExchange } from '@urql/svelte';
 import { browser } from '$app/environment';
 
+const isServerSide = typeof window === 'undefined';
+
+// The `ssrExchange` must be initialized with `isClient` and `initialState`
+const ssr = ssrExchange({
+  isClient: !isServerSide,
+  initialState: !isServerSide ? window.__URQL_DATA__ : undefined,
+});
 const getToken = () => {
   if (browser) {
     return localStorage.getItem('token') || '';
@@ -22,7 +29,7 @@ export const urqlClient = new Client({
     onError(error) {
       console.error(error);
     },
-  }),cacheExchange, fetchExchange],
+  }),cacheExchange, ssr, fetchExchange],
   url: 'http://api.localhost:5555', // Update with your GraphQL server URL
   fetchOptions: () => {
     const token = getToken()

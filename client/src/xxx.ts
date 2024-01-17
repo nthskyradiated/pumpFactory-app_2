@@ -19,10 +19,10 @@ import { auth } from '$lib/auth'; // Adjust the path accordingly
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {	
-  console.log(event);
-  if (event.url.pathname.startsWith('/waiver') && !auth.isLoggedIn) {		
-    return new Response('🍌')
-  }
+  // console.log(event);
+  // if (event.url.pathname.startsWith('/waiver') && !auth.isLoggedIn) {		
+  //   return new Response('🍌')
+  // }
 const response = await resolve(event);	
 return response;
 }

@@ -23,3 +23,4 @@ if (browser) {
 export const refreshToken = writable({
   refreshToken: null
 })
+export const newToken = writable('');

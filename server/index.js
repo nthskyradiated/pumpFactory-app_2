@@ -23,7 +23,7 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'api.localhost/graphql',
+    path: 'localhost:5555/graphql',
     status400ForVariableCoercionErrors: true,
     credentials: 'include'
 });
