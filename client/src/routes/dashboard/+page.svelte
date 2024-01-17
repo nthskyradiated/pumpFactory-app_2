@@ -43,34 +43,34 @@
     paginationSettings.page * paginationSettings.limit + paginationSettings.limit
   );
   
-  let tableSimple = {
-    head: ['Name', 'Email', 'Phone',  'Status', 'Expiry', 'ID'],
-    body: tableMapperValues(paginatedSource, [
-      'name',
-      'email',
-      'phone',
-      'membershipStatus',
-      'clientExpiresIn',
-      'id',
+//   let tableSimple = {
+//     head: ['Name', 'Email', 'Phone',  'Status', 'Expiry', 'ID'],
+//     body: tableMapperValues(paginatedSource, [
+//       'name',
+//       'email',
+//       'phone',
+//       'membershipStatus',
+//       'clientExpiresIn',
+//       'id',
     
-  ]),
-}
+//   ]),
+// }
   
-  function setTableSource() {
-    console.log(paginatedSource);
-    paginatedSource = paginatedSource
-    return {
-      head: ['Name', 'Email', 'Phone',  'Status', 'Expiry', 'ID'],
-      body: tableMapperValues(paginatedSource, [
-        'name',
-        'email',
-        'phone',
-        'membershipStatus',
-        'clientExpiresIn',
-        'id',
+  // function setTableSource() {
+  //   console.log(paginatedSource);
+  //   paginatedSource = paginatedSource
+  //   return {
+  //     head: ['Name', 'Email', 'Phone',  'Status', 'Expiry', 'ID'],
+  //     body: tableMapperValues(paginatedSource, [
+  //       'name',
+  //       'email',
+  //       'phone',
+  //       'membershipStatus',
+  //       'clientExpiresIn',
+  //       'id',
       
-    ])
-  }}
+  //   ])
+  // }}
   
   console.log(paginatedSource);
   
@@ -119,8 +119,8 @@
     paginationSettings.page * paginationSettings.limit + paginationSettings.limit
     );
     
- $: tableSimple = paginatedSource ? setTableSource() : undefined
-console.log($getClients.data?.clients.name);
+//  $: tableSimple = paginatedSource ? setTableSource() : undefined
+// console.log($getClients.data?.clients.name);
   </script>
 <main class='w-10/12 m-auto pt-8'>
   <div class="flex md:flex-row flex-col justify-between mb-4 align-bottom">
@@ -164,11 +164,11 @@ console.log($getClients.data?.clients.name);
             <td>{client.email}</td>
             <td>{client.phone}</td>
             <td>{client.membershipStatus}</td>
-            <!-- {#if client.product} -->
+            {#if client.product}
             <td>{client.product?.name}</td>
-            <!-- {:else if !client.product}
+            {:else if !client.product}
             <td>N/A</td>
-            {/if} -->
+            {/if}
             <td>{client.clientExpiresIn}</td>
           </tr>
         {/each}
