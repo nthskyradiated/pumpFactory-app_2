@@ -2,31 +2,8 @@ import { newToken, refreshToken } from '$lib/auth.js';
 import { LoginUserDocument } from '../generated/graphql';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Action, Actions, PageServerLoad } from './$types';
-import { browser } from '$app/environment';
 import { Client, mapExchange, cacheExchange, fetchExchange } from '@urql/svelte';
 
-// const query = gql`
-//   mutation LoginUser($username: String!, $password: String!) {
-//     loginUser(username: $username, password: $password) {
-//       token
-//       refreshToken
-//       user {
-//         id
-//         email
-//         isAdmin
-//         name
-//         username
-//       }
-//     }
-//   }
-// `;
-
-// const getToken = () => {
-//   if (browser) {
-//     return localStorage.getItem('token') || '';
-//   }
-//   return '';
-// };
 
 const login: Action = async ({ cookies, request }) => {
   const client = new Client({
@@ -51,7 +28,7 @@ const login: Action = async ({ cookies, request }) => {
         },
       };
     },
-    // credentials: 'include',
+    credentials: 'include',
     requestPolicy: 'cache-and-network',
   });
 
@@ -68,7 +45,6 @@ const login: Action = async ({ cookies, request }) => {
     return fail(400, { invalid: true });
   }
 
-  try {
     const result = await loginUser(username, password);
 
     if (result.data) {
@@ -99,16 +75,7 @@ const login: Action = async ({ cookies, request }) => {
         console.error('loginUser is undefined');
       }
     }
-  } catch (error) {
-    // Handle other errors during login
-    console.error('An error occurred during login:', error);
-
-    // Return an error response
-    return {
-      status: 500, // Internal Server Error
-      error: 'An error occurred during login',
-    };
-  }
+  
 };
 
 export const actions: Actions = { login };
