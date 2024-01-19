@@ -96,7 +96,7 @@
 </script>
 
 {#if $modalStore[0]}
-<div class="modal-example-form {cBase}">
+<div class="modal-example-form {cBase} pb-10">
   <header class={cHeader}>{$modalStore[0].title ?? 'Pump Factory Electronic Waiver'}</header>
 <main class="w-5/6 m-auto leading-8">
   <p class="mt-2 text-sm text-center mb-4">Please sign on the dotted line to indicate that you agree to all the legal terms stipulated above.</p>
@@ -152,20 +152,20 @@
 		<label for="date"> 
 		<strong class="pr-16">Date of Signature: </strong><input type="date" required placeholder="date" title="Input (date)" id="date" class='input sm:w-1/6 w-2/3 mb-8'/>
 		</label>
+    <footer class="modal-footer {parent.regionFooter} pb-18 z-10">
+      <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
+      <button class="btn {parent.buttonPositive}" on:click={onSubmit}>Submit Waiver</button>
+      </footer>
 	</div>
 
-  <footer class="modal-footer {parent.regionFooter} mt-4">
-		<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-		<button class="btn {parent.buttonPositive}" on:click={onSubmit}>Submit Waiver</button>
-	  </footer>
-  
-  <!-- <div class="relative">
-    {#each layers as layer}
+    <div class="relative pb-36">
+      {#each layers as layer}
       <svg class="absolute fill-black" viewBox="0 0 {layer.width * 2} {layer.height * 2}">
         <path d={layer.path} />
       </svg>
-    {/each}
-  </div> -->
+      {/each}
+    </div>
+  
 
 </main>
 </div>
