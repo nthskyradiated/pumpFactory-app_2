@@ -4,12 +4,8 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Action, Actions, PageServerLoad } from './$types';
 import { Client, mapExchange, cacheExchange, fetchExchange } from '@urql/svelte';
 
-<<<<<<< HEAD
-const login: Action = async ({ cookies, request, locals }) => {
-=======
 
 const login: Action = async ({ cookies, request }) => {
->>>>>>> b316d4a3dd88b447e4ab31881e2cbff6a9ff6dc9
   const client = new Client({
     exchanges: [
       mapExchange({
@@ -22,24 +18,19 @@ const login: Action = async ({ cookies, request }) => {
       fetchExchange,
     ],
     url: 'http://localhost:5555', // Update with your GraphQL server URL
-<<<<<<< HEAD
-    // fetchOptions: ()
-  
-=======
     fetchOptions: () => {
       // const token = getToken();
-      const refreshTokenValue = cookies.get('refreshToken');
+      const refreshToken = cookies.get('refreshToken');
+      const token = cookies.get('token');
       return {
         headers: {
-          authorization: newToken ? `Bearer ${newToken}` : '',
-          refreshToken: refreshTokenValue || '',
-          // timeout: 15000,
+          token,
+          refreshToken
         },
+        credentials: 'include',
       };
     },
-    credentials: 'include',
     requestPolicy: 'cache-and-network',
->>>>>>> b316d4a3dd88b447e4ab31881e2cbff6a9ff6dc9
   });
 
   const loginUser = async (username, password) => {
@@ -60,15 +51,28 @@ const login: Action = async ({ cookies, request }) => {
     if (result.data) {
       const { loginUser } = result.data;
       if (loginUser) {
-        const { token, refreshToken: newRefreshToken, user } = loginUser;
+        const { token, refreshToken, user } = loginUser;
 
         if (token) {
-          // refreshToken.set({ isAdmin: loginUser.isAdmin });
-          cookies.set('refreshToken', newRefreshToken, {
+          cookies.set('refreshToken', refreshToken, {
             path: '/',
             httpOnly: true,
-            sameSite: 'Lax',
-            secure: false,
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 30,
+          });
+          cookies.set('token', token, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 30,
+          });
+          cookies.set('isAdmin', user.isAdmin, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60 * 24 * 30,
           });
           cookies.set('token', token, {
@@ -98,14 +102,6 @@ const login: Action = async ({ cookies, request }) => {
         console.error('loginUser is undefined');
       }
     }
-<<<<<<< HEAD
-    // Return an error response
-    return {
-      status: 500, // Internal Server Error
-      error: 'An error occurred during login',
-    };
-=======
->>>>>>> b316d4a3dd88b447e4ab31881e2cbff6a9ff6dc9
   
 };
 

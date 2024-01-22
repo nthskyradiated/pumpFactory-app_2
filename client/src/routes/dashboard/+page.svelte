@@ -7,74 +7,58 @@
   import {clientID} from '$lib/clientStore'
   import { goto } from '$app/navigation';
   import {ClientByNameDocument, ClientsDocument} from '../../generated/graphql'
+export let data
+const {clients} = data
+console.log(clients);
 
-
-  const client = getContextClient();
+  // const client = getContextClient();
   let searchValue = ''
-  const getClients = queryStore({
-    client,
-    query: ClientsDocument
-  });
+  // const getClients = queryStore({
+  //   client,
+  //   query: ClientsDocument
+  // });
 
-    const getClientByName = async () => {
-    try {
-      const result = await client.query(ClientByNameDocument, { name: searchValue }).toPromise();
-      return result.data?.clientByName || [];
-    } catch (error) {
-      console.error('Error fetching client by name:', error.message);
-      return [];
-    }
-  };
+  //   const getClientByName = async () => {
+  //   try {
+  //     const result = await client.query(ClientByNameDocument, { name: searchValue }).toPromise();
+  //     return result.data?.clientByName || [];
+  //   } catch (error) {
+  //     console.error('Error fetching client by name:', error.message);
+  //     return [];
+  //   }
+  // };
   
-  let isFetching = getClientByName.fetching || $getClients.fetching
-  let clients = getClientByName.data?.clientByName || $getClients.data?.clients || [];
-  console.log(clients);
+  // let isFetching = getClientByName.fetching || $getClients.fetching
+  // let clients = getClientByName.data?.clientByName || $getClients.data?.clients || [];
+  // console.log(clients);
   
-  let paginationSettings = {
-    page: 0,
-    limit: 30,
-    size: clients.length,
-    amounts: [5,10,20,30],
-  } 
+  // let paginationSettings = {
+  //   page: 0,
+  //   limit: 30,
+  //   size: clients.length,
+  //   amounts: [5,10,20,30],
+  // } 
 
   
-  let paginatedSource = clients.slice(
-    paginationSettings.page * paginationSettings.limit,
-    paginationSettings.page * paginationSettings.limit + paginationSettings.limit
-  );
+  // let paginatedSource = clients.slice(
+  //   paginationSettings.page * paginationSettings.limit,
+  //   paginationSettings.page * paginationSettings.limit + paginationSettings.limit
+  // );
   
-  let tableSimple = {
-    head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
-    body: tableMapperValues(paginatedSource, [
-      'id',
-      'name',
-      'email',
-      'phone',
-      'membershipStatus',
-      'clientExpiresIn',
-      'waiver',
+//   let tableSimple = {
+//     head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
+//     body: tableMapperValues(paginatedSource, [
+//       'id',
+//       'name',
+//       'email',
+//       'phone',
+//       'membershipStatus',
+//       'clientExpiresIn',
+//       'waiver',
     
-  ]),
-}
-  
-  function setTableSource() {
-    console.log(paginatedSource);
-    paginatedSource = paginatedSource
-    return {
-      head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
-      body: tableMapperValues(paginatedSource, [
-        'id',
-        'name',
-        'email',
-        'phone',
-        'membershipStatus',
-        'clientExpiresIn',
-      'waiver',
-      
-    ])
-  }}
-  
-  console.log(paginatedSource);
+//   ]),
+// }
+
   
   
   const modalStore = getModalStore();
@@ -91,40 +75,10 @@
     
   };
   
-  const mySearchClientHandler = async () => {
-    
-    try {
-      const clients = await getClientByName();
-      // console.log('Clients:', clients);
-      // console.log(searchValue);
-      // console.log(clients.length);
-      paginatedSource = clients.slice(
-      paginationSettings.page * paginationSettings.limit,
-      paginationSettings.page * paginationSettings.limit + paginationSettings.limit
-    );
-      // goto(`/result/${searchValue}`);
-      return clients
-    } catch (error) {
-      console.error('Error in search handler:', error.message);
-    }
-  };
-  
-  $: paginationSettings = {...paginationSettings, size: clients.length}
-  console.log(paginationSettings.size);
-  
-  $: clients = getClientByName.data?.clientByName || $getClients.data?.clients || [];
-  $: isFetching = getClientByName.fetching || $getClients.fetching
-  
-  $: paginatedSource = clients.slice(
-    paginationSettings.page * paginationSettings.limit,
-    paginationSettings.page * paginationSettings.limit + paginationSettings.limit
-    );
-    
- $: tableSimple = paginatedSource ? setTableSource() : undefined
 
   </script>
 <main class='w-10/12 m-auto pt-8'>
-  <div class="flex md:flex-row flex-col justify-between mb-4 align-bottom">
+  <!-- <div class="flex md:flex-row flex-col justify-between mb-4 align-bottom">
     <h2 class='h2 mb-5'>Client List</h2>
     <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] sm:w-2/6 w-full sm:grid-cols-3[auto_auto_auto]">
       <div class="input-group-shim"><Icon icon="emojione:skull" /></div>
@@ -133,9 +87,9 @@
 
     </div>
 		
-  </div>
+  </div> -->
   
-  {#if isFetching}
+  <!-- {#if isFetching}
   
     <Spinner />
   {:else if $getClients.error}
@@ -144,21 +98,50 @@
   
   {#if clients.length > 0}
   
-  <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/>
-
+  <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/> -->
+  <div class="table-container  pb-8">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Package</th>
+          <th>Expiry</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each data as client (client.id)}
+          <tr on:click={mySelectionHandler(client.id)}>
+            <td>{client.name}</td>
+            <td>{client.email}</td>
+            <td>{client.phone}</td>
+            <td>{client.membershipStatus}</td>
+            {#if client.product}
+            <td>{client.product?.name}</td>
+            {:else if !client.product}
+            <td>N/A</td>
+            {/if}
+            <td>{client.clientExpiresIn}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
   <!-- {#if paginatedSource.length === 0}
   <p class="mb-8">Oh no... Client record for <strong>{searchValue}</strong> not found... Did you type correctly?</p>
   {/if} -->
 
-  <Paginator
+  <!-- <Paginator
   bind:settings={paginationSettings}
   showFirstLastButtons="{true}"
   showPreviousNextButtons="{true}"
   justify-between="{true}"
   class="pb-8"
-  />
+  /> -->
   
   <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add Client</button>
-  {/if}
-  {/if}
+  <!-- {/if} -->
+  <!-- {/if} -->
 </main>

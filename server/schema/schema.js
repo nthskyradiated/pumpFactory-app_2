@@ -828,10 +828,10 @@ export const resolvers = {
         }
 
         const refreshToken = await createRefreshToken(user)
-        context.res.cookie('refreshToken', refreshToken, {httpOnly: true, samesite: 'Lax', path: '/'} )
+        context.res.cookie('refreshToken', refreshToken, {httpOnly: true, path: '/'} )
         
         const token = await createAccessToken(user)
-        context.res.cookie('token', token, {httpOnly: true, samesite: 'Lax', path: '/', } )
+        context.res.cookie('token', token, {httpOnly: true, path: '/'} )
 
         return {user, token, refreshToken};
         

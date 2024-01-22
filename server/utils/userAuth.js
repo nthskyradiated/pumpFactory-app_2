@@ -13,12 +13,11 @@ const AuthError = new GraphQLError ('User is not authenticated', {
   },
 })
 
-// const getUser = async (usertoken) => {
-//   const authtoken = req.cookies.token;
+// const getUser = async (token) => {
 //   try {
-//     if (authtoken) {
-
-//       const payload = jwt.verify(authtoken, process.env.JWT_SECRET);
+//     if (token) {
+//       const authToken = token.split(" ")[1]
+//       const payload = jwt.verify(authToken, process.env.JWT_SECRET);
 //       return payload
 //     }
 //     return null
@@ -40,12 +39,12 @@ const createRefreshToken = async (user) =>
   };
 
   const authenticateAdmin = async ({ req }) => {
-    console.log('Cookies:', req.cookies);
-    const {token} = req.cookies;
-    console.log('Token:', token);
+    const token = req.headers.authorization || '';
+    
     try {
       if (token) {
-        const payload = await jwt.verify(token, process.env.JWT_SECRET);
+        const authToken = token.split(" ")[1];
+        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
   
         if (payload && payload.isAdmin) {
           return payload;
@@ -79,13 +78,12 @@ const createRefreshToken = async (user) =>
     }
   };
   const authenticateUser = async ({ req }) => {
-    console.log('Cookies:', req.cookies);
-    const {token} = req.cookies;
-    console.log('Token:', token);
+    const token = req.headers.authorization || '';
   
     try {
       if (token) {
-        const payload = await jwt.verify(token, process.env.JWT_SECRET);
+        const authToken = token.split(" ")[1];
+        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
   
         if (payload) {
           return payload;
