@@ -263,7 +263,7 @@ export const resolvers = {
         },
         attendances: async (parent, args, context) => {
             await authenticateUser(context);
-            return Attendance.find();
+            return Attendance.find().sort({ checkIn: -1 });
           },
         monthlyAttendance: async (parent, { month, year }, context) => {
             await authenticateUser(context);
@@ -383,6 +383,19 @@ export const resolvers = {
                     if (client.productId.toString() !== productId) {
                         throw new Error('Invalid productId for the client');
                     }
+                    const existingAttendance = await Attendance.findOne({
+                      clientId,
+                      productId,
+                      checkIn: {
+                          $gte: new Date(new Date().setHours(0, 0, 0, 0)), // Today's date (midnight)
+                          $lt: new Date(new Date().setHours(23, 59, 59, 999)), // Today's date (11:59:59 PM)
+                      },
+                  });
+              
+                  if (existingAttendance) {
+                      throw new Error('Attendance record for today already exists');
+                  }
+              
                     // // Calculate the expiration date for the product based on its validity
                     // Update client session and check expiration
                     if (product.productType === 'SESSION_BASED') {

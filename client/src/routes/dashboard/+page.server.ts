@@ -5,7 +5,7 @@ import { Client, mapExchange, cacheExchange, fetchExchange } from '@urql/svelte'
 export async function load ({locals, cookies}) {
 	const refreshToken = cookies.get('refreshToken');
 	const token = cookies.get('token');
-	const client = new Client({
+	const urqlClient = new Client({
 		exchanges: [
 		  mapExchange({
 			onError(error) {
@@ -31,17 +31,16 @@ export async function load ({locals, cookies}) {
 	
 	let searchValue = '';
 
-		const getClients = async () => {
-			await client.query(ClientsDocument, {})
-			.toPromise()
-			.then(result => {
-				return result
-			})
-			};
+    const result = await urqlClient.query(ClientsDocument,).toPromise()
+	.then(result => {
+		console.log(result.data.clients);
+		return {
+		clients: result.data.clients
+		}
+	})
 
-		// const result = await getClients()
-		// if (result) {
-		// 	console.log(result);
-		// 	return result
-		// }
+
+
+	// console.log(result);
+		
 }

@@ -1,4 +1,4 @@
-<script>
+<script lang='ts'>
   import { queryStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, getModalStore } from '@skeletonlabs/skeleton';
@@ -7,9 +7,10 @@
   import {clientID} from '$lib/clientStore'
   import { goto } from '$app/navigation';
   import {ClientByNameDocument, ClientsDocument} from '../../generated/graphql'
-export let data
-const {clients} = data
-console.log(clients);
+  import type { PageData } from './$types';
+  export let data: PageData;
+// console.log(data.clients);
+// console.log(result);
 
   // const client = getContextClient();
   let searchValue = ''
