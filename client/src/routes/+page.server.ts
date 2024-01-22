@@ -19,16 +19,16 @@ const login: Action = async ({ cookies, request }) => {
     url: 'http://localhost:5555', // Update with your GraphQL server URL
     fetchOptions: () => {
       // const token = getToken();
-      const refreshTokenValue = cookies.get('refreshToken');
+      const refreshToken = cookies.get('refreshToken');
+      const token = cookies.get('token');
       return {
         headers: {
-          authorization: newToken ? `Bearer ${newToken}` : '',
-          refreshToken: refreshTokenValue || '',
-          // timeout: 15000,
+          token,
+          refreshToken
         },
+        credentials: 'include',
       };
     },
-    credentials: 'include',
     requestPolicy: 'cache-and-network',
   });
 
@@ -50,16 +50,28 @@ const login: Action = async ({ cookies, request }) => {
     if (result.data) {
       const { loginUser } = result.data;
       if (loginUser) {
-        const { token, refreshToken: newRefreshToken, user } = loginUser;
+        const { token, refreshToken, user } = loginUser;
 
         if (token) {
-          newToken.set(token)
-          refreshToken.set({ isAdmin: loginUser.isAdmin });
-          cookies.set('refreshToken', newRefreshToken, {
+          cookies.set('refreshToken', refreshToken, {
             path: '/',
             httpOnly: true,
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 30,
+          });
+          cookies.set('token', token, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 30,
+          });
+          cookies.set('isAdmin', user.isAdmin, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+            // secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60 * 24 * 30,
           });
 

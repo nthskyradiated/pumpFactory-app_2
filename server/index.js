@@ -42,7 +42,7 @@ app.use(express.json())
 
 
     // app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
-    app.use(expressMiddleware(server, {
+    app.use(cookieParser(), expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
     //     const token = req.headers.authorization || '';
 

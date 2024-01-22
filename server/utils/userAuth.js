@@ -13,19 +13,19 @@ const AuthError = new GraphQLError ('User is not authenticated', {
   },
 })
 
-const getUser = async (token) => {
-  try {
-    if (token) {
-      const authToken = token.split(" ")[1]
-      const payload = jwt.verify(authToken, process.env.JWT_SECRET);
-      return payload
-    }
-    return null
-  } catch (error) {
-    console.error('Error verifying JWT:', error.message);
-    return null;
-  }
-};
+// const getUser = async (token) => {
+//   try {
+//     if (token) {
+//       const authToken = token.split(" ")[1]
+//       const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+//       return payload
+//     }
+//     return null
+//   } catch (error) {
+//     console.error('Error verifying JWT:', error.message);
+//     return null;
+//   }
+// };
 
 const createAccessToken = async (user) => 
    {return jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
@@ -39,11 +39,11 @@ const createRefreshToken = async (user) =>
   };
 
   const authenticateAdmin = async ({ req }) => {
-    const token = req.headers.authorization || '';
+    const {token} = req.cookies
     
     try {
       if (token) {
-        const authToken = token.split(" ")[1];
+        // const authToken = token.split(" ")[1];
         const payload = jwt.verify(authToken, process.env.JWT_SECRET);
   
         if (payload && payload.isAdmin) {
@@ -78,12 +78,12 @@ const createRefreshToken = async (user) =>
     }
   };
   const authenticateUser = async ({ req }) => {
-    const token = req.headers.authorization || '';
+    const {token} = req.cookies
   
     try {
       if (token) {
-        const authToken = token.split(" ")[1];
-        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+        // const authToken = token.split(" ")[1];
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
   
         if (payload) {
           return payload;
@@ -118,4 +118,4 @@ const createRefreshToken = async (user) =>
     }
   };
 
-export { getUser, createAccessToken, createRefreshToken, authenticateAdmin, authenticateUser};
+export { createAccessToken, createRefreshToken, authenticateAdmin, authenticateUser};
