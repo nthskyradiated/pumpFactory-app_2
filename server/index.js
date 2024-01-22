@@ -23,26 +23,26 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'localhost:5555/graphql',
+    path: 'localhost:5555',
     status400ForVariableCoercionErrors: true,
     credentials: 'include'
 });
 
 await server.start();  
-app.use(cookieParser())
+// app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
   origin: 'http://localhost:5173', // Replace with your SvelteKit app's domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: ['Authorization', 'Content-Type', 'refreshtoken'],
+  allowedHeaders: ['Token', 'Content-Type', 'refreshtoken', 'authorization'],
   credentials: true,
 }));
 app.use(express.json())
 
 
     // app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
-    app.use(expressMiddleware(server, {
+    app.use(cookieParser(),expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
     //     const token = req.headers.authorization || '';
 

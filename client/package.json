@@ -35,6 +35,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@urql/exchange-auth": "^2.1.6",
     "@urql/svelte": "^4.0.4",
     "graphql": "^16.8.1",
     "perfect-freehand-for-svelte": "^1.2.1",

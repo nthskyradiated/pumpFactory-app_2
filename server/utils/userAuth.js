@@ -13,19 +13,20 @@ const AuthError = new GraphQLError ('User is not authenticated', {
   },
 })
 
-const getUser = async (token) => {
-  try {
-    if (token) {
-      const authToken = token.split(" ")[1]
-      const payload = jwt.verify(authToken, process.env.JWT_SECRET);
-      return payload
-    }
-    return null
-  } catch (error) {
-    console.error('Error verifying JWT:', error.message);
-    return null;
-  }
-};
+// const getUser = async (usertoken) => {
+//   const authtoken = req.cookies.token;
+//   try {
+//     if (authtoken) {
+
+//       const payload = jwt.verify(authtoken, process.env.JWT_SECRET);
+//       return payload
+//     }
+//     return null
+//   } catch (error) {
+//     console.error('Error verifying JWT:', error.message);
+//     return null;
+//   }
+// };
 
 const createAccessToken = async (user) => 
    {return jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
@@ -39,12 +40,12 @@ const createRefreshToken = async (user) =>
   };
 
   const authenticateAdmin = async ({ req }) => {
-    const token = req.headers.authorization || '';
-    
+    console.log('Cookies:', req.cookies);
+    const {token} = req.cookies;
+    console.log('Token:', token);
     try {
       if (token) {
-        const authToken = token.split(" ")[1];
-        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+        const payload = await jwt.verify(token, process.env.JWT_SECRET);
   
         if (payload && payload.isAdmin) {
           return payload;
@@ -54,7 +55,7 @@ const createRefreshToken = async (user) =>
     const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
-      const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+      const refreshPayload = await jwt.verify(refreshToken, process.env.JWT_REFRESH);
 
       if (refreshPayload) {
         // Generate a new access token
@@ -71,19 +72,20 @@ const createRefreshToken = async (user) =>
         };
       }
     }
-      throw AuthError;
+      // throw AuthError;
     } catch (error) {
       console.error('Error verifying JWT:', error.message);
       throw AuthError;
     }
   };
   const authenticateUser = async ({ req }) => {
-    const token = req.headers.authorization || '';
+    console.log('Cookies:', req.cookies);
+    const {token} = req.cookies;
+    console.log('Token:', token);
   
     try {
       if (token) {
-        const authToken = token.split(" ")[1];
-        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+        const payload = await jwt.verify(token, process.env.JWT_SECRET);
   
         if (payload) {
           return payload;
@@ -94,7 +96,7 @@ const createRefreshToken = async (user) =>
       const refreshToken = req.cookies.refreshToken;
   
       if (refreshToken) {
-        const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+        const refreshPayload = await jwt.verify(refreshToken, process.env.JWT_REFRESH);
   
         if (refreshPayload) {
           // Generate a new access token
@@ -111,11 +113,11 @@ const createRefreshToken = async (user) =>
           };
         }
       }
-      throw AuthError;
+      // throw AuthError;
     } catch (error) {
       console.error('Error verifying JWT:', error.message);
       throw AuthError;
     }
   };
 
-export { getUser, createAccessToken, createRefreshToken, authenticateAdmin, authenticateUser};
+export { createAccessToken, createRefreshToken, authenticateAdmin, authenticateUser};
