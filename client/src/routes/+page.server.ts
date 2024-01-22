@@ -4,7 +4,12 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Action, Actions, PageServerLoad } from './$types';
 import { Client, mapExchange, cacheExchange, fetchExchange } from '@urql/svelte';
 
+<<<<<<< HEAD
 const login: Action = async ({ cookies, request, locals }) => {
+=======
+
+const login: Action = async ({ cookies, request }) => {
+>>>>>>> b316d4a3dd88b447e4ab31881e2cbff6a9ff6dc9
   const client = new Client({
     exchanges: [
       mapExchange({
@@ -17,8 +22,24 @@ const login: Action = async ({ cookies, request, locals }) => {
       fetchExchange,
     ],
     url: 'http://localhost:5555', // Update with your GraphQL server URL
+<<<<<<< HEAD
     // fetchOptions: ()
   
+=======
+    fetchOptions: () => {
+      // const token = getToken();
+      const refreshTokenValue = cookies.get('refreshToken');
+      return {
+        headers: {
+          authorization: newToken ? `Bearer ${newToken}` : '',
+          refreshToken: refreshTokenValue || '',
+          // timeout: 15000,
+        },
+      };
+    },
+    credentials: 'include',
+    requestPolicy: 'cache-and-network',
+>>>>>>> b316d4a3dd88b447e4ab31881e2cbff6a9ff6dc9
   });
 
   const loginUser = async (username, password) => {
@@ -77,11 +98,14 @@ const login: Action = async ({ cookies, request, locals }) => {
         console.error('loginUser is undefined');
       }
     }
+<<<<<<< HEAD
     // Return an error response
     return {
       status: 500, // Internal Server Error
       error: 'An error occurred during login',
     };
+=======
+>>>>>>> b316d4a3dd88b447e4ab31881e2cbff6a9ff6dc9
   
 };
 
