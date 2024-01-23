@@ -159,7 +159,7 @@
       </thead>
       <tbody>
         {#each paginatedSource as client (client.id)}
-          <tr on:click={mySelectionHandler(client.id)}>
+          <tr on:click={mySelectionHandler(client.id)} class={client.membershipStatus === 'inactive' ? 'text-red-600': ''}>
             <td>{client.name}</td>
             <td>{client.email}</td>
             <td>{client.phone}</td>
