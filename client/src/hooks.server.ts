@@ -1,5 +1,3 @@
-// src/hooks/authGuard.js
-import { auth } from '$lib/auth'; // Adjust the path accordingly
 import { Client, mapExchange, cacheExchange, fetchExchange } from '@urql/svelte';
 
 /** @type {import('@sveltejs/kit').Handle} */

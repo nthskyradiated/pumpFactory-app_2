@@ -29,7 +29,6 @@ const server = new ApolloServer({
 });
 
 await server.start();  
-// app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
