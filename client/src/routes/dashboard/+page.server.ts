@@ -32,15 +32,15 @@ export async function load ({locals, cookies}) {
 	let searchValue = '';
 
     const result = await urqlClient.query(ClientsDocument,).toPromise()
-	.then(result => {
-		console.log(result.data.clients);
-		return {
-		clients: result.data.clients
+	.then()
+		console.log(result);
+		if (result && result?.data?.clients) {
+			const {clients} = result.data
+			console.log(result.data.clients);
+			return {
+			clients: clients
+			}
 		}
-	})
-
-
-
-	// console.log(result);
+	
 		
 }

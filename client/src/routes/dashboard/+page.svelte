@@ -7,8 +7,9 @@
   import {clientID} from '$lib/clientStore'
   import { goto } from '$app/navigation';
   import {ClientByNameDocument, ClientsDocument} from '../../generated/graphql'
-  import type { PageData } from './$types';
-  export let data: PageData;
+  import type { PageServerData } from './$types';
+  export let data : PageServerData
+  console.log(data);
 // console.log(data.clients);
 // console.log(result);
 
@@ -33,13 +34,14 @@
   // let clients = getClientByName.data?.clientByName || $getClients.data?.clients || [];
   // console.log(clients);
   
-  // let paginationSettings = {
-  //   page: 0,
-  //   limit: 30,
-  //   size: clients.length,
-  //   amounts: [5,10,20,30],
-  // } 
-
+  let paginationSettings = {
+    page: 0,
+    limit: 30,
+    size: data.clients.length,
+    amounts: [5,10,20,30],
+  } 
+  $: paginationSettings = {...paginationSettings, size: data.clients.length}
+  console.log(paginationSettings.size);
   
   // let paginatedSource = clients.slice(
   //   paginationSettings.page * paginationSettings.limit,
@@ -69,8 +71,8 @@
   };
   
   const mySelectionHandler = (event) => {
-    // Extract the ID from the 'detail' array in the event
-    const ID = event.detail[0];
+
+    const ID = event;
     clientID.set(ID)
     goto(`/client/${ID}`)
     
@@ -113,14 +115,14 @@
         </tr>
       </thead>
       <tbody>
-        {#each data as client (client.id)}
+        {#each data.clients as client (client.id)}
           <tr on:click={mySelectionHandler(client.id)}>
             <td>{client.name}</td>
             <td>{client.email}</td>
             <td>{client.phone}</td>
             <td>{client.membershipStatus}</td>
             {#if client.product}
-            <td>{client.product?.name}</td>
+            <td>{client.product.name}</td>
             {:else if !client.product}
             <td>N/A</td>
             {/if}
@@ -134,13 +136,13 @@
   <p class="mb-8">Oh no... Client record for <strong>{searchValue}</strong> not found... Did you type correctly?</p>
   {/if} -->
 
-  <!-- <Paginator
+  <Paginator
   bind:settings={paginationSettings}
   showFirstLastButtons="{true}"
   showPreviousNextButtons="{true}"
   justify-between="{true}"
   class="pb-8"
-  /> -->
+  />
   
   <button type="button" class="btn variant-filled" on:click={ () => {modalStore.trigger(modal)}}>Add Client</button>
   <!-- {/if} -->

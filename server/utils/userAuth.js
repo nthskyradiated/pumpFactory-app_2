@@ -39,12 +39,12 @@ const createRefreshToken = async (user) =>
   };
 
   const authenticateAdmin = async ({ req }) => {
-    const token = req.headers.authorization || '';
+    const {token} = req.cookies
     
     try {
       if (token) {
-        const authToken = token.split(" ")[1];
-        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+        // const authToken = token.split(" ")[1];
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
   
         if (payload && payload.isAdmin) {
           return payload;
@@ -71,19 +71,19 @@ const createRefreshToken = async (user) =>
         };
       }
     }
-      // throw AuthError;
+      throw AuthError;
     } catch (error) {
       console.error('Error verifying JWT:', error.message);
       throw AuthError;
     }
   };
   const authenticateUser = async ({ req }) => {
-    const token = req.headers.authorization || '';
+    const {token} = req.cookies
   
     try {
       if (token) {
-        const authToken = token.split(" ")[1];
-        const payload = jwt.verify(authToken, process.env.JWT_SECRET);
+        // const authToken = token.split(" ")[1];
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
   
         if (payload) {
           return payload;
@@ -111,7 +111,7 @@ const createRefreshToken = async (user) =>
           };
         }
       }
-      // throw AuthError;
+      throw AuthError;
     } catch (error) {
       console.error('Error verifying JWT:', error.message);
       throw AuthError;
