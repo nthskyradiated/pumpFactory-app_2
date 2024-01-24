@@ -1,5 +1,5 @@
-query Clients {
-  clients {
+query ClientByName($name: String) {
+  clientByName(name: $name) {
     id
     name
     email

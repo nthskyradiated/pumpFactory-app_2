@@ -1,0 +1,12 @@
+query MonthlyAttendance($month: Int!, $year: Int!) {
+  monthlyAttendance(month: $month, year: $year) {
+    id
+    checkIn
+    client {
+      name
+    }
+    product {
+      name
+    }
+  }
+}

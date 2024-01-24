@@ -2,7 +2,8 @@
 	import { SvelteComponent } from 'svelte';
 	import {  queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-
+	import {goto} from '$app/navigation'
+	import { ProductsDocument } from '../generated/graphql';
 
 	export let parent: SvelteComponent;
 	
@@ -41,16 +42,7 @@
   
 	const getProducts = queryStore({
 	  client,
-	  query: gql`
-		query {
-		  products {
-			id
-			name
-			description
-			price
-		  }
-		}
-	  `,
+	  query: ProductsDocument
 	});
   
 	// let products = $getProducts.data?.products || [];
@@ -105,6 +97,7 @@ async function onFormSubmit() {
 			  modalStore.close();
 			  console.log(data);
 			$modalStore[0]?.response(result);
+			goto('/dashboard');
 		  }
 		}
 	} catch (error) {

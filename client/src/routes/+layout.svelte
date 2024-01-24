@@ -7,6 +7,7 @@
   import AddProductModal from "../components/AddProductModal.svelte";
   import UpdateProductModal from "../components/UpdateProductModal.svelte";
   import UpdateClientModal from "../components/UpdateClientModal.svelte";
+  import AddClientDocumentModal from "../components/AddClientDocumentModal.svelte";
   import { goto } from '$app/navigation';
   import Footer from "../components/Footer.svelte";
   import Logo from '../components/Logo.svelte'
@@ -19,7 +20,8 @@
     addClientModal: {ref: AddClientModal},
     updateClientModal: {ref: UpdateClientModal},
     addProductModal: {ref: AddProductModal},
-    updateProductModal: {ref: UpdateProductModal}
+    updateProductModal: {ref: UpdateProductModal},
+    addClientDocumentModal: {ref: AddClientDocumentModal}
   }
 
   function handleLogout() {
@@ -36,22 +38,23 @@
 
 <AppShell slotPageFooter slotPageHeader class='relative m-auto'>
     <svelte:fragment slot="pageHeader">
-    <AppBar slotTrail='flex flex-row justify-end' gap-8 slotLead class='w-10/12 m-auto'>
+    <AppBar slotTrail gap-8 slotLead class='w-10/12 m-auto flex '>
       <svelte:fragment slot="lead">
-      <LightSwitch />
-      <Logo />
-      <h1>Pump Factory App</h1>
+        <LightSwitch />
+        <div class="flex justify-between sm:flex-row flex-col items-center">
+        <Logo />
+        <h2 class='h2'>Pump App</h2>
+      </div>
       </svelte:fragment>
       <svelte:fragment slot="trail">
-          <nav class='text-xl'>
+          <nav class='text-xl flex align-text-bottom flex-col md:flex-row'>
               {#if $page.url.pathname !== '/'}
-              <a href="/products">Products</a>
-              <!-- <a href="/attendance">Attendance</a> -->
-              <a href="/dashboard">Clients</a>
-              <a href="/#" on:click={handleLogout}>Logout</a>
+              <a class='mr-4' href="/products">Products</a>
+              <a class='mr-4' href="/sessions">Sessions</a>
+              <a class='mr-4' href="/dashboard">Clients</a>
+              <a class='mr-4' href="/#" on:click={handleLogout}>Logout</a>
               {/if}
             </nav>
-
         </svelte:fragment>
       </AppBar>
     </svelte:fragment>

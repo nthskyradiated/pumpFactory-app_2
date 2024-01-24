@@ -1,0 +1,7 @@
+mutation DeleteClientDocument($deleteClientDocumentId: ID!) {
+  deleteClientDocument(id: $deleteClientDocumentId) {
+    documentName
+    documentType
+    documentURL
+  }
+}

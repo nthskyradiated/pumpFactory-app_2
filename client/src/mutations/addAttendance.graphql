@@ -1,0 +1,7 @@
+mutation AddAttendance($input: AddAttendanceInput!) {
+  addAttendance(input: $input) {
+    checkIn
+    clientId
+    productId
+  }
+}

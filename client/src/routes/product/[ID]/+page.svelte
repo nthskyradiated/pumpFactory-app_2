@@ -1,11 +1,12 @@
 <script>
-  import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
+  import { queryStore, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
   import {tabSet} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
-  import {auth} from '$lib/auth'
+  import {auth} from '$lib/auth';
+	import { DeleteProductDocument, ProductDocument } from '../../../generated/graphql';
 export let data
 let {ID} = data
 let result
@@ -14,30 +15,14 @@ const toastStore = getToastStore()
 
   let getProduct = queryStore({
       client,
-      query: gql`
-        query ($id: ID!){
-          product (ID: $id){
-            id
-            name
-            description,
-            price
-          }
-        }
-      `,
+      query: ProductDocument,
       variables: {id: ID}
     });
 
     const deleteProduct = async ( deleteProductId ) => {
     result = mutationStore({
       client,
-      query: gql`
-    mutation DeleteProduct($deleteProductId: ID!) {
-        deleteProduct(id: $deleteProductId) {
-        id
-        name
-        }
-    }
-      `,
+      query: DeleteProductDocument,
       variables: { deleteProductId },
     });
     await result;
@@ -83,7 +68,7 @@ $: deleteProductModal = {
   
     <Spinner />
   {:else if $getProduct.error}
-    <p>Oh no... {$getProduct.error.message}</p>
+    <p class="mb-8">Oh no... {$getProduct.error.message}</p>
   {:else}
   
   <div class="card p-4">
@@ -94,17 +79,26 @@ $: deleteProductModal = {
       </Tab>
       <!-- Tab Panels --->
       <svelte:fragment slot="panel">
-        {$tabSet === 0}
-        <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{singleProduct.id}</h1>
-        <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleProduct.name}</h1>
-        <h1 class='h4 mb-1'>Description:</h1><h1 class='h5 mb-1'>{singleProduct.description}</h1>
-        <h1 class='h4 mb-1'>Price:</h1><h1 class='h5 mb-1'>{singleProduct.price}</h1>
-        {#if $auth.isAdmin}
-        <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteProductModal)}}>
-          <Icon icon="la:skull-crossbones" />
-          <span>Delete Product</span>
-        </button>
-        {/if}
+        <!-- {$tabSet === 0} -->
+        <div class='card p-6 my-2'>
+          <h1 class='h5 mb-3'>Id:  <span>{singleProduct.id}</span></h1>
+          <h1 class='h5 mb-3'>Name:  <span>{singleProduct.name}</span></h1>
+          <h1 class='h5 mb-3'>Description:  <span>{singleProduct.description}</span></h1>
+          <h1 class='h5 mb-3'>Price:  <span>{singleProduct.price}</span></h1>
+          <h1 class='h5 mb-3 my-3'>Product Type:  <span>{singleProduct.productType}</span></h1>
+          {#if singleProduct.productType !=='EVENT'}
+          <h1 class='h5 mb-3'>Expiry in days:  <span>{singleProduct.expiresIn}</span></h1>
+          {#if singleProduct.productType ==='SESSION_BASED'}
+          <h1 class='h5 mb-3'>Session days:  <span>{singleProduct.sessionCounter}</span></h1>
+          {/if}
+          {/if}
+          {#if $auth.isAdmin}
+          <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteProductModal)}}>
+            <Icon icon="la:skull-crossbones" />
+            <span>Delete Product</span>
+          </button>
+          {/if}
+        </div>
       </svelte:fragment>
     </TabGroup>
   </div>

@@ -23,14 +23,29 @@ const ClientSchema = new mongoose.Schema({
     waiver: {
         type: Boolean
     },
+
     productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     },
+
+    clientSessionCounter: {
+        type: Number,
+        default: 0,
+    },
+
+    clientExpiresIn: {
+        type: Date,
+    },
     
-    attendance: [{
+    sessions: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Attendance'
+    }],
+    
+    documents: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ClientDocument'
     }]
 
 },{timestamps: true}

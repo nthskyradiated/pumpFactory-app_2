@@ -1,11 +1,12 @@
 <script>
-  import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
+  import { queryStore, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
-  import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-  import {tabSet} from '$lib/utilsStore'
+  import { TabGroup, Tab, getModalStore, getToastStore, Avatar } from '@skeletonlabs/skeleton';
+  import {tabSet, deleteDocumentStore, deleteAttendanceStore} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
   import {auth} from '$lib/auth.js'
+	import { AddAttendanceDocument, ClientDocument, DeleteAttendanceDocument, DeleteClientDocument, DeleteClientDocumentDocument } from '../../../generated/graphql';
 export let data
 let {ID} = data
 let result
@@ -14,45 +15,17 @@ const toastStore = getToastStore();
 
   let getClient = queryStore({
       client,
-      query: gql`
-        query ($id: ID!){
-          client (ID: $id){
-            id
-            name
-            email
-            phone
-            birthdate
-            age
-            waiver
-            membershipStatus
-            product {
-                id
-                name
-                description
-              }
-            attendance {
-                checkIn
-                productId
-              }
-          }
-        }
-      `,
+      query: ClientDocument,
       variables: {id: ID}
     });
 
     const deleteClient = async ( deleteClientId ) => {
     result = mutationStore({
       client,
-      query: gql`
-    mutation DeleteClient($deleteClientId: ID!) {
-        deleteClient(id: $deleteClientId) {
-        id
-        name
-        }
-    }
-      `,
+      query: DeleteClientDocument,
       variables: { deleteClientId },
     });
+
     await result;
     if (result.error) {
       console.error('Mutation error:', result.error);
@@ -66,18 +39,75 @@ const toastStore = getToastStore();
     }
   };
 
+  const deleteFileOnServer = async (documentURL) => {
+    try {
+      const response = await fetch(`${documentURL}`, {
+        method: 'DELETE',
+        // headers: {
+        //   'Content-Type': 'application/json',
+        //   // You may need to include additional headers like authorization
+        // },
+      });
+
+      if (!response.ok) {
+        console.log(response.toString());
+        throw new Error('Failed to delete file on server');
+      }
+
+      const result = await response.json();
+      console.log('File deleted on server:', result);
+    } catch (error) {
+      console.error('Error deleting file on server:', error);
+    }
+  };
+
+  const deleteClientDocument = async ( deleteClientDocumentId, documentURL ) => {
+    await deleteFileOnServer(documentURL)
+    // console.log(documentURL);
+    // console.log(deleteClientDocumentId);
+    result = mutationStore({
+      client,
+      query: DeleteClientDocumentDocument,
+      variables: { deleteClientDocumentId },
+    })
+      await result;
+      if (result.error) {
+        console.error('Mutation error:', result.error);
+      } else {
+        const t = {
+          message: "Deleted Client Document",
+          timeout: 2000
+        };
+        toastStore.trigger(t);
+        goto('/dashboard');
+      }
+    }
+  const deleteAttendance = async ( deleteAttendanceId ) => {
+    result = mutationStore({
+      client,
+      query: DeleteAttendanceDocument,
+      variables: { deleteAttendanceId },
+    })
+      await result;
+      if (result.error) {
+        console.error('Mutation error:', result.error);
+      } else {
+        const t = {
+          message: "Deleted Attendance Record",
+          timeout: 2000
+        };
+        toastStore.trigger(t);
+        goto('/dashboard');
+      }
+    }
+      
+  
+
+
   const addAttendance = async ({ input }) => {
 	  result = mutationStore({
 		client,
-		query: gql`
-  mutation Mutation($input: AddAttendanceInput!) {
-  addAttendance(input: $input) {
-    checkIn
-    clientId
-    productId
-  }
-}
-		`,
+		query: AddAttendanceDocument,
 		variables: { input: addAttendanceInput },
 	  });
     await result;
@@ -93,7 +123,7 @@ const toastStore = getToastStore();
     }
 	};
 
-    
+
   $: isFetching = $getClient.fetching;
   $: singleClient = $getClient.data?.client;
   $: deleteClientId = singleClient?.id
@@ -110,13 +140,55 @@ $: updateModal = {
   meta: {singleClient: singleClient}
   
 };
+$: addClientDocumentModal = {
+	type: 'component',
+  component: 'addClientDocumentModal',
+  props: {singleClient: singleClient, isFetching},
+  meta: {singleClient: singleClient}
+  
+};
 const deleteModal = {
 	type: 'confirm',
 	title: 'Deleting Client Data',
 	body: 'Are you sure you wish to proceed?',
 	// TRUE if confirm pressed, FALSE if cancel pressed
 	response: async (r) => !r? modalStore.close(): await deleteClient(deleteClientId)  
-  } 
+  }
+
+  const deleteClientDocumentModal = {
+  type: 'confirm',
+  title: 'Deleting Client Document',
+  body: 'Are you sure you wish to proceed?',
+  // TRUE if confirm pressed, FALSE if cancel pressed
+  response: async (r) => {
+    if (!r) {
+      modalStore.close();
+    } else {
+        const {documentId, documentURL} = $deleteDocumentStore;
+        if (documentId && documentURL) {
+          await deleteClientDocument(documentId, documentURL);
+          deleteDocumentStore.set(null); // Reset the store after deletion
+        }
+      }
+  },
+};
+  const deleteAttendanceModal = {
+  type: 'confirm',
+  title: 'Deleting Attendance Record',
+  body: 'Are you sure you wish to proceed?',
+  // TRUE if confirm pressed, FALSE if cancel pressed
+  response: async (r) => {
+    if (!r) {
+      modalStore.close();
+    } else {
+          const {attendanceId} = $deleteAttendanceStore
+          console.log(attendanceId)
+          await deleteAttendance(attendanceId);
+          deleteAttendanceStore.set(null); // Reset the store after deletion
+        }
+      }
+  }
+
 const addAttendanceModal = {
 	type: 'confirm',
 	title: 'Record Client Session',
@@ -125,9 +197,7 @@ const addAttendanceModal = {
 	response: async (r) => !r? modalStore.close(): await addAttendance(addAttendanceInput)  
   } 
     
-  
-  
-
+  console.log($getClient.data);
 
 </script>
 
@@ -137,28 +207,47 @@ const addAttendanceModal = {
   
     <Spinner />
   {:else if $getClient.error}
-    <p>Oh no... {$getClient.error.message}</p>
+    <p class="mb-8">Oh no... {$getClient.error.message}</p>
   {:else}
   
   <div class="card p-4">
-    <TabGroup class='pb-2'>
+    <TabGroup>
       <Tab bind:group={$tabSet} name="tab1" value={0}>
         <svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>
         Client Details
       </Tab>
       <Tab bind:group={$tabSet} name="tab2" value={1}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Product Enrolment</Tab>
       <Tab bind:group={$tabSet} name="tab3" value={2}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Sessions</Tab>
+      <Tab bind:group={$tabSet} name="tab4" value={3}><svelte:fragment slot="lead"><Icon icon="emojione:skull" /></svelte:fragment>Documents</Tab>
       <!-- Tab Panels --->
       <svelte:fragment slot="panel">
         {#if $tabSet === 0}
-        <h1 class='h4 mb-1'>Id:</h1><h1 class='h5 mb-1'>{singleClient.id}</h1>
-        <h1 class='h4 mb-1'>Name:</h1><h1 class='h5 mb-1'>{singleClient.name}</h1>
-        <h1 class='h4 mb-1'>Email:</h1><h1 class='h5 mb-1'>{singleClient.email}</h1>
-        <h1 class='h4 mb-1'>Phone:</h1><h1 class='h5 mb-1'>{singleClient.phone}</h1>
-        <h1 class='h4 mb-1'>Birthdate:</h1><h1 class='h5 mb-1'>{singleClient.birthdate}</h1>
-        <h1 class='h4 mb-1'>Age:</h1><h1 class='h5 mb-1'>{singleClient.age}</h1>
-        <h1 class='h4 mb-1'>Status:</h1><h1 class='h5 mb-1'>{singleClient.membershipStatus}</h1>
-        <h1 class='h4 mb-1'>Waiver:</h1><h1 class='h5 mb-1'>{singleClient.waiver}</h1>
+        
+        <div class='card p-6 my-2 flex flex-col-reverse lg:justify-between lg:flex-row justify-evenly lg:items-start'>
+          <div class='mb-4'>
+            <h1 class='h5 mb-3'>Id:  <span>{singleClient.id}</span></h1>
+            <h1 class='h5 mb-3'>Name:  <span>{singleClient.name}</span></h1>
+            <h1 class='h5 mb-3'>Email:  <span>{singleClient.email}</span></h1>
+            <h1 class='h5 mb-3'>Phone:  <span>{singleClient.phone}</span></h1>
+            <h1 class='h5 mb-3'>Birthdate:  <span>{singleClient.birthdate}</span></h1>
+            <h1 class='h5 mb-3'>Age:  <span>{singleClient.age}</span></h1>
+            <h1 class='h5 mb-3'>Status:  <span>{singleClient.membershipStatus}</span></h1>
+            <h1 class='h5 mb-3'>Waiver:  <span>{singleClient.waiver}</span></h1>
+            {#if singleClient.clientSessionCounter !== null && singleClient.clientSessionCounter !== 0 }
+            <h1 class='h5 mb-3'>Session Count:  <span>{singleClient.clientSessionCounter}</span></h1>
+            {/if}
+            {#if singleClient.clientExpiresIn !== null}
+            <h1 class='h5 mb-3'>Package Expiration:  <span>{singleClient.clientExpiresIn}</span></h1>
+            {/if}
+          </div>
+
+          {#if singleClient.documents && singleClient.documents.find(doc => doc.documentType === 'PHOTO')}
+          <div class="pr-8 mb-4">
+            <Avatar src={singleClient.documents.find(doc => doc.documentType === 'PHOTO').documentURL} width="w-32" rounded="rounded-full" class="object-scale-down h-32 w-32" />
+          </div>
+          {/if}
+        </div>
+
         {#if $auth.isAdmin}
         <button type="button" class="btn variant-filled mt-8" on:click={ () => {modalStore.trigger(deleteModal)}}>
           <Icon icon="la:skull-crossbones" />
@@ -166,26 +255,64 @@ const addAttendanceModal = {
         </button>
         {/if}
         {:else if $tabSet === 1}
-        {#if singleClient.product}
-        <h1 class='h4 mb-1'>Product Name:</h1><h1 class='h5 mb-1'>{singleClient.product.name}</h1>
-        <h1 class='h4 mb-1'>Product Description:</h1><h1 class='h5 mb-1'>{singleClient.product.description}</h1>
-        {:else}
-        <h1 class='h5 mb-1'>Client not enrolled in any product</h1>
-        {/if}
+        <div class='card p-6 my-2'>
+          {#if singleClient.product}
+          <h1 class='h5 mb-3'>Product Name:  <span>{singleClient.product.name}</span></h1>
+          <h1 class='h5 mb-3'>Product Description:  <span>{singleClient.product.description}</span></h1>
+          {#if singleClient.clientSessionCounter !== null && singleClient.clientSessionCounter !== 0 }
+          <h1 class='h5 mb-3'>Session Count:  <span>{singleClient.clientSessionCounter}</span></h1>
+          {/if}
+          {#if singleClient.clientExpiresIn !== null}
+          <h1 class='h5 mb-3'>Package Expiration:  <span>{singleClient.clientExpiresIn}</span></h1>
+          {/if}
+          {/if}
+          {#if !singleClient.product}
+          <h1 class='h5 mb-3'>Client not enrolled in any product</h1>
+          {/if}
+          
+        </div>
+
         {:else if $tabSet === 2}
         {#if !singleClient.attendance || singleClient.attendance.length === 0}
-          <h1 class='h5 mb-1'>No attendance history for this client</h1>
-        {:else}
+        <div class='card p-6 my-2'>
+            <h1 class='h5 mb-3'>No attendance history for this client</h1>
+          </div>
+          {/if}
           {#each singleClient.attendance as attendance}
-            <div class='card p-3 my-2'>
-              <h1 class='h4 mb-1'>Session Date:</h1>
-              <h1 class='h5 mb-1'>{attendance.checkIn}</h1>
-              <h1 class='h4 mb-1'>Product id:</h1>
-              <h1 class='h5 mb-1'>{attendance.productId}</h1>
+          <div class='card p-3 my-2'>
+              <h1 class='h5 mb-3 pt-3 pl-3'>Session Date:  <span>{attendance.checkIn}</span></h1>
+              <h1 class='h5 mb-3 pl-3'>Session id:  <span>{attendance.id}</span></h1>
+              <h1 class='h5 mb-3 pl-3'>Enrolled Package:  <span>{attendance.product.name}</span></h1>
+              {#if $auth.isAdmin}
+              <button type="button" class="btn variant-filled m-3" on:click={ () => {deleteAttendanceStore.set({attendanceId: attendance.id}), modalStore.trigger(deleteAttendanceModal)}}>
+                <Icon icon="la:skull-crossbones" />
+                <span>Delete</span>
+              </button>
+              {/if}
             </div>
           {/each}
+          {:else if $tabSet === 3}
+          {#if !singleClient.documents || singleClient.documents.length === 0}
+          <div class='card p-6 my-2'>
+            <h1 class='h5 mb-3'>No uploaded document for this client</h1>
+          </div>
+          {:else}
+          {#each singleClient.documents as document}
+          <div class='card p-3 my-2'>
+            <h1 class='h5 mb-3 pt-3 pl-3'>Document Name:  <a href={document.documentURL}><span>{document.documentName}</span></a></h1>
+            
+            <h1 class='h5 mb-3 pl-3'>Document Type:  <span>{document.documentType}</span></h1>
+            <button type="button" class="btn variant-filled m-3" on:click={ () => {deleteDocumentStore.set({documentId: document.id, documentURL: document.documentURL}), modalStore.trigger(deleteClientDocumentModal)}}>
+              <Icon icon="la:skull-crossbones" />
+              <span>Delete</span>
+            </button>
+            
+          </div>
+          {/each}
+          {/if}
+          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload</button>
         {/if}
-      {/if}
+
       </svelte:fragment>
     </TabGroup>
   </div>

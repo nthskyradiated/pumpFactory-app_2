@@ -1,14 +1,15 @@
 <script>
-  import { queryStore, gql, getContextClient } from '@urql/svelte';
+  import { queryStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
   import { Table, tableMapperValues, Paginator, getModalStore } from '@skeletonlabs/skeleton';
   import {productID} from '$lib/productStore'
   import {auth} from '$lib/auth'
   import { goto, preloadData } from '$app/navigation';
+	import { ProductsDocument } from '../../generated/graphql';
 
   export const load = async () => {
 $: isAdmin = $auth.isAdmin;
-    console.log('isAdmin:', isAdmin);
+    // console.log('isAdmin:', isAdmin);
   };
  
   const modalStore = getModalStore();
@@ -16,31 +17,9 @@ $: isAdmin = $auth.isAdmin;
 
   const getProducts = queryStore({
     client,
-    query: gql`
-      query {
-        products {
-          id
-          name
-          description
-          price
-        }
-      }
-    `,
+    query: ProductsDocument
   });
 
-  let getProduct = queryStore({
-      client,
-      query: gql`
-        query ($id: ID!){
-          product (ID: $id){
-            id
-            name
-            description
-            price
-        }}
-      `,
-      variables: {ID : $productID}
-    })
 
   let isFetching = $getProducts.fetching;
   let products = $getProducts.data?.products || [];
@@ -63,11 +42,13 @@ $: isAdmin = $auth.isAdmin;
 } 
 
   $: tableSimple = {
-    head: ['ID', 'Name', 'Description', 'Price'],
+    head: ['ID', 'Name', 'Description', 'Product Type','Expiry (in days)','Price'],
     body: tableMapperValues(paginatedSource, [
       'id',
       'name',
       'description',
+      'productType',
+      'expiresIn',
       'price',
     ]),
   };
@@ -86,16 +67,15 @@ const updateProductModal = {
 	type: 'component',
   component: 'updateProductModal'
 };
-console.log($auth.isAdmin);
+// console.log($auth.isAdmin);
 
 const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
     const ID = event.detail[0];
-    console.log(ID);
+    // console.log(ID);
     productID.set(ID)
     // console.log($clientID);
     preloadData(`/product/${ID}`)
-    // modalStore.trigger(updateModal)
     goto(`/product/${ID}`)
     
   };
@@ -103,12 +83,12 @@ const mySelectionHandler = (event) => {
 </script>
 
 <main class='w-10/12 m-auto pt-8'>
-
+  <h2 class='h2 mb-5'>Product List</h2>
   {#if isFetching}
     <!-- <p>Loading...</p> -->
     <Spinner />
   {:else if $getProducts.error}
-    <p>Oh no... {$getProducts.error.message}</p>
+    <p class="mb-8">Oh no... {$getProducts.error.message}</p>
   {:else}
   
     {#if products.length > 0}
@@ -129,5 +109,4 @@ const mySelectionHandler = (event) => {
   {/if}
     {/if}
     {/if}
-</main>  
-
+</main>

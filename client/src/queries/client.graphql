@@ -1,0 +1,33 @@
+query Client($id: ID!) {
+  client(ID: $id) {
+    id
+    name
+    email
+    phone
+    birthdate
+    age
+    waiver
+    membershipStatus
+    clientSessionCounter
+    clientExpiresIn
+    product {
+      id
+      name
+      description
+    }
+    attendance {
+      id
+      checkIn
+      productId
+      product {
+        name
+      }
+    }
+    documents {
+      id
+      documentName
+      documentType
+      documentURL
+    }
+  }
+}
