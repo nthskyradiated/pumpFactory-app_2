@@ -8,11 +8,11 @@ const getToken = () => {
   return '';
 };
   
-const getCookie = (name) => {
+const getCookie = (name : string) => {
   if (browser) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
   }
   return '';
 };
@@ -30,10 +30,9 @@ export const urqlClient = new Client({
     return {
       headers: {authorization: token ? `Bearer ${token}` : '',
       refreshToken: refreshToken || '',
-      
+      // credentials: 'include',
     }}
   },
-  credentials: 'include',
   requestPolicy: 'cache-and-network'
 
 });

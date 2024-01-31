@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SvelteComponent } from 'svelte';
+	import type { SvelteComponent } from 'svelte';
 	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import { UpdateProductDocument } from '../generated/graphql';
@@ -13,7 +13,7 @@
 
   
 	
-	const updateProduct = async ({ input }) => {
+	const updateProduct = async ({ input }: any) => {
 		const result = await client
 		.mutation(UpdateProductDocument, { input})
 		.toPromise()
@@ -77,7 +77,7 @@
       if (data) {
 		  modalStore.close();
 		  console.log(data);
-        $modalStore[0]?.response(result);
+        $modalStore[0]?.response!(result);
       }
     }
   } catch (error) {

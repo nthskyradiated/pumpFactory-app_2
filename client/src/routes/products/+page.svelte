@@ -1,16 +1,11 @@
-<script>
+<script lang='ts'>
   import { queryStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../components/Spinner.svelte';
-  import { Table, tableMapperValues, Paginator, getModalStore } from '@skeletonlabs/skeleton';
+  import { Table, tableMapperValues, Paginator, getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
   import {productID} from '$lib/productStore'
   import {auth} from '$lib/auth'
   import { goto, preloadData } from '$app/navigation';
 	import { ProductsDocument } from '../../generated/graphql';
-
-  export const load = async () => {
-$: isAdmin = $auth.isAdmin;
-    // console.log('isAdmin:', isAdmin);
-  };
  
   const modalStore = getModalStore();
   const client = getContextClient();
@@ -28,18 +23,18 @@ $: isAdmin = $auth.isAdmin;
     isFetching = $getProducts.fetching;
     products = $getProducts.data?.products || [];
   }
+  
+  let paginationSettings = {
+    page: 0,
+    limit: 10,
+    size: products.length,
+    amounts: [3,5,10],
+  } 
   $: paginationSettings = {
  ...paginationSettings,
    size: products.length,
 
 }
-
-  let paginationSettings = {
-	page: 0,
-	limit: 10,
-	size: products.length,
-	amounts: [3,5,10],
-} 
 
   $: tableSimple = {
     head: ['Name', 'Description', 'Product Type','Expiry (in days)','Price', 'Product ID'],
@@ -58,23 +53,17 @@ $: isAdmin = $auth.isAdmin;
 	paginationSettings.page * paginationSettings.limit + paginationSettings.limit
 );
 
-const modal = {
+const modal : ModalSettings = {
 	type: 'component',
   component: 'addProductModal'
 };
 
-const updateProductModal = {
-	type: 'component',
-  component: 'updateProductModal'
-};
-// console.log($auth.isAdmin);
-
-const mySelectionHandler = (event) => {
+const mySelectionHandler = (event: any) => {
     // Extract the ID from the 'detail' array in the event
     const ID = event.detail[5];
-    // console.log(ID);
+
     productID.set(ID)
-    // console.log($clientID);
+
     preloadData(`/product/${ID}`)
     goto(`/product/${ID}`)
     

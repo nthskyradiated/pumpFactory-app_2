@@ -1,12 +1,12 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { setContextClient, getContextClient } from '@urql/svelte';
-	import {urqlClient} from '$lib/urql.js'
+	import {urqlClient} from '$lib/urql'
 	import {error} from '@sveltejs/kit'
-	import {auth, refreshToken} from '$lib/auth.js'
+	import {auth, refreshToken} from '$lib/auth'
 	import {LoginUserDocument} from '../generated/graphql.ts'
  
-	setContextClient(urqlClient);
+	// setContextClient(urqlClient);
 	let client = getContextClient();
 	let username = '';
 	let password = '';

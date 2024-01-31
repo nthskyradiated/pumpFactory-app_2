@@ -4,7 +4,7 @@ export const tabSet = writable(0);
 export const deleteDocumentStore = writable(null);
 export const deleteAttendanceStore = writable(null);
 
-export const getInitials = (name) => {
+export const getInitials = (name: string) => {
     const nameArray = name.split(' ');
     if (nameArray.length === 1) {
       // If there is only one word in the name, return the first two characters

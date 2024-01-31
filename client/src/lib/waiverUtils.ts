@@ -1,4 +1,4 @@
-export const uploadWaiver = async (file, clientId, documentName, layers, width, height, preview) => {
+export const uploadWaiver = async (file: null, clientId: string, documentName: string, layers: any, width: number, height: number, preview: string) => {
   try {
   const clientIdSuffix = clientId.slice(-5);
   const nameParts = documentName.split(' ');
@@ -13,7 +13,7 @@ export const uploadWaiver = async (file, clientId, documentName, layers, width, 
   const address = (document.getElementById('address') as HTMLInputElement)?.value;
   const guardianName = (document.getElementById('guardianName') as HTMLInputElement)?.value;
   const date = (document.getElementById('date') as HTMLInputElement)?.value;
-  const signatureLayer = layers.map(layer => layer.path).join('');
+  const signatureLayer = layers.map((layer: { path: any; }) => layer.path).join('');
 
   const content = `
     <html>

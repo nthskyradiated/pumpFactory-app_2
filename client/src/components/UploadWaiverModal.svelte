@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { signature } from '$lib/signatureUtils'
 	import { uploadWaiver } from '$lib/waiverUtils'
-	import { SvelteComponent } from 'svelte';
+	import type { SvelteComponent } from 'svelte';
 	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import { AddClientDocumentDocument } from '../generated/graphql';
@@ -13,7 +13,7 @@
 	const message = "Please fill in all required fields"
   const modalStore = getModalStore();
   
-      const addClientDocument = async ({ input }) => {
+      const addClientDocument = async ({ input }: any) => {
       const result = await client
       .mutation(AddClientDocumentDocument, {input})
       .toPromise()
@@ -83,7 +83,7 @@
         if (data) {
           modalStore.close();
           console.log(data);
-          $modalStore[0]?.response(result);
+          $modalStore[0]?.response!(result);
         }
       }
 	} catch (error) {

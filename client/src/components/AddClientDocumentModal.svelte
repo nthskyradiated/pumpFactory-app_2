@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SvelteComponent } from 'svelte';
+	import type { SvelteComponent } from 'svelte';
 	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import { AddClientDocumentDocument } from '../generated/graphql';
@@ -12,7 +12,7 @@
 	let visible = false;
 	const message = "Please fill in all required fields"
 
-		const addClientDocument = async ({ input }) => {
+		const addClientDocument = async ({ input }: any) => {
 		const result = await client
 		.mutation(AddClientDocumentDocument, {input})
 		.toPromise()
@@ -42,7 +42,7 @@ const docUpload = async () => {
   try {
     const { file } = formData;
     const form = new FormData();
-	const renamedFile = new File([file], formData.documentName, { type: file.type });
+	const renamedFile = new File([file as unknown as BlobPart], formData.documentName, { type: file.type });
     form.append('file', renamedFile);
 
     // Debugging: Log formData and form data before the fetch
@@ -77,7 +77,7 @@ const docUpload = async () => {
   }
 };
   
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: any) => {
 	const fileInput = event.target;
   const file = fileInput.files[0];
   if (file) {
@@ -121,7 +121,7 @@ async function onFormSubmit() {
         if (data) {
           modalStore.close();
           console.log(data);
-          $modalStore[0]?.response(result);
+          $modalStore[0]?.response!(result);
         }
       }
 	} catch (error) {

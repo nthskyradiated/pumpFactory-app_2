@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SvelteComponent } from 'svelte';
+	import type { SvelteComponent } from 'svelte';
 	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import { AddProductDocument } from '../generated/graphql';
@@ -11,7 +11,7 @@
 	let visible = false;
 	const message = "Invalid fields found. Minimum price is 100. Negative values are not allowed. Event expiry and session count should be set to zero";
 
-	const addProduct = async ({ input }) => {
+	const addProduct = async ({ input }: any) => {
 		const result = await client
 		.mutation(AddProductDocument, { input})
 		.toPromise()
@@ -89,7 +89,7 @@ async function onFormSubmit() {
       if (data) {
 		  modalStore.close();
 		  console.log(data);
-        $modalStore[0]?.response(result);
+        $modalStore[0]?.response!(result);
       }
     }
   } catch (error) {

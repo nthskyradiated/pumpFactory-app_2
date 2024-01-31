@@ -1,6 +1,6 @@
 <script>
   import "../app.postcss";
-  import { urqlClient } from '$lib/urql.js';
+  import { urqlClient } from '$lib/urql';
   import { setContextClient } from '@urql/svelte';
   import { AppShell, AppBar,LightSwitch, initializeStores, Modal, Toast } from '@skeletonlabs/skeleton';
   import AddClientModal from "../components/AddClientModal.svelte";

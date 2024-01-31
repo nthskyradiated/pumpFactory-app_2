@@ -5,7 +5,7 @@
   import {tabSet, deleteDocumentStore, deleteAttendanceStore, getInitials} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
-  import {auth} from '$lib/auth.js'
+  import {auth} from '$lib/auth'
 	import { AddAttendanceDocument, ClientDocument, DeleteAttendanceDocument, DeleteClientDocument, DeleteClientDocumentDocument } from '../../../generated/graphql';
 export let data
 let {ID} = data
